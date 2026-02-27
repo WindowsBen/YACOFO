@@ -26,10 +26,20 @@ body {
     text-shadow: 1px 1px 2px var(--chat-shadow-color), -1px -1px 2px var(--chat-shadow-color);
     margin-bottom: 8px;
     word-wrap: break-word;
-    /* Future proofing: This class is where we will add bubble styles later! */
+    line-height: 1.8; /* Gives emote images vertical breathing room */
 }
 
 .username {
     font-weight: bold;
     margin-right: 5px;
+}
+
+/* ─── Emote Images ─────────────────────────────────────────────────── */
+.chat-emote {
+    height: 1.6em;         /* Scale with font size */
+    width: auto;
+    vertical-align: middle;
+    margin: 0 1px;
+    /* Drop the text-shadow on emotes — it looks bad on images */
+    filter: drop-shadow(1px 1px 1px var(--chat-shadow-color));
 }
