@@ -65,21 +65,25 @@ async function fetchFFZBadges() {
         const res = await fetch('https://api.frankerfacez.com/v1/badges');
         if (!res.ok) { console.warn('[FFZ Badges] Could not fetch badge list'); return; }
         const data = await res.json();
-        console.log('[FFZ Badges] Raw response keys:', Object.keys(data));
-        console.log('[FFZ Badges] Raw response:', data);
 
-        // Each badge has { id, urls: { "1": "//cdn...", ... }, users: [userId, ...] }
+        // Build badge id → URL lookup from the badges array
+        const badgeDefs = {};
         for (const badge of data.badges || []) {
             const url = badge.urls?.['1'] ? `https:${badge.urls['1']}` : null;
+            if (url) badgeDefs[badge.id] = url;
+        }
+
+        // data.users is { badgeId: [userId, ...] } — invert into ffzUserBadges
+        for (const [badgeId, userIds] of Object.entries(data.users || {})) {
+            const url = badgeDefs[badgeId];
             if (!url) continue;
-            for (const userId of badge.users || []) {
-                // Stringify the ID — tmi.js gives tags['user-id'] as a string
+            for (const userId of userIds) {
                 const key = String(userId);
                 if (!ffzUserBadges[key]) ffzUserBadges[key] = [];
                 ffzUserBadges[key].push(url);
             }
         }
-        console.log('[FFZ Badges] Sample keys:', Object.keys(ffzUserBadges).slice(0, 3));
+        console.log(`[FFZ Badges] Loaded badge data for ${Object.keys(ffzUserBadges).length} users`);
         console.log(`[FFZ Badges] Loaded badge data for ${Object.keys(ffzUserBadges).length} users`);
     } catch (err) {
         console.error('[FFZ Badges] Failed:', err);
