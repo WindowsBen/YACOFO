@@ -11,6 +11,10 @@ if (shadowColor) document.documentElement.style.setProperty('--chat-shadow-color
 
 const showToastAdd    = params.get('toastAdd')    !== '0';
 const showToastRemove = params.get('toastRemove') !== '0';
+const roleOnlyBadges  = params.get('roleOnlyBadges') === '1';
+
+// Badges that are strictly tied to the channel/role — always shown
+const ROLE_BADGES = new Set(['broadcaster', 'moderator', 'vip', 'staff', 'admin', 'global_mod']);
 
 // ─── Emote Registry ───────────────────────────────────────────────────────────
 // Single shared map: emote name → image URL
@@ -105,6 +109,7 @@ function renderBadges(tags) {
     // tags.badges is already parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
     if (tags.badges) {
         for (const [setName, version] of Object.entries(tags.badges)) {
+            if (roleOnlyBadges && !ROLE_BADGES.has(setName)) continue;
             const url = badgeMap[`${setName}/${version}`];
             if (url) {
                 html += `<img class="chat-badge" src="${url}" alt="${escapeHTML(setName)}" title="${escapeHTML(setName)}">`;
