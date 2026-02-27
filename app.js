@@ -303,18 +303,20 @@ if (channelName) {
         }
     });
 
-    // /clear — wipe everything; with username = timeout or ban
-    client.on('clearchat', (channel, username) => {
-        if (username) {
-            // Timeout or ban — remove all messages from that user
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.querySelectorAll(`[data-username="${CSS.escape(username.toLowerCase())}"]`)
-                .forEach(el => el.remove());
-        } else {
-            // Full chat clear
-            document.getElementById('chat-container').innerHTML = '';
-        }
+    // /clear — full wipe
+    client.on('clearchat', () => {
+        document.getElementById('chat-container').innerHTML = '';
     });
+
+    // Timeout or ban — remove all messages from that user
+    function removeUserMessages(username) {
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.querySelectorAll(`[data-username="${CSS.escape(username.toLowerCase())}"]`)
+            .forEach(el => el.remove());
+    }
+
+    client.on('timeout', (channel, username) => removeUserMessages(username));
+    client.on('ban',     (channel, username) => removeUserMessages(username));
 
     // Single message deleted by a mod or the broadcaster
     client.on('messagedeleted', (channel, username, deletedMessage, tags) => {
