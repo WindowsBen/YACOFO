@@ -269,6 +269,10 @@ function displayMessage(tags, message) {
         <span class="message-text">${parsedMessage}</span>
     `;
 
+    // Tag for targeted deletion
+    if (tags['id']) messageElement.dataset.msgId    = tags['id'];
+    if (username)   messageElement.dataset.username  = username.toLowerCase();
+
     chatContainer.appendChild(messageElement);
 
     if (chatContainer.childNodes.length > 50) {
@@ -298,8 +302,25 @@ if (channelName) {
         }
     });
 
-    client.on('clearchat', () => {
-        document.getElementById('chat-container').innerHTML = '';
+    // /clear — wipe everything; with username = timeout or ban
+    client.on('clearchat', (channel, username) => {
+        if (username) {
+            // Timeout or ban — remove all messages from that user
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.querySelectorAll(`[data-username="${CSS.escape(username.toLowerCase())}"]`)
+                .forEach(el => el.remove());
+        } else {
+            // Full chat clear
+            document.getElementById('chat-container').innerHTML = '';
+        }
+    });
+
+    // Single message deleted by a mod or the broadcaster
+    client.on('messagedeleted', (channel, username, deletedMessage, tags) => {
+        const msgId = tags['target-msg-id'];
+        if (msgId) {
+            document.querySelector(`[data-msg-id="${CSS.escape(msgId)}"]`)?.remove();
+        }
     });
 
     client.on('message', (channel, tags, message, self) => {
