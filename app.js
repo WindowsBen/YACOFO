@@ -65,6 +65,8 @@ async function fetchFFZBadges() {
         const res = await fetch('https://api.frankerfacez.com/v1/badges');
         if (!res.ok) { console.warn('[FFZ Badges] Could not fetch badge list'); return; }
         const data = await res.json();
+        console.log('[FFZ Badges] Raw response keys:', Object.keys(data));
+        console.log('[FFZ Badges] Raw response:', data);
 
         // Each badge has { id, urls: { "1": "//cdn...", ... }, users: [userId, ...] }
         for (const badge of data.badges || []) {
