@@ -11,8 +11,12 @@ if (shadowColor) document.documentElement.style.setProperty('--chat-shadow-color
 // 3. Connect to Twitch Chat using tmi.js
 if (channelName) {
     const client = new tmi.Client({
-        channels: [ channelName ]
-    });
+    connection: {
+      secure: true,
+      reconnect: true,
+    },
+    channels: [channelName],
+  });
 
     client.connect();
 
