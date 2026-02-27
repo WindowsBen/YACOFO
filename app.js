@@ -298,6 +298,10 @@ if (channelName) {
         }
     });
 
+    client.on('clearchat', () => {
+        document.getElementById('chat-container').innerHTML = '';
+    });
+
     client.on('message', (channel, tags, message, self) => {
         displayMessage(tags, message);
     });
