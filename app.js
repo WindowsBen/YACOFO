@@ -33,6 +33,26 @@ function showNewEmoteToast(emoteName, emoteUrl) {
     }, 4000);
 }
 
+function showRemovedEmoteToast(emoteName, emoteUrl) {
+    const toast = document.createElement('div');
+    toast.className = 'emote-toast emote-toast--removed';
+    toast.innerHTML = `
+        Emote removed from Set: <strong>${escapeHTML(emoteName)}</strong>
+        ${emoteUrl ? `<img class="toast-emote" src="${escapeHTML(emoteUrl)}" alt="${escapeHTML(emoteName)}">` : ''}
+    `;
+
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => toast.classList.add('emote-toast--visible'));
+    });
+
+    setTimeout(() => {
+        toast.classList.remove('emote-toast--visible');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    }, 4000);
+}
+
 // ─── BetterTTV ────────────────────────────────────────────────────────────────
 async function fetchBTTVEmotes(twitchUserId) {
     try {
@@ -140,7 +160,12 @@ function subscribe7TVLiveUpdates(emoteSetId) {
 
         for (const item of pulled) {
             const name = item.old_value?.name;
-            if (name) { delete emoteMap[name]; console.log(`[7TV] Emote removed: ${name}`); }
+            if (name) {
+                const url = emoteMap[name]; // grab URL before deleting
+                delete emoteMap[name];
+                console.log(`[7TV] Emote removed: ${name}`);
+                showRemovedEmoteToast(name, url);
+            }
         }
 
         for (const item of pushed) {

@@ -78,3 +78,9 @@ body {
     width: auto;
     vertical-align: middle;
 }
+
+/* Red variant for removed emotes */
+.emote-toast--removed {
+    border-color: #ff4444;
+    box-shadow: 0 4px 24px rgba(255, 68, 68, 0.35);
+}
