@@ -6,8 +6,8 @@
 
 body {
     margin: 0;
-    overflow: hidden; /* Prevents scrollbars in OBS */
-    background: transparent; /* Essential for OBS overlays */
+    overflow: hidden;
+    background: transparent;
     color: white;
     font-family: sans-serif;
 }
@@ -26,7 +26,7 @@ body {
     text-shadow: 1px 1px 2px var(--chat-shadow-color), -1px -1px 2px var(--chat-shadow-color);
     margin-bottom: 8px;
     word-wrap: break-word;
-    line-height: 1.8; /* Gives emote images vertical breathing room */
+    line-height: 1.8;
 }
 
 .username {
@@ -36,10 +36,45 @@ body {
 
 /* ─── Emote Images ─────────────────────────────────────────────────── */
 .chat-emote {
-    height: 1.6em;         /* Scale with font size */
+    height: 1.6em;
     width: auto;
     vertical-align: middle;
     margin: 0 1px;
-    /* Drop the text-shadow on emotes — it looks bad on images */
     filter: drop-shadow(1px 1px 1px var(--chat-shadow-color));
+}
+
+/* ─── New Emote Toast ──────────────────────────────────────────────── */
+.emote-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: rgba(20, 20, 30, 0.85);
+    border: 1px solid #9146FF;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    box-shadow: 0 4px 24px rgba(145, 70, 255, 0.35);
+    /* Start invisible and slightly raised */
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Visible state — slides down and fades in */
+.emote-toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-emote {
+    height: 32px;
+    width: auto;
+    vertical-align: middle;
 }
