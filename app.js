@@ -7,6 +7,10 @@ const shadowColor = params.get('shadow');
 if (fontSize) document.documentElement.style.setProperty('--chat-font-size', fontSize);
 if (shadowColor) document.documentElement.style.setProperty('--chat-shadow-color', shadowColor);
 
+// Toast visibility — default true if param is missing (backwards compatible)
+const showToastAdd    = params.get('toastAdd')    !== '0';
+const showToastRemove = params.get('toastRemove') !== '0';
+
 // ─── Emote Registry ───────────────────────────────────────────────────────────
 const emoteMap = {};
 
@@ -164,7 +168,7 @@ function subscribe7TVLiveUpdates(emoteSetId) {
                 const url = emoteMap[name]; // grab URL before deleting
                 delete emoteMap[name];
                 console.log(`[7TV] Emote removed: ${name}`);
-                showRemovedEmoteToast(name, url);
+                if (showToastRemove) showRemovedEmoteToast(name, url);
             }
         }
 
@@ -174,7 +178,7 @@ function subscribe7TVLiveUpdates(emoteSetId) {
                 const url = `https://cdn.7tv.app/emote/${id}/1x.webp`;
                 emoteMap[name] = url;
                 console.log(`[7TV] Emote added: ${name}`);
-                showNewEmoteToast(name, url); // 🎉 show the popup
+                if (showToastAdd) showNewEmoteToast(name, url);
             }
         }
 
