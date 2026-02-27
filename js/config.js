@@ -8,15 +8,17 @@ document.getElementById('generateBtn').onclick = () => {
         return;
     }
 
-    // This part finds the current folder and points to overlay.html
-    const currentPath = window.location.pathname;
-    const directory = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-    const baseUrl = window.location.origin + directory + 'overlay.html';
+    // This is the "Magic Link Finder"
+    // It takes your current website address and points it to overlay.html
+    const baseUrl = new URL('overlay.html', window.location.href).href;
     
-    // The final URL with all your settings
-    const url = `${baseUrl}?channel=${channel}&size=${size}&shadow=${encodeURIComponent(shadow)}`;
+    // Create the final link with your settings
+    const finalUrl = `${baseUrl}?channel=${channel.toLowerCase()}&size=${size}&shadow=${encodeURIComponent(shadow)}`;
     
-    // Show the result area and the link
+    // Show the box with the link
     document.getElementById('resultArea').style.display = 'block';
-    document.getElementById('finalUrl').value = url;
+    const textArea = document.getElementById('finalUrl');
+    textArea.value = finalUrl;
+    
+    console.log("Generated URL:", finalUrl);
 };
