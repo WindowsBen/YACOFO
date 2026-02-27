@@ -58,14 +58,7 @@ function showRemovedEmoteToast(emoteName, emoteUrl) {
 
 // ─── Twitch Badges (Helix API) ────────────────────────────────────────────────
 async function fetchTwitchBadges(channelId) {
-    // Visible debug overlay — remove once badges are confirmed working in OBS
-    const debug = document.createElement('div');
-    debug.style.cssText = 'position:fixed;top:0;left:0;background:rgba(0,0,0,0.8);color:lime;font-size:12px;padding:8px;z-index:99999;max-width:100vw;word-break:break-all;';
-    debug.textContent = `token=${accessToken ? accessToken.slice(0,8)+'...' : 'MISSING'} clientId=${clientId ? clientId.slice(0,8)+'...' : 'MISSING'} channelId=${channelId}`;
-    document.body.appendChild(debug);
-
     if (!clientId || !accessToken) {
-        debug.textContent += ' → SKIPPED (missing auth)';
         console.warn('[Badges] No clientId or token — skipping Twitch badge fetch. Authenticate in the configurator to enable badges.');
         return;
     }
@@ -102,11 +95,9 @@ async function fetchTwitchBadges(channelId) {
                 }
             }
             console.log('[Badges] Loaded channel Twitch badges');
-            debug.textContent += ` → OK (${Object.keys(badgeMap).length} badges)`;
         }
 
     } catch (err) {
-        debug.textContent += ` → ERROR: ${err.message}`;
         console.error('[Badges] Failed to fetch Twitch badges:', err);
     }
 }
