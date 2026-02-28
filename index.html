@@ -74,6 +74,10 @@
         <input type="checkbox" id="roleOnlyBadges">
         Only show role badges (broadcaster, mod, VIP)
     </label>
+    <label class="checkbox-row">
+        <input type="checkbox" id="showExternalCosmetics" checked>
+        Display Non-Twitch Badges and Paints (7TV)
+    </label>
 
     <button onclick="generateLink()">Generate OBS Link</button>
 
@@ -136,13 +140,14 @@
         const shadowColor = document.getElementById('shadowColor').value;
         const toastAdd      = document.getElementById('toastAdd').checked      ? '1' : '0';
         const toastRemove   = document.getElementById('toastRemove').checked   ? '1' : '0';
-        const roleOnlyBadges = document.getElementById('roleOnlyBadges').checked ? '1' : '0';
+        const roleOnlyBadges       = document.getElementById('roleOnlyBadges').checked       ? '1' : '0';
+        const showExternalCosmetics = document.getElementById('showExternalCosmetics').checked ? '1' : '0';
 
         if (!channel) { alert('Please enter a channel name.'); return; }
 
         const token    = localStorage.getItem('twitch_access_token') || '';
         const base     = window.location.href.replace('index.html', '');
-        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&roleOnlyBadges=${roleOnlyBadges}&token=${encodeURIComponent(token)}`;
+        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&roleOnlyBadges=${roleOnlyBadges}&showExternalCosmetics=${showExternalCosmetics}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').value = finalUrl;
     }

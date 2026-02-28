@@ -27,4 +27,9 @@ function displayMessage(tags, message) {
     if (chatContainer.childNodes.length > 50) {
         chatContainer.removeChild(chatContainer.firstChild);
     }
+
+    // Apply 7TV cosmetics async — badge/paint appear shortly after render
+    if (tags['user-id']) {
+        apply7TVCosmetics(tags['user-id'], messageElement);
+    }
 }
