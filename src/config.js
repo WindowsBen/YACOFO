@@ -2,7 +2,7 @@
 // Reads all URL parameters and exposes them as named constants.
 // Every other file imports from here — nothing reads params directly.
 
-const params = new URLSearchParams(window.location.hash);
+const params = new URLSearchParams(window.location.hash.substring(1)); // Use hash for parameters to avoid CORS issues when loading from file://
 
 const CONFIG = {
     channelName:     params.get('channel'),
