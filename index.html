@@ -142,7 +142,7 @@
 
         const token    = localStorage.getItem('twitch_access_token') || '';
         const base     = window.location.href.replace('index.html', '');
-        const finalUrl = `${base}overlay.html?channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&roleOnlyBadges=${roleOnlyBadges}&token=${encodeURIComponent(token)}`;
+        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&roleOnlyBadges=${roleOnlyBadges}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').value = finalUrl;
     }
