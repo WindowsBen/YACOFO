@@ -35,7 +35,7 @@ async function fetch7TVUserCosmetics(twitchUserId) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: `{
-                    cosmetics(list: [{ id: "${style.paint_id}", kind: PAINT }]) {
+                    cosmetics(list: ["${style.paint_id}"]) {
                         paints { id name function color stops { at color } angle repeat shadows { x_offset y_offset radius color } }
                     }
                 }` })
