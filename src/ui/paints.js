@@ -17,6 +17,8 @@ function applyPaint(element, paint) {
 
     // Build the gradient or solid color for -webkit-background-clip text effect
     const gradientCSS = buildPaintGradient(paint);
+    console.log('[7TV Paint] Generated gradient CSS:', gradientCSS);
+    console.log('[7TV Paint] Shadows CSS:', shadows);
     if (gradientCSS) {
         element.style.backgroundImage    = gradientCSS;
         element.style.webkitBackgroundClip = 'text';
