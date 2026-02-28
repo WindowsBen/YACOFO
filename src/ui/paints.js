@@ -16,6 +16,7 @@ function applyPaint(element, paint) {
     // Inject a <style> block — vendor prefixes work here unlike inline styles
     const styleTag = document.createElement('style');
     styleTag.textContent = css;
+    styleTag.dataset.paint = className; // allows removal on cosmetic update
     document.head.appendChild(styleTag);
 
     element.classList.add(className);
