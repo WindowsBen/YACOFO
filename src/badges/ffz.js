@@ -40,6 +40,7 @@ async function fetchFFZBadges() {
         }
 
         console.log(`[FFZ Badges] Loaded badge data for ${Object.keys(ffzUserBadges).length} users`);
+        console.log(`[FFZ Badges] windowsben in map:`, ffzUserBadges['windowsben'] ?? 'NOT FOUND');
     } catch (err) {
         console.error('[FFZ Badges] Failed:', err);
     }
