@@ -70,6 +70,13 @@ function buildPaintGradient(paint) {
             const angle = paint.angle ?? 0;
             return `conic-gradient(from ${angle}deg, ${stops.join(', ')})`;
         }
+        case 'URL': {
+            // Animated or image-based paint — use the image as a background
+            if (paint.image_url) {
+                return `url('${paint.image_url}')`;
+            }
+            return null;
+        }
         default:
             if (paint.stops?.length) {
                 const c = intToRGBA(paint.stops[0].color);
