@@ -18,13 +18,21 @@ function renderBadges(tags) {
         }
     }
 
-    // FFZ badges — keyed by login name, hidden when role-only mode or external cosmetics are off
+    // FFZ + Chatterino badges — hidden when role-only mode or external cosmetics are off
     if (CONFIG.showExternalCosmetics && !CONFIG.roleOnlyBadges && tags.username) {
         const key = tags.username.toLowerCase();
+
         const ffzBadges = ffzUserBadges[key];
         if (ffzBadges) {
             for (const badge of ffzBadges) {
                 html += `<img class="chat-badge ffz-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}">`;
+            }
+        }
+
+        const chatterinoBadges = chatterinoUserBadges[key];
+        if (chatterinoBadges) {
+            for (const badge of chatterinoBadges) {
+                html += `<img class="chat-badge chatterino-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}">`;
             }
         }
     }

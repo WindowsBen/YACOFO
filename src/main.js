@@ -23,6 +23,7 @@ client.on('roomstate', (channel, state) => {
         fetch7TVEmotes(twitchUserId),
         fetchTwitchBadges(twitchUserId),
         fetchFFZBadges(),
+        fetchChatterinoBadges(),
     ]).then(() => {
         console.log(`[Init] Ready. Emotes: ${Object.keys(emoteMap).length}, Badges: ${Object.keys(badgeMap).length}`);
     });
