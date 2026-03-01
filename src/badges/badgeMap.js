@@ -18,8 +18,9 @@ function renderBadges(tags) {
         }
     }
 
-    // FFZ + Chatterino badges — hidden when role-only mode or external cosmetics are off
-    if (CONFIG.showExternalCosmetics && !CONFIG.roleOnlyBadges && tags.username) {
+    // FFZ + Chatterino badges — hidden only when external cosmetics are off
+    // Independent of roleOnlyBadges — both can be active simultaneously
+    if (CONFIG.showExternalCosmetics && tags.username) {
         const key = tags.username.toLowerCase();
 
         const ffzBadges = ffzUserBadges[key];
