@@ -68,6 +68,13 @@
         Show pop-up when an emote is <strong>removed</strong>
     </label>
 
+    <div class="section-label">Event Messages</div>
+
+    <label class="checkbox-row">
+        <input type="checkbox" id="showEventMessages" checked>
+        Show sub and bit messages in chat
+    </label>
+
     <div class="section-label">Badge Filtering</div>
 
     <label class="checkbox-row">
@@ -153,6 +160,7 @@
         const shadowColor = document.getElementById('shadowColor').value;
         const toastAdd      = document.getElementById('toastAdd').checked      ? '1' : '0';
         const toastRemove   = document.getElementById('toastRemove').checked   ? '1' : '0';
+        const showEventMessages = document.getElementById('showEventMessages').checked ? '1' : '0';
         const disableAllBadges     = document.getElementById('disableAllBadges').checked     ? '1' : '0';
         const roleOnlyBadges       = document.getElementById('roleOnlyBadges').checked       ? '1' : '0';
         const showExternalCosmetics = document.getElementById('showExternalCosmetics').checked ? '1' : '0';
@@ -165,7 +173,7 @@
             ? `&disableAllBadges=1`
             : `&roleOnlyBadges=${roleOnlyBadges}&showExternalCosmetics=${showExternalCosmetics}`;
 
-        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}${badgeParams}&token=${encodeURIComponent(token)}`;
+        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&showEventMessages=${showEventMessages}${badgeParams}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').value = finalUrl;
     }

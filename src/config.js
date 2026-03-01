@@ -10,6 +10,7 @@ const CONFIG = {
     shadowColor:     params.get('shadow'),
     showToastAdd:    params.get('toastAdd')        !== '0',
     showToastRemove: params.get('toastRemove')     !== '0',
+    showEventMessages: params.get('showEventMessages') !== '0',
     disableAllBadges:       params.get('disableAllBadges')       === '1',
     roleOnlyBadges:         params.get('roleOnlyBadges')         === '1',
     showExternalCosmetics:  params.get('showExternalCosmetics')  !== '0',

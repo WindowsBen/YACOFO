@@ -113,3 +113,53 @@ body {
     border-color: #ff4444;
     box-shadow: 0 4px 24px rgba(255, 68, 68, 0.35);
 }
+
+/* ─── Event Messages (subs / bits) ─────────────────────────────────────── */
+.event-message {
+    background: rgba(145, 70, 255, 0.15);
+    border-left: 3px solid #9146FF;
+    border-radius: 4px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.event-icon {
+    flex-shrink: 0;
+    width: 1.2em;
+    height: 1.2em;
+    color: #9146FF;
+    display: flex;
+    align-items: center;
+}
+
+.event-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.event-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+}
+
+.event-label {
+    font-weight: bold;
+    color: #bf94ff;
+}
+
+.event-detail {
+    color: #e0d0ff;
+    font-style: italic;
+}
+
+.event-user-message {
+    width: 100%;
+    color: var(--chat-text-color, #efeff1);
+    font-style: normal;
+    margin-top: 2px;
+}

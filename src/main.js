@@ -33,4 +33,10 @@ client.on('message', (channel, tags, message, self) => {
     displayMessage(tags, message);
 });
 
+client.on('subscription', handleSubscription);
+client.on('resub',        handleResub);
+client.on('subgift',      handleSubgift);
+client.on('submysterygift', handleSubmysterygift);
+client.on('cheer',        handleCheer);
+
 registerModerationListeners(client);
