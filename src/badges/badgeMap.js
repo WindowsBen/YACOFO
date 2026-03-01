@@ -29,7 +29,7 @@ function renderBadges(tags) {
             }
         }
 
-        const chatterinoBadges = chatterinoUserBadges[key];
+        const chatterinoBadges = tags['user-id'] ? chatterinoUserBadges[String(tags['user-id'])] : null;
         if (chatterinoBadges) {
             for (const badge of chatterinoBadges) {
                 html += `<img class="chat-badge chatterino-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}">`;

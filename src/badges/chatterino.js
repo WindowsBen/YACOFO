@@ -1,8 +1,9 @@
 // ─── badges/chatterino.js ─────────────────────────────────────────────────────
-// Fetches Chatterino badge definitions from fourtf.com.
-// Structure: { badges: [{ tooltip, image, users: [loginName, ...] }] }
+// Fetches Chatterino badge definitions from api.chatterino.com.
+// Structure: { badges: [{ tooltip, image1, image2, image3, users: [twitchId, ...] }] }
+// Keyed by Twitch user ID (tags['user-id']) so no login name lookup needed.
 
-// loginName (lowercase) → array of { url, title }
+// twitchUserId (string) → array of { url, title }
 const chatterinoUserBadges = {};
 
 async function fetchChatterinoBadges() {
@@ -13,13 +14,11 @@ async function fetchChatterinoBadges() {
         const data = await res.json();
 
         for (const badge of data.badges || []) {
-            if (!badge.image || !badge.users) continue;
-            const def = { url: badge.image, title: badge.tooltip || 'Chatterino Badge' };
+            if (!badge.image1 || !badge.users) continue;
+            const def = { url: badge.image1, title: badge.tooltip || 'Chatterino Badge' };
 
-            for (const loginName of badge.users) {
-                // Some entries are "$name_not_loaded" — skip them
-                if (!loginName || loginName.startsWith('$')) continue;
-                const key = loginName.toLowerCase();
+            for (const userId of badge.users) {
+                const key = String(userId);
                 if (!chatterinoUserBadges[key]) chatterinoUserBadges[key] = [];
                 chatterinoUserBadges[key].push(def);
             }
