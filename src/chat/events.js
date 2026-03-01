@@ -13,16 +13,18 @@ function subPlanLabel(plan) {
     return SUB_PLAN_NAMES[plan] || plan || 'Tier 1';
 }
 
-function displayEventMessage(iconSvg, label, detail, extraMessage = '') {
+function displayEventMessage(iconSvg, label, detail, extraMessage = '', messageIsHTML = false) {
     if (!CONFIG.showEventMessages) return;
 
     const container = document.getElementById('chat-container');
     const el = document.createElement('div');
     el.className = 'chat-message event-message';
 
-    const messageHTML = extraMessage
-        ? `<span class="event-user-message">${parseMessage(extraMessage, null)}</span>`
-        : '';
+    let messageHTML = '';
+    if (extraMessage) {
+        const content = messageIsHTML ? extraMessage : parseMessage(extraMessage, null);
+        messageHTML = `<span class="event-user-message">${content}</span>`;
+    }
 
     el.innerHTML = `
         <span class="event-icon">${iconSvg}</span>
@@ -78,12 +80,12 @@ function handleSubmysterygift(channel, username, numbOfSubs, methods, userstate)
 function handleCheer(channel, userstate, message) {
     const name = userstate['display-name'] || userstate.username;
     const bits = userstate.bits;
-    // Strip cheer tokens (e.g. "Cheer100") from the displayed message
-    const cleaned = message.replace(/\b[A-Za-z]+\d+\b/g, '').trim();
+    const cheerHTML = renderCheerMessage(message);
     displayEventMessage(
         ICON_BITS,
         name,
         `cheered ${bits} bit${bits === '1' ? '' : 's'}!`,
-        cleaned
+        cheerHTML,
+        true // already HTML, don't re-escape
     );
 }

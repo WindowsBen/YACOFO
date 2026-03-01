@@ -163,3 +163,12 @@ body {
     font-style: normal;
     margin-top: 2px;
 }
+
+/* ─── Cheermote gems ────────────────────────────────────────────────────── */
+.cheermote-amount {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #bf94ff;
+    vertical-align: middle;
+    margin-right: 2px;
+}
