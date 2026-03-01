@@ -90,7 +90,7 @@ async function handle7TVUserUpdate(sevenTVUserId, body) {
 
 // Applies 7TV cosmetics to an already-rendered message element
 async function apply7TVCosmetics(twitchUserId, messageElement) {
-    if (!CONFIG.showExternalCosmetics) return;
+    if (CONFIG.disableAllBadges || !CONFIG.showExternalCosmetics) return;
 
     const cosmetics = await fetch7TVUserCosmetics(twitchUserId);
     if (!cosmetics) return;
