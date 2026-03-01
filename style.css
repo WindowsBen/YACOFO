@@ -57,6 +57,24 @@ body {
     filter: drop-shadow(1px 1px 1px var(--chat-shadow-color));
 }
 
+.emote-stack {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 1px;
+}
+
+.emote-stack .chat-emote {
+    margin: 0;
+}
+
+.emote-stack .chat-emote.zero-width {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 /* ─── New Emote Toast ──────────────────────────────────────────────── */
 .emote-toast {
     position: fixed;

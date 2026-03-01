@@ -1,6 +1,9 @@
 // ─── emotes/seventv.js ────────────────────────────────────────────────────────
 // Fetches 7TV channel emotes and subscribes to live emote set updates
 // via the shared 7TV WebSocket (seventv-ws.js).
+// Zero-width emotes (flags & 1) are tracked in zeroWidthEmotes.
+
+const SEVENTV_ZERO_WIDTH_FLAG = 1;
 
 async function fetch7TVEmotes(twitchUserId) {
     try {
@@ -13,6 +16,9 @@ async function fetch7TVEmotes(twitchUserId) {
 
         for (const emote of emotes) {
             emoteMap[emote.name] = `https://cdn.7tv.app/emote/${emote.id}/1x.webp`;
+            if (emote.flags & SEVENTV_ZERO_WIDTH_FLAG) {
+                zeroWidthEmotes.add(emote.name);
+            }
         }
         console.log(`[7TV] Loaded ${emotes.length} emotes`);
 
@@ -33,26 +39,34 @@ function handle7TVEmoteSetUpdate(body) {
         if (name) {
             const url = emoteMap[name];
             delete emoteMap[name];
+            zeroWidthEmotes.delete(name);
             console.log(`[7TV] Emote removed: ${name}`);
             if (CONFIG.showToastRemove) showRemovedEmoteToast(name, url);
         }
     }
 
     for (const item of pushed) {
-        const { name, id } = item.value || {};
+        const { name, id, flags } = item.value || {};
         if (name && id) {
             const url = `https://cdn.7tv.app/emote/${id}/1x.webp`;
             emoteMap[name] = url;
+            if (flags & SEVENTV_ZERO_WIDTH_FLAG) zeroWidthEmotes.add(name);
+            else zeroWidthEmotes.delete(name);
             console.log(`[7TV] Emote added: ${name}`);
             if (CONFIG.showToastAdd) showNewEmoteToast(name, url);
         }
     }
 
     for (const item of updated) {
-        if (item.old_value?.name) delete emoteMap[item.old_value.name];
-        const { name, id } = item.value || {};
+        if (item.old_value?.name) {
+            delete emoteMap[item.old_value.name];
+            zeroWidthEmotes.delete(item.old_value.name);
+        }
+        const { name, id, flags } = item.value || {};
         if (name && id) {
             emoteMap[name] = `https://cdn.7tv.app/emote/${id}/1x.webp`;
+            if (flags & SEVENTV_ZERO_WIDTH_FLAG) zeroWidthEmotes.add(name);
+            else zeroWidthEmotes.delete(name);
             console.log(`[7TV] Emote updated: ${name}`);
         }
     }

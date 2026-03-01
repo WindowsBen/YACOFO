@@ -1,17 +1,40 @@
 // ─── chat/parser.js ───────────────────────────────────────────────────────────
 // Parses chat messages — handles Twitch native emotes (by character range)
 // and third-party emotes (BTTV/FFZ/7TV, by word lookup in emoteMap).
+// Zero-width emotes stack on top of the previous emote using .emote-stack.
 
 function parseThirdPartyEmotes(escapedText) {
-    return escapedText.split(' ').map(word => {
+    const words = escapedText.split(' ');
+    const tokens = []; // array of { html, isEmote }
+
+    for (const word of words) {
         const raw = word
             .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+
         if (emoteMap[raw]) {
-            return `<img class="chat-emote" src="${emoteMap[raw]}" alt="${word}" title="${word}">`;
+            const isZeroWidth = zeroWidthEmotes.has(raw);
+            const img = `<img class="chat-emote${isZeroWidth ? ' zero-width' : ''}" src="${emoteMap[raw]}" alt="${word}" title="${word}">`;
+
+            if (isZeroWidth && tokens.length > 0 && tokens[tokens.length - 1].isEmote) {
+                // Wrap previous emote + this one together in a stack
+                const prev = tokens[tokens.length - 1];
+                if (prev.stacked) {
+                    // Already a stack — just append the zero-width emote inside it
+                    prev.html = prev.html.replace('</span>', img + '</span>');
+                } else {
+                    prev.html = `<span class="emote-stack">${prev.html}${img}</span>`;
+                    prev.stacked = true;
+                }
+            } else {
+                tokens.push({ html: img, isEmote: true, stacked: false });
+            }
+        } else {
+            tokens.push({ html: word, isEmote: false });
         }
-        return word;
-    }).join(' ');
+    }
+
+    return tokens.map(t => t.html).join(' ');
 }
 
 function parseMessage(message, twitchEmotes) {
