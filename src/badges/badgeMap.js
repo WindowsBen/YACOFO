@@ -24,9 +24,9 @@ function renderBadges(tags) {
     // FFZ + Chatterino badges — hidden only when external cosmetics are off
     // Independent of roleOnlyBadges — both can be active simultaneously
     if (CONFIG.showExternalCosmetics && tags.username) {
-        const key = tags.username.toLowerCase();
+        const key = tags['user-id'] ? String(tags['user-id']) : null;
 
-        const ffzBadges = ffzUserBadges[key];
+        const ffzBadges = key ? ffzUserBadges[key] : null;
         if (ffzBadges) {
             for (const badge of ffzBadges) {
                 html += `<img class="chat-badge ffz-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}">`;
