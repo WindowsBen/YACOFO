@@ -43,35 +43,33 @@ async function getRewardName(broadcasterId, rewardId) {
 }
 
 async function handleRedemption(broadcasterId, tags, message) {
-    if (!CONFIG.showEventMessages) return;
+    if (!CONFIG.showRedeems) return;
 
-    const rewardId = tags['custom-reward-id'];
+    const rewardId   = tags['custom-reward-id'];
     if (!rewardId) return;
 
     const rewardName = await getRewardName(broadcasterId, rewardId);
     const username   = tags['display-name'] || tags.username;
+    const verb       = CONFIG.redeemLabel || 'redeemed';
 
     const ICON_REDEEM = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9V9h2v4zm0-6H9V5h2v2z"/></svg>`;
-
-    if (!CONFIG.showEventMessages) return;
 
     const container = document.getElementById('chat-container');
     const el = document.createElement('div');
     el.className = 'chat-message event-message redemption-message';
 
-    const parsedInput = message ? `<span class="event-user-message">${parseMessage(message, tags.emotes)}</span>` : '';
+    const parsedInput = message
+        ? `<span class="event-user-message">${parseMessage(message, tags.emotes)}</span>`
+        : '';
 
     el.innerHTML = `
         <span class="event-icon redemption-icon">${ICON_REDEEM}</span>
         <span class="event-body">
             <span class="event-label">${escapeHTML(username)}</span>
-            <span class="event-detail">redeemed <strong>${escapeHTML(rewardName)}</strong></span>
+            <span class="event-detail">${escapeHTML(verb)} <strong>${escapeHTML(rewardName)}</strong></span>
             ${parsedInput}
         </span>`;
 
     container.appendChild(el);
-
-    if (container.childNodes.length > 50) {
-        container.removeChild(container.firstChild);
-    }
+    if (container.childNodes.length > 50) container.removeChild(container.firstChild);
 }

@@ -6,6 +6,7 @@ function displayMessage(tags, message) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');
     if (tags['msg-id'] === 'highlighted-message') {
+        if (!CONFIG.showHighlights) return;
         messageElement.classList.add('highlighted-message');
     }
 

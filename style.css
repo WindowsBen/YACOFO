@@ -116,8 +116,8 @@ body {
 
 /* ─── Event Messages (subs / bits) ─────────────────────────────────────── */
 .event-message {
-    background: rgba(145, 70, 255, 0.15);
-    border-left: 3px solid #9146FF;
+    background: rgba(0,0,0,0.2);
+    border-left: 3px solid #888;
     border-radius: 4px;
     padding: 6px 8px;
     display: flex;
@@ -125,11 +125,52 @@ body {
     gap: 8px;
 }
 
+.sub-message {
+    background: color-mix(in srgb, var(--sub-bg) 100%, transparent);
+    border-left-color: var(--sub-accent);
+}
+
+.sub-message .event-icon   { color: var(--sub-accent); }
+.sub-message .event-label  { color: color-mix(in srgb, var(--sub-accent) 70%, white); }
+
+.bits-message {
+    background: color-mix(in srgb, var(--bits-bg) 100%, transparent);
+    border-left-color: var(--bits-accent);
+}
+
+.bits-message .event-icon  { color: var(--bits-accent); }
+.bits-message .event-label { color: color-mix(in srgb, var(--bits-accent) 70%, white); }
+
+/* ─── Cheermote gems ────────────────────────────────────────────────────── */
+.cheermote-amount {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #bf94ff;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+/* ─── Redemption Messages ───────────────────────────────────────────────── */
+.redemption-message {
+    background: color-mix(in srgb, var(--redeem-bg) 100%, transparent);
+    border-left-color: var(--redeem-accent);
+}
+
+.redemption-icon            { color: var(--redeem-accent); }
+.redemption-message .event-label { color: color-mix(in srgb, var(--redeem-accent) 70%, white); }
+
+/* ─── Highlighted Messages ──────────────────────────────────────────────── */
+.highlighted-message {
+    background: color-mix(in srgb, var(--highlight-bg) 100%, transparent);
+    border-left: 3px solid var(--highlight-accent);
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
 .event-icon {
     flex-shrink: 0;
     width: 1.2em;
     height: 1.2em;
-    color: #9146FF;
     display: flex;
     align-items: center;
 }
@@ -149,7 +190,6 @@ body {
 
 .event-label {
     font-weight: bold;
-    color: #bf94ff;
 }
 
 .event-detail {
@@ -162,31 +202,4 @@ body {
     color: var(--chat-text-color, #efeff1);
     font-style: normal;
     margin-top: 2px;
-}
-
-/* ─── Cheermote gems ────────────────────────────────────────────────────── */
-.cheermote-amount {
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #bf94ff;
-    vertical-align: middle;
-    margin-right: 2px;
-}
-
-/* ─── Redemption Messages ───────────────────────────────────────────────── */
-.redemption-message {
-    background: rgba(255, 184, 0, 0.12);
-    border-left-color: #FFB800;
-}
-
-.redemption-icon {
-    color: #FFB800;
-}
-
-/* ─── Highlighted Messages ──────────────────────────────────────────────── */
-.highlighted-message {
-    background: rgba(255, 0, 255, 0.12);
-    border-left: 3px solid #FF00FF;
-    border-radius: 4px;
-    padding: 4px 8px;
 }

@@ -17,6 +17,12 @@
         .section-label { margin-top: 20px; padding-top: 14px; border-top: 1px solid #3f3f46; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; }
         .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-weight: normal; font-size: 14px; cursor: pointer; }
         .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #9146FF; flex-shrink: 0; }
+        .event-type-block { margin-top: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 6px; border: 1px solid #3f3f46; }
+        .event-type-block .checkbox-row { margin-top: 0; }
+        .event-type-options { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #3f3f46; }
+        .event-type-options label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #aaa; }
+        .event-type-options input[type="color"] { width: 48px; height: 28px; border: none; background: none; cursor: pointer; padding: 0; }
+        .event-type-options input[type="text"] { background: #2a2a2e; border: 1px solid #3f3f46; color: #efeff1; border-radius: 4px; padding: 4px 6px; font-size: 13px; width: 140px; }
         button { margin-top: 14px; width: 100%; padding: 10px; background: #9146FF; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
         button:hover { background: #772ce8; }
         .btn-secondary { background: #3f3f46; }
@@ -70,10 +76,56 @@
 
     <div class="section-label">Event Messages</div>
 
-    <label class="checkbox-row">
-        <input type="checkbox" id="showEventMessages" checked>
-        Show sub and bit messages in chat
-    </label>
+    <!-- Subs -->
+    <div class="event-type-block">
+        <label class="checkbox-row">
+            <input type="checkbox" id="showSubs" checked>
+            <strong>Subscriptions</strong>
+        </label>
+        <div class="event-type-options">
+            <label>Accent color <input type="color" id="subAccent" value="#9146FF"></label>
+            <label>Background color <input type="color" id="subBg" value="#1a0a2e"></label>
+            <label>Label override <input type="text" id="subLabel" placeholder="e.g. subscribed"></label>
+        </div>
+    </div>
+
+    <!-- Bits -->
+    <div class="event-type-block">
+        <label class="checkbox-row">
+            <input type="checkbox" id="showBits" checked>
+            <strong>Bits / Cheers</strong>
+        </label>
+        <div class="event-type-options">
+            <label>Accent color <input type="color" id="bitsAccent" value="#9146FF"></label>
+            <label>Background color <input type="color" id="bitsBg" value="#1a0a2e"></label>
+            <label>Label override <input type="text" id="bitsLabel" placeholder="e.g. cheered"></label>
+        </div>
+    </div>
+
+    <!-- Redemptions -->
+    <div class="event-type-block">
+        <label class="checkbox-row">
+            <input type="checkbox" id="showRedeems" checked>
+            <strong>Channel Point Redemptions</strong>
+        </label>
+        <div class="event-type-options">
+            <label>Accent color <input type="color" id="redeemAccent" value="#FFB800"></label>
+            <label>Background color <input type="color" id="redeemBg" value="#2a1f00"></label>
+            <label>Label override <input type="text" id="redeemLabel" placeholder="e.g. redeemed"></label>
+        </div>
+    </div>
+
+    <!-- Highlighted messages -->
+    <div class="event-type-block">
+        <label class="checkbox-row">
+            <input type="checkbox" id="showHighlights" checked>
+            <strong>Highlighted Messages</strong>
+        </label>
+        <div class="event-type-options">
+            <label>Accent color <input type="color" id="highlightAccent" value="#FF00FF"></label>
+            <label>Background color <input type="color" id="highlightBg" value="#2a002a"></label>
+        </div>
+    </div>
 
     <div class="section-label">Badge Filtering</div>
 
@@ -160,7 +212,21 @@
         const shadowColor = document.getElementById('shadowColor').value;
         const toastAdd      = document.getElementById('toastAdd').checked      ? '1' : '0';
         const toastRemove   = document.getElementById('toastRemove').checked   ? '1' : '0';
-        const showEventMessages = document.getElementById('showEventMessages').checked ? '1' : '0';
+        const showSubs      = document.getElementById('showSubs').checked      ? '1' : '0';
+        const showBits      = document.getElementById('showBits').checked      ? '1' : '0';
+        const showRedeems   = document.getElementById('showRedeems').checked   ? '1' : '0';
+        const showHighlights = document.getElementById('showHighlights').checked ? '1' : '0';
+        const subAccent     = document.getElementById('subAccent').value;
+        const subBg         = document.getElementById('subBg').value;
+        const subLabel      = document.getElementById('subLabel').value.trim();
+        const bitsAccent    = document.getElementById('bitsAccent').value;
+        const bitsBg        = document.getElementById('bitsBg').value;
+        const bitsLabel     = document.getElementById('bitsLabel').value.trim();
+        const redeemAccent  = document.getElementById('redeemAccent').value;
+        const redeemBg      = document.getElementById('redeemBg').value;
+        const redeemLabel   = document.getElementById('redeemLabel').value.trim();
+        const highlightAccent = document.getElementById('highlightAccent').value;
+        const highlightBg   = document.getElementById('highlightBg').value;
         const disableAllBadges     = document.getElementById('disableAllBadges').checked     ? '1' : '0';
         const roleOnlyBadges       = document.getElementById('roleOnlyBadges').checked       ? '1' : '0';
         const showExternalCosmetics = document.getElementById('showExternalCosmetics').checked ? '1' : '0';
@@ -173,7 +239,23 @@
             ? `&disableAllBadges=1`
             : `&roleOnlyBadges=${roleOnlyBadges}&showExternalCosmetics=${showExternalCosmetics}`;
 
-        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&showEventMessages=${showEventMessages}${badgeParams}&token=${encodeURIComponent(token)}`;
+        const eventParams = [
+            `showSubs=${showSubs}`, `showBits=${showBits}`,
+            `showRedeems=${showRedeems}`, `showHighlights=${showHighlights}`,
+            `subAccent=${encodeURIComponent(subAccent)}`,
+            `subBg=${encodeURIComponent(subBg)}`,
+            subLabel     ? `subLabel=${encodeURIComponent(subLabel)}`     : '',
+            `bitsAccent=${encodeURIComponent(bitsAccent)}`,
+            `bitsBg=${encodeURIComponent(bitsBg)}`,
+            bitsLabel    ? `bitsLabel=${encodeURIComponent(bitsLabel)}`   : '',
+            `redeemAccent=${encodeURIComponent(redeemAccent)}`,
+            `redeemBg=${encodeURIComponent(redeemBg)}`,
+            redeemLabel  ? `redeemLabel=${encodeURIComponent(redeemLabel)}` : '',
+            `highlightAccent=${encodeURIComponent(highlightAccent)}`,
+            `highlightBg=${encodeURIComponent(highlightBg)}`,
+        ].filter(Boolean).join('&');
+
+        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').value = finalUrl;
     }
