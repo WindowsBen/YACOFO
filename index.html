@@ -71,6 +71,10 @@
     <div class="section-label">Badge Filtering</div>
 
     <label class="checkbox-row">
+        <input type="checkbox" id="disableAllBadges" onchange="onDisableAllBadgesChange()">
+        Disable ALL badges
+    </label>
+    <label class="checkbox-row">
         <input type="checkbox" id="roleOnlyBadges">
         Only display Role Twitch badges (disables Sub, Bit, Hype Train etc badges)
     </label>
@@ -133,6 +137,15 @@
         document.getElementById('status-text').textContent = text;
     }
 
+    // ── Badge checkbox interaction ─────────────────────────────────────────────
+    function onDisableAllBadgesChange() {
+        const disabled = document.getElementById('disableAllBadges').checked;
+        if (disabled) {
+            document.getElementById('roleOnlyBadges').checked = false;
+            document.getElementById('showExternalCosmetics').checked = false;
+        }
+    }
+
     // ── Generate Link ─────────────────────────────────────────────────────────
     function generateLink() {
         const channel     = document.getElementById('channel').value.trim();
@@ -140,6 +153,7 @@
         const shadowColor = document.getElementById('shadowColor').value;
         const toastAdd      = document.getElementById('toastAdd').checked      ? '1' : '0';
         const toastRemove   = document.getElementById('toastRemove').checked   ? '1' : '0';
+        const disableAllBadges     = document.getElementById('disableAllBadges').checked     ? '1' : '0';
         const roleOnlyBadges       = document.getElementById('roleOnlyBadges').checked       ? '1' : '0';
         const showExternalCosmetics = document.getElementById('showExternalCosmetics').checked ? '1' : '0';
 
@@ -147,7 +161,11 @@
 
         const token    = localStorage.getItem('twitch_access_token') || '';
         const base     = window.location.href.replace('index.html', '');
-        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&roleOnlyBadges=${roleOnlyBadges}&showExternalCosmetics=${showExternalCosmetics}&token=${encodeURIComponent(token)}`;
+        const badgeParams = disableAllBadges === '1'
+            ? `&disableAllBadges=1`
+            : `&roleOnlyBadges=${roleOnlyBadges}&showExternalCosmetics=${showExternalCosmetics}`;
+
+        const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}${badgeParams}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').value = finalUrl;
     }

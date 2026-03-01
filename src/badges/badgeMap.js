@@ -7,6 +7,9 @@ const badgeMap = {};
 function renderBadges(tags) {
     let html = '';
 
+    // Kill switch — return nothing if all badges are disabled
+    if (CONFIG.disableAllBadges) return html;
+
     // Twitch badges — tags.badges is already parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
     if (tags.badges) {
         for (const [setName, version] of Object.entries(tags.badges)) {

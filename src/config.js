@@ -5,15 +5,16 @@
 const params = new URLSearchParams(window.location.hash.substring(1)); // Use hash for parameters to avoid CORS issues when loading from file://
 
 const CONFIG = {
-    channelName:            params.get('channel'),
-    fontSize:               params.get('fontSize'),
-    shadowColor:            params.get('shadow'),
-    showToastAdd:           params.get('toastAdd')        !== '0',
-    showToastRemove:        params.get('toastRemove')     !== '0',
+    channelName:     params.get('channel'),
+    fontSize:        params.get('fontSize'),
+    shadowColor:     params.get('shadow'),
+    showToastAdd:    params.get('toastAdd')        !== '0',
+    showToastRemove: params.get('toastRemove')     !== '0',
+    disableAllBadges:       params.get('disableAllBadges')       === '1',
     roleOnlyBadges:         params.get('roleOnlyBadges')         === '1',
     showExternalCosmetics:  params.get('showExternalCosmetics')  !== '0',
-    clientId:               'ti9ahr6lkym6anpij3d4f2cyjhij18',
-    accessToken:            params.get('token') || localStorage.getItem('twitch_access_token'),
+    clientId:        'ti9ahr6lkym6anpij3d4f2cyjhij18',
+    accessToken:     params.get('token') || localStorage.getItem('twitch_access_token'),
 };
 
 // Apply CSS variables immediately
