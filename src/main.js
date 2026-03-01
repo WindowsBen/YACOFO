@@ -13,9 +13,12 @@ const client = new tmi.Client({
 
 client.connect();
 
+let broadcasterId = null;
+
 client.on('roomstate', (channel, state) => {
     const twitchUserId = state['room-id'];
     if (!twitchUserId) return;
+    broadcasterId = twitchUserId;
 
     Promise.all([
         fetchFFZEmotes(twitchUserId),
@@ -31,7 +34,11 @@ client.on('roomstate', (channel, state) => {
 });
 
 client.on('message', (channel, tags, message, self) => {
-    displayMessage(tags, message);
+    if (tags['custom-reward-id']) {
+        handleRedemption(broadcasterId, tags, message);
+    } else {
+        displayMessage(tags, message);
+    }
 });
 
 client.on('subscription', handleSubscription);

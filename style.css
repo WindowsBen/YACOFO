@@ -172,3 +172,13 @@ body {
     vertical-align: middle;
     margin-right: 2px;
 }
+
+/* ─── Redemption Messages ───────────────────────────────────────────────── */
+.redemption-message {
+    background: rgba(255, 184, 0, 0.12);
+    border-left-color: #FFB800;
+}
+
+.redemption-icon {
+    color: #FFB800;
+}
