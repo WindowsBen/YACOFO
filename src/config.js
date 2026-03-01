@@ -15,7 +15,7 @@ const CONFIG = {
     roleOnlyBadges:         params.get('roleOnlyBadges')         === '1',
     showExternalCosmetics:  params.get('showExternalCosmetics')  !== '0',
     clientId:        'ti9ahr6lkym6anpij3d4f2cyjhij18',
-    accessToken:     params.get('token') || localStorage.getItem('twitch_access_token'),
+    token:           params.get('token') || localStorage.getItem('twitch_access_token'),
 };
 
 // Apply CSS variables immediately

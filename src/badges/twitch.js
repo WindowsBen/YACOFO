@@ -3,13 +3,13 @@
 // Requires a valid accessToken and clientId from CONFIG.
 
 async function fetchTwitchBadges(channelId) {
-    if (!CONFIG.clientId || !CONFIG.accessToken) {
+    if (!CONFIG.clientId || !CONFIG.token) {
         console.warn('[Badges] No clientId or token — skipping Twitch badge fetch.');
         return;
     }
 
     const headers = {
-        'Authorization': `Bearer ${CONFIG.accessToken}`,
+        'Authorization': `Bearer ${CONFIG.token}`,
         'Client-Id':     CONFIG.clientId,
     };
 
