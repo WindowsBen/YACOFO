@@ -2,6 +2,12 @@
 // Renders a parsed chat message into the DOM.
 
 function displayMessage(tags, message) {
+    // Watch streak — intercept before normal rendering
+    if (tags['msg-id'] === 'viewermilestone' && tags['msg-param-category'] === 'watch-streak') {
+        handleWatchStreak(tags, message);
+        return;
+    }
+
     const chatContainer = document.getElementById('chat-container');
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');

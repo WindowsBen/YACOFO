@@ -19,7 +19,8 @@ const CONFIG = {
     subLabel:        params.get('subLabel')        || '',
     bitsLabel:       params.get('bitsLabel')       || '',
     redeemLabel:     params.get('redeemLabel')     || '',
-    // Badge options
+    showStreaks:      params.get('showStreaks')     !== '0',
+    streakLabel:     params.get('streakLabel')     || '',
     disableAllBadges:      params.get('disableAllBadges')      === '1',
     roleOnlyBadges:        params.get('roleOnlyBadges')        === '1',
     showExternalCosmetics: params.get('showExternalCosmetics') !== '0',
@@ -39,7 +40,8 @@ const cssVars = {
     '--bits-bg':          params.get('bitsBg')          || 'rgba(26,10,46,0.80)',
     '--redeem-accent':    params.get('redeemAccent')    || 'rgba(255,184,0,1.00)',
     '--redeem-bg':        params.get('redeemBg')        || 'rgba(42,31,0,0.80)',
-    '--highlight-accent': params.get('highlightAccent') || 'rgba(255,0,255,1.00)',
+    '--streak-accent':    params.get('streakAccent')    || 'rgba(255,100,0,1.00)',
+    '--streak-bg':        params.get('streakBg')        || 'rgba(42,15,0,0.80)',
     '--highlight-bg':     params.get('highlightBg')     || 'rgba(42,0,42,0.80)',
 };
 for (const [key, val] of Object.entries(cssVars)) {

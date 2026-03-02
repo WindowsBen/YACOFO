@@ -80,3 +80,15 @@ function handleCheer(channel, userstate, message) {
     const cheerHTML = renderCheerMessage(message);
     displayEventMessage(ICON_BITS, name, detail, cheerHTML, true, 'bits-message');
 }
+
+const ICON_STREAK = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.5 2C9 5 8 7.5 9.5 10c-1-.5-2-1.5-2-3C5.5 9 5 12 7 14a5 5 0 0010 0c0-3.5-2-6-5.5-12z"/></svg>`;
+
+function handleWatchStreak(tags, message) {
+    if (!CONFIG.showStreaks) return;
+    const name   = tags['display-name'] || tags.username;
+    const streak = tags['msg-param-value'] || '?';
+    const verb   = CONFIG.streakLabel || 'is on a';
+    const detail = `${verb} ${streak}-stream watch streak!`;
+    const userMsg = message && message.trim() ? message.trim() : '';
+    displayEventMessage(ICON_STREAK, name, detail, userMsg, false, 'streak-message');
+}

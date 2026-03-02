@@ -203,3 +203,12 @@ body {
     font-style: normal;
     margin-top: 2px;
 }
+
+/* ─── Watch Streak Messages ─────────────────────────────────────────────── */
+.streak-message {
+    background: var(--streak-bg);
+    border-left-color: var(--streak-accent);
+}
+
+.streak-message .event-icon  { color: var(--streak-accent); }
+.streak-message .event-label { color: var(--streak-accent); filter: brightness(1.4); }

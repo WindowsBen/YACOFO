@@ -183,6 +183,31 @@
         </div>
     </div>
 
+    <!-- Watch Streaks -->
+    <div class="event-type-block">
+        <label class="checkbox-row">
+            <input type="checkbox" id="showStreaks" checked>
+            <strong>Watch Streaks</strong>
+        </label>
+        <div class="event-type-options">
+            <label>Accent color
+                <div class="color-with-opacity">
+                    <input type="color" id="streakAccent" value="#FF6400">
+                    <span class="opacity-tag">Opacity</span><input type="range" id="streakAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                    <span class="opacity-label" id="streakAccentOpacityLabel">100%</span>
+                </div>
+            </label>
+            <label>Background color
+                <div class="color-with-opacity">
+                    <input type="color" id="streakBg" value="#2a0f00">
+                    <span class="opacity-tag">Opacity</span><input type="range" id="streakBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                    <span class="opacity-label" id="streakBgOpacityLabel">80%</span>
+                </div>
+            </label>
+            <label>Label override <input type="text" id="streakLabel" placeholder="e.g. is on a"></label>
+        </div>
+    </div>
+
     <div class="section-label">Badge Filtering</div>
 
     <label class="checkbox-row">
@@ -295,7 +320,10 @@
         const redeemAccent  = hexOpacityToRgba(document.getElementById('redeemAccent').value,  parseInt(document.getElementById('redeemAccentOpacity').value));
         const redeemBg      = hexOpacityToRgba(document.getElementById('redeemBg').value,      parseInt(document.getElementById('redeemBgOpacity').value));
         const redeemLabel   = document.getElementById('redeemLabel').value.trim();
-        const highlightAccent = hexOpacityToRgba(document.getElementById('highlightAccent').value, parseInt(document.getElementById('highlightAccentOpacity').value));
+        const showStreaks    = document.getElementById('showStreaks').checked    ? '1' : '0';
+        const streakAccent  = hexOpacityToRgba(document.getElementById('streakAccent').value,  parseInt(document.getElementById('streakAccentOpacity').value));
+        const streakBg      = hexOpacityToRgba(document.getElementById('streakBg').value,      parseInt(document.getElementById('streakBgOpacity').value));
+        const streakLabel   = document.getElementById('streakLabel').value.trim();
         const highlightBg   = hexOpacityToRgba(document.getElementById('highlightBg').value,   parseInt(document.getElementById('highlightBgOpacity').value));
         const disableAllBadges     = document.getElementById('disableAllBadges').checked     ? '1' : '0';
         const roleOnlyBadges       = document.getElementById('roleOnlyBadges').checked       ? '1' : '0';
@@ -312,6 +340,7 @@
         const eventParams = [
             `showSubs=${showSubs}`, `showBits=${showBits}`,
             `showRedeems=${showRedeems}`, `showHighlights=${showHighlights}`,
+            `showStreaks=${showStreaks}`,
             `subAccent=${encodeURIComponent(subAccent)}`,
             `subBg=${encodeURIComponent(subBg)}`,
             subLabel     ? `subLabel=${encodeURIComponent(subLabel)}`     : '',
@@ -323,6 +352,9 @@
             redeemLabel  ? `redeemLabel=${encodeURIComponent(redeemLabel)}` : '',
             `highlightAccent=${encodeURIComponent(highlightAccent)}`,
             `highlightBg=${encodeURIComponent(highlightBg)}`,
+            `streakAccent=${encodeURIComponent(streakAccent)}`,
+            `streakBg=${encodeURIComponent(streakBg)}`,
+            streakLabel  ? `streakLabel=${encodeURIComponent(streakLabel)}` : '',
         ].filter(Boolean).join('&');
 
         const finalUrl = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${fontSize}px&shadow=${encodeURIComponent(shadowColor)}&toastAdd=${toastAdd}&toastRemove=${toastRemove}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
