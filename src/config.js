@@ -4,6 +4,12 @@
 
 const params = new URLSearchParams(window.location.hash.substring(1));
 
+// Parse RRGGBBAA hex string (no #) → #RRGGBBAA for CSS
+function hex8ToCss(hex8, fallback) {
+    if (!hex8 || hex8.length !== 8) return fallback;
+    return `#${hex8}`;
+}
+
 const CONFIG = {
     channelName:     params.get('channel'),
     fontSize:        params.get('fontSize'),
@@ -15,12 +21,13 @@ const CONFIG = {
     showBits:        params.get('showBits')        !== '0',
     showRedeems:     params.get('showRedeems')     !== '0',
     showHighlights:  params.get('showHighlights')  !== '0',
+    showStreaks:     params.get('showStreaks')      !== '0',
     // Per-type labels (empty = use default)
     subLabel:        params.get('subLabel')        || '',
     bitsLabel:       params.get('bitsLabel')       || '',
     redeemLabel:     params.get('redeemLabel')     || '',
-    showStreaks:      params.get('showStreaks')     !== '0',
     streakLabel:     params.get('streakLabel')     || '',
+    // Badge options
     disableAllBadges:      params.get('disableAllBadges')      === '1',
     roleOnlyBadges:        params.get('roleOnlyBadges')        === '1',
     showExternalCosmetics: params.get('showExternalCosmetics') !== '0',
@@ -28,21 +35,22 @@ const CONFIG = {
     token:    params.get('token') || localStorage.getItem('twitch_access_token'),
 };
 
-// Apply CSS variables immediately
+// Apply CSS variables
 if (CONFIG.fontSize)    document.documentElement.style.setProperty('--chat-font-size',    CONFIG.fontSize);
-if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color', CONFIG.shadowColor);
+if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color', hex8ToCss(CONFIG.shadowColor, '#000000FF'));
 
 // Event type color CSS variables
 const cssVars = {
-    '--sub-accent':       params.get('subAccent')       || 'rgba(145,70,255,1.00)',
-    '--sub-bg':           params.get('subBg')           || 'rgba(26,10,46,0.80)',
-    '--bits-accent':      params.get('bitsAccent')      || 'rgba(145,70,255,1.00)',
-    '--bits-bg':          params.get('bitsBg')          || 'rgba(26,10,46,0.80)',
-    '--redeem-accent':    params.get('redeemAccent')    || 'rgba(255,184,0,1.00)',
-    '--redeem-bg':        params.get('redeemBg')        || 'rgba(42,31,0,0.80)',
-    '--streak-accent':    params.get('streakAccent')    || 'rgba(255,100,0,1.00)',
-    '--streak-bg':        params.get('streakBg')        || 'rgba(42,15,0,0.80)',
-    '--highlight-bg':     params.get('highlightBg')     || 'rgba(42,0,42,0.80)',
+    '--sub-accent':       hex8ToCss(params.get('subAccent'),       '#9146FFFF'),
+    '--sub-bg':           hex8ToCss(params.get('subBg'),           '#1a0a2eCC'),
+    '--bits-accent':      hex8ToCss(params.get('bitsAccent'),      '#9146FFFF'),
+    '--bits-bg':          hex8ToCss(params.get('bitsBg'),          '#1a0a2eCC'),
+    '--redeem-accent':    hex8ToCss(params.get('redeemAccent'),    '#FFB800FF'),
+    '--redeem-bg':        hex8ToCss(params.get('redeemBg'),        '#2a1f00CC'),
+    '--highlight-accent': hex8ToCss(params.get('highlightAccent'), '#FF00FFFF'),
+    '--highlight-bg':     hex8ToCss(params.get('highlightBg'),     '#2a002aCC'),
+    '--streak-accent':    hex8ToCss(params.get('streakAccent'),    '#FF6400FF'),
+    '--streak-bg':        hex8ToCss(params.get('streakBg'),        '#2a0f00CC'),
 };
 for (const [key, val] of Object.entries(cssVars)) {
     document.documentElement.style.setProperty(key, val);
