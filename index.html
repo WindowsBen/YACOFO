@@ -16,7 +16,7 @@
         }
 
         .container {
-            max-width: 480px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -29,21 +29,29 @@
             align-items: center;
             gap: 10px;
         }
-
         .page-title svg { color: #9146FF; }
+
+        /* ── Layout rows ───────────────────────────────────── */
+        .row-full  { width: 100%; margin-bottom: 10px; }
+        .row-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: start;
+        }
 
         /* ── Accordion ─────────────────────────────────────── */
         .accordion {
             border: 1px solid #2f2f35;
             border-radius: 8px;
-            margin-bottom: 10px;
             overflow: hidden;
             background: #18181b;
             transition: opacity 0.2s;
         }
 
         .accordion.locked {
-            opacity: 0.45;
+            opacity: 0.4;
             pointer-events: none;
         }
 
@@ -51,13 +59,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
+            padding: 13px 16px;
             cursor: pointer;
             user-select: none;
             background: #1f1f23;
             gap: 10px;
         }
-
         .accordion-header:hover { background: #26262c; }
 
         .accordion-title {
@@ -67,7 +74,6 @@
             font-weight: 600;
             font-size: 14px;
         }
-
         .accordion-title svg { color: #9146FF; flex-shrink: 0; }
 
         .accordion-badge {
@@ -79,7 +85,6 @@
             color: #2ecc71;
             border: 1px solid #2ecc7133;
         }
-
         .accordion-badge.locked-badge {
             background: #ffffff0a;
             color: #666;
@@ -91,7 +96,6 @@
             flex-shrink: 0;
             color: #888;
         }
-
         .accordion.open .accordion-chevron { transform: rotate(180deg); }
 
         .accordion-body {
@@ -99,13 +103,12 @@
             padding: 16px;
             border-top: 1px solid #2f2f35;
         }
-
         .accordion.open .accordion-body { display: block; }
 
         /* ── Form elements ─────────────────────────────────── */
-        label.field-label {
+        .field-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: #adadb8;
             margin-bottom: 5px;
             margin-top: 14px;
@@ -113,8 +116,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-
-        label.field-label:first-child { margin-top: 0; }
+        .field-label:first-child { margin-top: 0; }
 
         input[type="text"],
         input[type="number"] {
@@ -128,13 +130,10 @@
             outline: none;
             transition: border-color 0.15s;
         }
-
         input[type="text"]:focus,
         input[type="number"]:focus { border-color: #9146FF; }
 
-        input[readonly] { opacity: 0.5; cursor: default; }
-
-        /* ── Auth section ──────────────────────────────────── */
+        /* ── Auth ──────────────────────────────────────────── */
         .auth-status {
             display: flex;
             align-items: center;
@@ -143,13 +142,7 @@
             color: #adadb8;
             margin-bottom: 14px;
         }
-
-        .dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
+        .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .dot-grey  { background: #555; }
         .dot-green { background: #2ecc71; box-shadow: 0 0 6px #2ecc7188; }
 
@@ -167,18 +160,13 @@
             cursor: pointer;
             transition: background 0.15s, transform 0.1s;
         }
-
         .btn:active { transform: scale(0.98); }
-
-        .btn-primary { background: #9146FF; color: white; width: 100%; }
+        .btn-primary   { background: #9146FF; color: white; width: 100%; }
         .btn-primary:hover { background: #7b2fbe; }
-
         .btn-secondary { background: #2f2f35; color: #efeff1; }
         .btn-secondary:hover { background: #3f3f46; }
-
-        .btn-generate { background: #2ecc71; color: #0e1a14; width: 100%; margin-top: 6px; }
+        .btn-generate  { background: #2ecc71; color: #0e1a14; width: 100%; margin-top: 6px; }
         .btn-generate:hover { background: #27ae60; }
-
         .btn-row { display: flex; gap: 8px; }
 
         /* ── Checkboxes ────────────────────────────────────── */
@@ -186,113 +174,102 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            padding: 6px 0;
+            padding: 5px 0;
             color: #cfcfd4;
         }
-
         .checkbox-row input[type="checkbox"] {
-            width: 16px; height: 16px;
-            margin-top: 1px;
+            width: 15px; height: 15px;
+            margin-top: 2px;
             cursor: pointer;
             accent-color: #9146FF;
             flex-shrink: 0;
         }
 
-        /* ── Section divider ───────────────────────────────── */
-        .divider {
-            border: none;
-            border-top: 1px solid #2f2f35;
-            margin: 14px 0;
-        }
+        .divider { border: none; border-top: 1px solid #2f2f35; margin: 12px 0; }
 
         /* ── Event type blocks ─────────────────────────────── */
         .event-type-block {
             background: #0e0e10;
             border: 1px solid #2f2f35;
             border-radius: 6px;
-            padding: 12px;
+            padding: 10px 12px;
             margin-bottom: 8px;
         }
-
         .event-type-block:last-child { margin-bottom: 0; }
         .event-type-block .checkbox-row { padding: 0; }
 
+        /* Color options — hidden sub-panel */
         .event-options {
-            margin-top: 12px;
-            padding-top: 12px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.25s ease, margin-top 0.25s ease;
+        }
+        .event-options.visible {
+            max-height: 300px;
+            margin-top: 10px;
+        }
+        .event-options-inner {
+            padding-top: 10px;
             border-top: 1px solid #2f2f35;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .event-option-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             font-size: 12px;
             color: #adadb8;
         }
-
-        .event-option-row span.option-label { min-width: 110px; font-weight: 600; }
+        .option-label { min-width: 90px; font-weight: 600; }
 
         input[type="color"] {
-            width: 32px; height: 28px;
+            width: 30px; height: 26px;
             border: 1px solid #2f2f35;
             background: #0e0e10;
             border-radius: 4px;
             cursor: pointer;
             padding: 2px;
+            flex-shrink: 0;
         }
+        .opacity-slider { flex: 1; accent-color: #9146FF; cursor: pointer; max-width: 100px; }
+        .opacity-label  { font-size: 11px; color: #666; min-width: 30px; }
+        .opacity-tag    { font-size: 11px; color: #555; white-space: nowrap; }
 
-        .opacity-slider {
+        .text-override-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: #adadb8;
+        }
+        .text-override-row .option-label { min-width: 90px; font-weight: 600; }
+        .text-override-row input[type="text"] {
             flex: 1;
-            accent-color: #9146FF;
-            cursor: pointer;
-            max-width: 120px;
-        }
-
-        .opacity-label { font-size: 11px; color: #666; min-width: 30px; }
-        .opacity-tag   { font-size: 11px; color: #666; white-space: nowrap; }
-
-        .text-override input {
-            background: #0e0e10;
-            border: 1px solid #2f2f35;
-            color: #efeff1;
-            border-radius: 4px;
             padding: 4px 8px;
-            font-size: 13px;
-            width: 160px;
-            outline: none;
+            font-size: 12px;
+            background: #18181b;
+            border: 1px solid #2f2f35;
+            border-radius: 4px;
+            color: #efeff1;
+            width: auto;
         }
-
-        .text-override input:focus { border-color: #9146FF; }
+        .text-override-row input[type="text"]:focus { border-color: #9146FF; }
 
         .event-warning {
-            font-size: 12px;
+            font-size: 11px;
             color: #f0a020;
-            margin-top: 8px;
+            margin-top: 6px;
             line-height: 1.5;
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
 
         /* ── Output ────────────────────────────────────────── */
-        .output-box {
-            margin-top: 14px;
-            background: #0e0e10;
-            border: 1px solid #2f2f35;
-            border-radius: 6px;
-            padding: 10px 12px;
-            font-size: 12px;
-            color: #adadb8;
-            word-break: break-all;
-            line-height: 1.5;
-            min-height: 38px;
-        }
-
         .output-label {
             font-size: 11px;
             color: #666;
@@ -300,6 +277,19 @@
             letter-spacing: 0.05em;
             font-weight: 600;
             margin-bottom: 6px;
+            margin-top: 12px;
+        }
+        .output-box {
+            background: #0e0e10;
+            border: 1px solid #2f2f35;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #adadb8;
+            word-break: break-all;
+            line-height: 1.5;
+            min-height: 38px;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -311,269 +301,290 @@
         Chat Overlay Configurator
     </div>
 
-    <!-- ── 1. Twitch Login ── -->
-    <div class="accordion open" id="acc-login">
-        <div class="accordion-header" onclick="toggleAccordion('acc-login')">
-            <div class="accordion-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                Twitch Login
+    <!-- Row 1: Login (full width) -->
+    <div class="row-full">
+        <div class="accordion open" id="acc-login">
+            <div class="accordion-header" onclick="toggleAccordion('acc-login')">
+                <div class="accordion-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                    Twitch Login
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="accordion-badge locked-badge" id="login-badge">Not connected</span>
+                    <svg class="accordion-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-                <span class="accordion-badge locked-badge" id="login-badge">Not connected</span>
-                <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="accordion-body">
+                <div class="auth-status">
+                    <div class="dot dot-grey" id="status-dot"></div>
+                    <span id="status-text">Not connected — login to unlock configuration</span>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="auth-btn" onclick="loginWithTwitch()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+                        Login with Twitch
+                    </button>
+                    <button class="btn btn-secondary" id="reauth-btn" onclick="loginWithTwitch()" style="display:none;">Switch account</button>
+                </div>
             </div>
         </div>
-        <div class="accordion-body">
-            <div class="auth-status">
-                <div class="dot dot-grey" id="status-dot"></div>
-                <span id="status-text">Not connected — login to unlock configuration</span>
+    </div>
+
+    <!-- Row 2: General + Event Messages -->
+    <div class="row-split">
+
+        <!-- General -->
+        <div class="accordion" id="acc-general">
+            <div class="accordion-header" onclick="toggleAccordion('acc-general')">
+                <div class="accordion-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                    General
+                </div>
+                <svg class="accordion-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
-            <div class="btn-row">
-                <button class="btn btn-primary" id="auth-btn" onclick="loginWithTwitch()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
-                    Login with Twitch
+            <div class="accordion-body">
+                <span class="field-label">Channel Name</span>
+                <input type="text" id="channel" placeholder="e.g. xQc">
+
+                <span class="field-label">Font Size (px)</span>
+                <input type="number" id="fontSize" value="16" style="width:90px;">
+
+                <span class="field-label">Text Shadow</span>
+                <div class="event-option-row">
+                    <input type="color" id="shadowColor" value="#000000">
+                    <span class="opacity-tag">Opacity</span>
+                    <input type="range" id="shadowOpacity" min="0" max="100" value="100" class="opacity-slider">
+                    <span class="opacity-label" id="shadowOpacityLabel">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Messages -->
+        <div class="accordion" id="acc-events">
+            <div class="accordion-header" onclick="toggleAccordion('acc-events')">
+                <div class="accordion-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Event Messages
+                </div>
+                <svg class="accordion-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="accordion-body">
+
+                <!-- Subs -->
+                <div class="event-type-block">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="showSubs" checked onchange="toggleEventOptions('showSubs','opts-subs')">
+                        <strong>Subscriptions</strong>
+                    </label>
+                    <div class="event-options visible" id="opts-subs">
+                        <div class="event-options-inner">
+                            <div class="event-option-row">
+                                <span class="option-label">Accent</span>
+                                <input type="color" id="subAccent" value="#9146FF">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="subAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                                <span class="opacity-label" id="subAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="event-option-row">
+                                <span class="option-label">Background</span>
+                                <input type="color" id="subBg" value="#1a0a2e">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="subBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                                <span class="opacity-label" id="subBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="text-override-row">
+                                <span class="option-label">Label</span>
+                                <input type="text" id="subLabel" placeholder="e.g. subscribed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bits -->
+                <div class="event-type-block">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="showBits" checked onchange="toggleEventOptions('showBits','opts-bits')">
+                        <strong>Bits / Cheers</strong>
+                    </label>
+                    <div class="event-options visible" id="opts-bits">
+                        <div class="event-options-inner">
+                            <div class="event-option-row">
+                                <span class="option-label">Accent</span>
+                                <input type="color" id="bitsAccent" value="#9146FF">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="bitsAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                                <span class="opacity-label" id="bitsAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="event-option-row">
+                                <span class="option-label">Background</span>
+                                <input type="color" id="bitsBg" value="#1a0a2e">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="bitsBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                                <span class="opacity-label" id="bitsBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="text-override-row">
+                                <span class="option-label">Label</span>
+                                <input type="text" id="bitsLabel" placeholder="e.g. cheered">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redemptions -->
+                <div class="event-type-block">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="showRedeems" checked onchange="toggleEventOptions('showRedeems','opts-redeems')">
+                        <strong>Channel Point Redemptions</strong>
+                    </label>
+                    <div class="event-warning">
+                        <span>⚠️</span>
+                        <span>Reward names only resolve in your own channel due to a Twitch API restriction.</span>
+                    </div>
+                    <div class="event-options visible" id="opts-redeems">
+                        <div class="event-options-inner">
+                            <div class="event-option-row">
+                                <span class="option-label">Accent</span>
+                                <input type="color" id="redeemAccent" value="#FFB800">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="redeemAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                                <span class="opacity-label" id="redeemAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="event-option-row">
+                                <span class="option-label">Background</span>
+                                <input type="color" id="redeemBg" value="#2a1f00">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="redeemBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                                <span class="opacity-label" id="redeemBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="text-override-row">
+                                <span class="option-label">Label</span>
+                                <input type="text" id="redeemLabel" placeholder="e.g. redeemed">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Highlighted Messages -->
+                <div class="event-type-block">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="showHighlights" checked onchange="toggleEventOptions('showHighlights','opts-highlights')">
+                        <strong>Highlighted Messages</strong>
+                    </label>
+                    <div class="event-options visible" id="opts-highlights">
+                        <div class="event-options-inner">
+                            <div class="event-option-row">
+                                <span class="option-label">Accent</span>
+                                <input type="color" id="highlightAccent" value="#FF00FF">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="highlightAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                                <span class="opacity-label" id="highlightAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="event-option-row">
+                                <span class="option-label">Background</span>
+                                <input type="color" id="highlightBg" value="#2a002a">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="highlightBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                                <span class="opacity-label" id="highlightBgOpacityLabel">80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Watch Streaks -->
+                <div class="event-type-block">
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="showStreaks" checked onchange="toggleEventOptions('showStreaks','opts-streaks')">
+                        <strong>Watch Streaks</strong>
+                    </label>
+                    <div class="event-options visible" id="opts-streaks">
+                        <div class="event-options-inner">
+                            <div class="event-option-row">
+                                <span class="option-label">Accent</span>
+                                <input type="color" id="streakAccent" value="#FF6400">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="streakAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                                <span class="opacity-label" id="streakAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="event-option-row">
+                                <span class="option-label">Background</span>
+                                <input type="color" id="streakBg" value="#2a0f00">
+                                <span class="opacity-tag">Opacity</span>
+                                <input type="range" id="streakBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                                <span class="opacity-label" id="streakBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="text-override-row">
+                                <span class="option-label">Label</span>
+                                <input type="text" id="streakLabel" placeholder="e.g. is on a">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Badges & Cosmetics + Generate -->
+    <div class="row-split">
+
+        <!-- Badges & Cosmetics -->
+        <div class="accordion" id="acc-badges">
+            <div class="accordion-header" onclick="toggleAccordion('acc-badges')">
+                <div class="accordion-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+                    Badges &amp; Cosmetics
+                </div>
+                <svg class="accordion-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="accordion-body">
+                <span class="field-label">Badges</span>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="disableAllBadges" onchange="onDisableAllBadgesChange()">
+                    Disable ALL badges
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="roleOnlyBadges">
+                    Role badges only (Broadcaster, Mod, VIP)
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="showExternalCosmetics" checked>
+                    Show 7TV / FFZ / Chatterino badges &amp; paints
+                </label>
+
+                <hr class="divider">
+
+                <span class="field-label">Emote Notifications</span>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="toastAdd" checked>
+                    Pop-up when emote is <strong>&nbsp;added</strong>
+                </label>
+                <label class="checkbox-row">
+                    <input type="checkbox" id="toastRemove" checked>
+                    Pop-up when emote is <strong>&nbsp;removed</strong>
+                </label>
+            </div>
+        </div>
+
+        <!-- Generate -->
+        <div class="accordion" id="acc-generate">
+            <div class="accordion-header" onclick="toggleAccordion('acc-generate')">
+                <div class="accordion-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    Generate OBS Link
+                </div>
+                <svg class="accordion-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="accordion-body">
+                <button class="btn btn-generate" onclick="generateLink()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Generate Link
                 </button>
-                <button class="btn btn-secondary" id="reauth-btn" onclick="loginWithTwitch()" style="display:none;">Switch account</button>
+                <div class="output-label">OBS Browser Source URL</div>
+                <div class="output-box" id="resultLink">Click "Generate Link" to create your OBS URL.</div>
             </div>
         </div>
+
     </div>
-
-    <!-- ── 2. General ── -->
-    <div class="accordion" id="acc-general">
-        <div class="accordion-header" onclick="toggleAccordion('acc-general')">
-            <div class="accordion-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-                General
-            </div>
-            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body">
-            <label class="field-label">Twitch Channel Name</label>
-            <input type="text" id="channel" placeholder="e.g. xQc">
-
-            <label class="field-label" style="margin-top:14px;">Font Size (px)</label>
-            <input type="number" id="fontSize" value="16" style="width:100px;">
-
-            <label class="field-label" style="margin-top:14px;">Text Shadow</label>
-            <div class="event-option-row">
-                <input type="color" id="shadowColor" value="#000000">
-                <span class="opacity-tag">Opacity</span>
-                <input type="range" id="shadowOpacity" min="0" max="100" value="100" class="opacity-slider">
-                <span class="opacity-label" id="shadowOpacityLabel">100%</span>
-            </div>
-
-            <hr class="divider">
-
-            <label class="field-label">Emote Notifications</label>
-            <label class="checkbox-row">
-                <input type="checkbox" id="toastAdd" checked>
-                Show pop-up when an emote is <strong>&nbsp;added</strong>
-            </label>
-            <label class="checkbox-row">
-                <input type="checkbox" id="toastRemove" checked>
-                Show pop-up when an emote is <strong>&nbsp;removed</strong>
-            </label>
-        </div>
-    </div>
-
-    <!-- ── 3. Event Messages ── -->
-    <div class="accordion" id="acc-events">
-        <div class="accordion-header" onclick="toggleAccordion('acc-events')">
-            <div class="accordion-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Event Messages
-            </div>
-            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body">
-
-            <!-- Subs -->
-            <div class="event-type-block">
-                <label class="checkbox-row">
-                    <input type="checkbox" id="showSubs" checked>
-                    <strong>Subscriptions</strong>
-                </label>
-                <div class="event-options">
-                    <div class="event-option-row">
-                        <span class="option-label">Accent color</span>
-                        <input type="color" id="subAccent" value="#9146FF">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="subAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="opacity-label" id="subAccentOpacityLabel">100%</span>
-                    </div>
-                    <div class="event-option-row">
-                        <span class="option-label">Background</span>
-                        <input type="color" id="subBg" value="#1a0a2e">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="subBgOpacity" min="0" max="100" value="80" class="opacity-slider">
-                        <span class="opacity-label" id="subBgOpacityLabel">80%</span>
-                    </div>
-                    <div class="event-option-row text-override">
-                        <span class="option-label">Label override</span>
-                        <input type="text" id="subLabel" placeholder="e.g. subscribed">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bits -->
-            <div class="event-type-block">
-                <label class="checkbox-row">
-                    <input type="checkbox" id="showBits" checked>
-                    <strong>Bits / Cheers</strong>
-                </label>
-                <div class="event-options">
-                    <div class="event-option-row">
-                        <span class="option-label">Accent color</span>
-                        <input type="color" id="bitsAccent" value="#9146FF">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="bitsAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="opacity-label" id="bitsAccentOpacityLabel">100%</span>
-                    </div>
-                    <div class="event-option-row">
-                        <span class="option-label">Background</span>
-                        <input type="color" id="bitsBg" value="#1a0a2e">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="bitsBgOpacity" min="0" max="100" value="80" class="opacity-slider">
-                        <span class="opacity-label" id="bitsBgOpacityLabel">80%</span>
-                    </div>
-                    <div class="event-option-row text-override">
-                        <span class="option-label">Label override</span>
-                        <input type="text" id="bitsLabel" placeholder="e.g. cheered">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Redemptions -->
-            <div class="event-type-block">
-                <label class="checkbox-row">
-                    <input type="checkbox" id="showRedeems" checked>
-                    <strong>Channel Point Redemptions</strong>
-                </label>
-                <div class="event-warning">
-                    <span>⚠️</span>
-                    <span>Reward names can only be resolved in your own channel. In others it will show as "Channel Point Reward" due to a Twitch API restriction.</span>
-                </div>
-                <div class="event-options">
-                    <div class="event-option-row">
-                        <span class="option-label">Accent color</span>
-                        <input type="color" id="redeemAccent" value="#FFB800">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="redeemAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="opacity-label" id="redeemAccentOpacityLabel">100%</span>
-                    </div>
-                    <div class="event-option-row">
-                        <span class="option-label">Background</span>
-                        <input type="color" id="redeemBg" value="#2a1f00">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="redeemBgOpacity" min="0" max="100" value="80" class="opacity-slider">
-                        <span class="opacity-label" id="redeemBgOpacityLabel">80%</span>
-                    </div>
-                    <div class="event-option-row text-override">
-                        <span class="option-label">Label override</span>
-                        <input type="text" id="redeemLabel" placeholder="e.g. redeemed">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Highlighted Messages -->
-            <div class="event-type-block">
-                <label class="checkbox-row">
-                    <input type="checkbox" id="showHighlights" checked>
-                    <strong>Highlighted Messages</strong>
-                </label>
-                <div class="event-options">
-                    <div class="event-option-row">
-                        <span class="option-label">Accent color</span>
-                        <input type="color" id="highlightAccent" value="#FF00FF">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="highlightAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="opacity-label" id="highlightAccentOpacityLabel">100%</span>
-                    </div>
-                    <div class="event-option-row">
-                        <span class="option-label">Background</span>
-                        <input type="color" id="highlightBg" value="#2a002a">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="highlightBgOpacity" min="0" max="100" value="80" class="opacity-slider">
-                        <span class="opacity-label" id="highlightBgOpacityLabel">80%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Watch Streaks -->
-            <div class="event-type-block">
-                <label class="checkbox-row">
-                    <input type="checkbox" id="showStreaks" checked>
-                    <strong>Watch Streaks</strong>
-                </label>
-                <div class="event-options">
-                    <div class="event-option-row">
-                        <span class="option-label">Accent color</span>
-                        <input type="color" id="streakAccent" value="#FF6400">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="streakAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="opacity-label" id="streakAccentOpacityLabel">100%</span>
-                    </div>
-                    <div class="event-option-row">
-                        <span class="option-label">Background</span>
-                        <input type="color" id="streakBg" value="#2a0f00">
-                        <span class="opacity-tag">Opacity</span>
-                        <input type="range" id="streakBgOpacity" min="0" max="100" value="80" class="opacity-slider">
-                        <span class="opacity-label" id="streakBgOpacityLabel">80%</span>
-                    </div>
-                    <div class="event-option-row text-override">
-                        <span class="option-label">Label override</span>
-                        <input type="text" id="streakLabel" placeholder="e.g. is on a">
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ── 4. Badges & Cosmetics ── -->
-    <div class="accordion" id="acc-badges">
-        <div class="accordion-header" onclick="toggleAccordion('acc-badges')">
-            <div class="accordion-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-                Badges &amp; Cosmetics
-            </div>
-            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body">
-            <label class="checkbox-row">
-                <input type="checkbox" id="disableAllBadges" onchange="onDisableAllBadgesChange()">
-                Disable ALL badges
-            </label>
-            <label class="checkbox-row">
-                <input type="checkbox" id="roleOnlyBadges">
-                Only show role badges (Broadcaster, Mod, VIP — hides Sub/Bits/etc.)
-            </label>
-            <label class="checkbox-row">
-                <input type="checkbox" id="showExternalCosmetics" checked>
-                Show external badges &amp; paints (7TV, FFZ, Chatterino)
-            </label>
-        </div>
-    </div>
-
-    <!-- ── 5. Generate ── -->
-    <div class="accordion" id="acc-generate">
-        <div class="accordion-header" onclick="toggleAccordion('acc-generate')">
-            <div class="accordion-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                Generate OBS Link
-            </div>
-            <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body">
-            <button class="btn btn-generate" onclick="generateLink()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Generate Link
-            </button>
-            <div class="output-label" style="margin-top:12px;">OBS Browser Source URL</div>
-            <div class="output-box" id="resultLink">Click "Generate Link" to create your OBS URL.</div>
-        </div>
-    </div>
-
 </div>
 
 <script>
@@ -587,24 +598,23 @@
         el.classList.toggle('open');
     }
 
-    // ── Auth state ────────────────────────────────────────────────────────────
-    function setLoggedIn() {
-        document.getElementById('status-dot').className  = 'dot dot-green';
-        document.getElementById('status-text').textContent = 'Connected ✓';
-        document.getElementById('auth-btn').style.display   = 'none';
-        document.getElementById('reauth-btn').style.display = 'inline-flex';
+    // ── Event options show/hide ───────────────────────────────────────────────
+    function toggleEventOptions(checkboxId, optionsId) {
+        const checked = document.getElementById(checkboxId).checked;
+        const opts    = document.getElementById(optionsId);
+        opts.classList.toggle('visible', checked);
+    }
 
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    function setLoggedIn() {
+        document.getElementById('status-dot').className        = 'dot dot-green';
+        document.getElementById('status-text').textContent     = 'Connected ✓';
+        document.getElementById('auth-btn').style.display      = 'none';
+        document.getElementById('reauth-btn').style.display    = 'inline-flex';
         const badge = document.getElementById('login-badge');
         badge.textContent = 'Connected';
         badge.classList.remove('locked-badge');
-
-        LOCKED_SECTIONS.forEach(id => {
-            document.getElementById(id).classList.remove('locked');
-        });
-
-        // Pre-fill channel name from stored username
-        const stored = localStorage.getItem('twitch_username');
-        if (stored) document.getElementById('channel').value = stored;
+        LOCKED_SECTIONS.forEach(id => document.getElementById(id).classList.remove('locked'));
     }
 
     async function fetchAndStoreUsername(token) {
@@ -613,46 +623,44 @@
                 headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
             });
             if (!res.ok) return;
-            const data = await res.json();
-            const login = data.data?.[0]?.login;
-            if (login) {
-                localStorage.setItem('twitch_username', login);
-                document.getElementById('channel').value = login;
-                document.getElementById('status-text').textContent = `Connected as ${data.data[0].display_name} ✓`;
-            }
-        } catch { /* silently ignore */ }
+            const data  = await res.json();
+            const user  = data.data?.[0];
+            if (!user) return;
+            localStorage.setItem('twitch_username', user.login);
+            document.getElementById('channel').value           = user.login;
+            document.getElementById('login-badge').textContent = user.display_name;
+            document.getElementById('status-text').textContent = `Connected as ${user.display_name} ✓`;
+        } catch { /* silent */ }
     }
 
     function handleOAuthRedirect() {
         const hash = window.location.hash;
         if (!hash) return false;
-        const p = new URLSearchParams(hash.slice(1));
+        const p     = new URLSearchParams(hash.slice(1));
         const token = p.get('access_token');
         if (!token) return false;
         localStorage.setItem('twitch_access_token', token);
-        localStorage.removeItem('twitch_username'); // clear stale username on fresh login
+        localStorage.removeItem('twitch_username');
         history.replaceState(null, '', window.location.pathname);
         return true;
     }
 
     window.addEventListener('load', async () => {
         const freshLogin = handleOAuthRedirect();
-
-        LOCKED_SECTIONS.forEach(id => {
-            document.getElementById(id).classList.add('locked');
-        });
+        LOCKED_SECTIONS.forEach(id => document.getElementById(id).classList.add('locked'));
 
         const token = localStorage.getItem('twitch_access_token');
         if (token) {
             setLoggedIn();
             if (freshLogin) {
                 await fetchAndStoreUsername(token);
-            }
-            // Update badge with stored display name if available
-            const username = localStorage.getItem('twitch_username');
-            if (username) {
-                document.getElementById('login-badge').textContent = username;
-                document.getElementById('status-text').textContent = `Connected as ${username} ✓`;
+            } else {
+                const username = localStorage.getItem('twitch_username');
+                if (username) {
+                    document.getElementById('channel').value           = username;
+                    document.getElementById('login-badge').textContent = username;
+                    document.getElementById('status-text').textContent = `Connected as ${username} ✓`;
+                }
             }
         }
 
@@ -672,16 +680,14 @@
         window.location.href = authUrl.toString();
     }
 
-    // ── Badge checkbox interaction ─────────────────────────────────────────────
     function onDisableAllBadgesChange() {
-        const disabled = document.getElementById('disableAllBadges').checked;
-        if (disabled) {
-            document.getElementById('roleOnlyBadges').checked = false;
+        if (document.getElementById('disableAllBadges').checked) {
+            document.getElementById('roleOnlyBadges').checked       = false;
             document.getElementById('showExternalCosmetics').checked = false;
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Generate ──────────────────────────────────────────────────────────────
     function colorToHex8(hex, opacity) {
         const aa = Math.round(opacity / 100 * 255).toString(16).padStart(2, '0');
         return hex.slice(1) + aa;
@@ -691,7 +697,6 @@
     function ch(id) { return document.getElementById(id).checked; }
     function c8(colorId, opacityId) { return colorToHex8(v(colorId), parseInt(v(opacityId))); }
 
-    // ── Generate Link ─────────────────────────────────────────────────────────
     function generateLink() {
         const channel = v('channel').trim();
         if (!channel) { alert('Please enter a channel name.'); return; }
@@ -701,19 +706,19 @@
 
         const badgeParams = ch('disableAllBadges')
             ? '&disableAllBadges=1'
-            : `&roleOnlyBadges=${ch('roleOnlyBadges') ? '1' : '0'}&showExternalCosmetics=${ch('showExternalCosmetics') ? '1' : '0'}`;
+            : `&roleOnlyBadges=${ch('roleOnlyBadges') ? '1':'0'}&showExternalCosmetics=${ch('showExternalCosmetics') ? '1':'0'}`;
 
-        const subLabel     = v('subLabel').trim();
-        const bitsLabel    = v('bitsLabel').trim();
-        const redeemLabel  = v('redeemLabel').trim();
-        const streakLabel  = v('streakLabel').trim();
+        const subLabel    = v('subLabel').trim();
+        const bitsLabel   = v('bitsLabel').trim();
+        const redeemLabel = v('redeemLabel').trim();
+        const streakLabel = v('streakLabel').trim();
 
         const eventParams = [
-            `showSubs=${ch('showSubs') ? '1' : '0'}`,
-            `showBits=${ch('showBits') ? '1' : '0'}`,
-            `showRedeems=${ch('showRedeems') ? '1' : '0'}`,
-            `showHighlights=${ch('showHighlights') ? '1' : '0'}`,
-            `showStreaks=${ch('showStreaks') ? '1' : '0'}`,
+            `showSubs=${ch('showSubs') ? '1':'0'}`,
+            `showBits=${ch('showBits') ? '1':'0'}`,
+            `showRedeems=${ch('showRedeems') ? '1':'0'}`,
+            `showHighlights=${ch('showHighlights') ? '1':'0'}`,
+            `showStreaks=${ch('showStreaks') ? '1':'0'}`,
             `subAccent=${c8('subAccent','subAccentOpacity')}`,
             `subBg=${c8('subBg','subBgOpacity')}`,
             subLabel    ? `subLabel=${encodeURIComponent(subLabel)}`    : '',
@@ -730,7 +735,7 @@
             streakLabel ? `streakLabel=${encodeURIComponent(streakLabel)}` : '',
         ].filter(Boolean).join('&');
 
-        const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}&toastAdd=${ch('toastAdd') ? '1' : '0'}&toastRemove=${ch('toastRemove') ? '1' : '0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
+        const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}&toastAdd=${ch('toastAdd') ? '1':'0'}&toastRemove=${ch('toastRemove') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
 
         document.getElementById('resultLink').textContent = url;
     }
