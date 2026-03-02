@@ -601,31 +601,61 @@
         LOCKED_SECTIONS.forEach(id => {
             document.getElementById(id).classList.remove('locked');
         });
+
+        // Pre-fill channel name from stored username
+        const stored = localStorage.getItem('twitch_username');
+        if (stored) document.getElementById('channel').value = stored;
+    }
+
+    async function fetchAndStoreUsername(token) {
+        try {
+            const res = await fetch('https://api.twitch.tv/helix/users', {
+                headers: { 'Authorization': `Bearer ${token}`, 'Client-Id': CLIENT_ID }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const login = data.data?.[0]?.login;
+            if (login) {
+                localStorage.setItem('twitch_username', login);
+                document.getElementById('channel').value = login;
+                document.getElementById('status-text').textContent = `Connected as ${data.data[0].display_name} ✓`;
+            }
+        } catch { /* silently ignore */ }
     }
 
     function handleOAuthRedirect() {
         const hash = window.location.hash;
-        if (!hash) return;
+        if (!hash) return false;
         const p = new URLSearchParams(hash.slice(1));
         const token = p.get('access_token');
-        if (!token) return;
+        if (!token) return false;
         localStorage.setItem('twitch_access_token', token);
+        localStorage.removeItem('twitch_username'); // clear stale username on fresh login
         history.replaceState(null, '', window.location.pathname);
+        return true;
     }
 
-    window.addEventListener('load', () => {
-        handleOAuthRedirect();
+    window.addEventListener('load', async () => {
+        const freshLogin = handleOAuthRedirect();
 
-        // Lock all sections by default
         LOCKED_SECTIONS.forEach(id => {
             document.getElementById(id).classList.add('locked');
         });
 
-        if (localStorage.getItem('twitch_access_token')) {
+        const token = localStorage.getItem('twitch_access_token');
+        if (token) {
             setLoggedIn();
+            if (freshLogin) {
+                await fetchAndStoreUsername(token);
+            }
+            // Update badge with stored display name if available
+            const username = localStorage.getItem('twitch_username');
+            if (username) {
+                document.getElementById('login-badge').textContent = username;
+                document.getElementById('status-text').textContent = `Connected as ${username} ✓`;
+            }
         }
 
-        // Opacity slider live labels
         document.querySelectorAll('.opacity-slider').forEach(slider => {
             const label = document.getElementById(slider.id + 'Label');
             if (label) slider.addEventListener('input', () => { label.textContent = slider.value + '%'; });
