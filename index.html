@@ -454,6 +454,15 @@
                     <input type="range" id="shadowOpacity" min="0" max="100" value="100" class="opacity-slider">
                     <span class="opacity-label" id="shadowOpacityLabel">100%</span>
                 </div>
+
+                <hr class="divider">
+
+                <span class="field-label">Custom Font URL</span>
+                <input type="text" id="fontUrl" placeholder="e.g. https://fonts.cdnfonts.com/css/motley-forces">
+                <span style="font-size:11px;color:#666;margin-top:4px;display:block;">A CSS stylesheet that loads the font. This only tells the browser where to download it — it doesn't tell it <em>which</em> font to actually use.</span>
+                <span class="field-label" style="margin-top:10px;">Font Name</span>
+                <input type="text" id="fontFamily" placeholder="e.g. Motley Forces">
+                <span style="font-size:11px;color:#666;margin-top:4px;display:block;">The exact font name as it appears in the stylesheet. This is what actually applies the font to the chat text. Both fields are required for the font to work.</span>
             </div>
         </div>
 
@@ -651,11 +660,6 @@
                 <label class="checkbox-wrapper"><input type="checkbox" id="disableAllBadges" onchange="onDisableAllBadgesChange()"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Disable ALL badges</span></label>
                 <label class="checkbox-wrapper"><input type="checkbox" id="roleOnlyBadges"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Role badges only (Broadcaster, Mod, VIP)</span></label>
                 <label class="checkbox-wrapper"><input type="checkbox" id="showExternalCosmetics" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show 7TV / FFZ / Chatterino badges &amp; paints</span></label>
-
-                <span class="field-label">Custom Font URL</span>
-                <input type="text" id="fontUrl" placeholder="e.g. https://fonts.cdnfonts.com/css/motley-forces">
-                <span style="font-size:11px;color:#666;margin-top:4px;display:block;">Paste a CSS font link. Then enter the font name below.</span>
-                <input type="text" id="fontFamily" placeholder="e.g. Motley Forces" style="margin-top:6px;">
 
                 <hr class="divider">
 
