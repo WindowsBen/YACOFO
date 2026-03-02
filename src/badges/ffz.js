@@ -12,6 +12,9 @@ async function fetchFFZBadges() {
 
         const data = await res.json();
 
+        // Clear before repopulating so reconnects don't duplicate badges
+        for (const key of Object.keys(ffzUserBadges)) delete ffzUserBadges[key];
+
         // Build badge id → { url, title } lookup
         const badgeDefs = {};
         for (const badge of data.badges || []) {

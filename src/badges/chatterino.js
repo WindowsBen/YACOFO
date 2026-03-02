@@ -13,6 +13,9 @@ async function fetchChatterinoBadges() {
 
         const data = await res.json();
 
+        // Clear before repopulating so reconnects don't duplicate badges
+        for (const key of Object.keys(chatterinoUserBadges)) delete chatterinoUserBadges[key];
+
         for (const badge of data.badges || []) {
             if (!badge.image3 || !badge.users) continue;
             const def = { url: badge.image3, title: badge.tooltip || 'Chatterino Badge' };
