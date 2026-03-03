@@ -53,7 +53,9 @@ function handleResub(channel, username, months, message, userstate) {
     const plan      = subPlanLabel(userstate['msg-param-sub-plan']);
     const cumMonths = userstate['msg-param-cumulative-months'] || months;
     const detail    = `${CONFIG.resubLabel || 'resubscribed'} (${cumMonths} months, ${plan})`;
-    displayEventMessage(ICON_SUB, name, detail, message || '', false, 'sub-message');
+    // Parse with Twitch emote positions so native emotes render correctly
+    const parsedMsg = message ? parseMessage(message, userstate.emotes) : '';
+    displayEventMessage(ICON_SUB, name, detail, parsedMsg, true, 'sub-message');
 }
 
 function handleSubgift(channel, username, streakMonths, recipient, methods, userstate) {

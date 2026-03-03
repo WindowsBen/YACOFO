@@ -41,6 +41,13 @@ client.on('message', (channel, tags, message, self) => {
     }
 });
 
+// USERNOTICE events not handled by tmi.js named events (e.g. viewermilestone)
+client.on('usernotice', (channel, tags, message) => {
+    if (tags['msg-id'] === 'viewermilestone' && tags['msg-param-category'] === 'watch-streak') {
+        handleWatchStreak(tags, message);
+    }
+});
+
 client.on('subscription', handleSubscription);
 client.on('resub',        handleResub);
 client.on('subgift',      handleSubgift);
