@@ -22,6 +22,8 @@ const CONFIG = {
     excludedUsers:   new Set(
         (params.get('exclude') || '').split(',').map(u => u.trim().toLowerCase()).filter(Boolean)
     ),
+    // Excluded prefixes — stored as an array of trimmed strings
+    excludedPrefixes: (params.get('excludePrefix') || '').split(',').map(p => p.trim()).filter(Boolean),
     // Per-type event toggles
     showResubs:      params.get('showResubs')      !== '0' && params.get('showResubs') === '1',
     showGifts:       params.get('showGifts')       !== '0' && params.get('showGifts')  === '1',

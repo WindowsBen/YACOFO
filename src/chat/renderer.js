@@ -5,6 +5,9 @@ function displayMessage(tags, message) {
     // Drop messages from excluded users
     if (CONFIG.excludedUsers.size && CONFIG.excludedUsers.has((tags.username || '').toLowerCase())) return;
 
+    // Drop messages starting with an excluded prefix
+    if (CONFIG.excludedPrefixes.length && CONFIG.excludedPrefixes.some(p => message.startsWith(p))) return;
+
     const chatContainer = document.getElementById('chat-container');
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');

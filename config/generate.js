@@ -38,7 +38,8 @@ function generateLink() {
     const fontUrl      = v('fontUrl').trim();
     const messageGap   = v('messageGap').trim();
     const lineHeight   = v('lineHeight').trim();
-    const excludedUsers = v('excludedUsers').trim();
+    const excludedUsers    = v('excludedUsers').trim();
+    const excludedPrefixes = v('excludedPrefixes').trim();
 
     const eventParams = [
         `showResubs=${showResubs ? '1':'0'}`,
@@ -73,7 +74,7 @@ function generateLink() {
 
     const fontParams = fontUrl ? `fontUrl=${encodeURIComponent(fontUrl)}` : '';
 
-    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
+    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
 
     document.getElementById('resultLink').textContent = url;
 
@@ -109,7 +110,8 @@ const CONFIG_FIELDS = [
     { id: 'shadowOpacity', type: 'text' },
     { id: 'messageGap',    type: 'text' },
     { id: 'lineHeight',    type: 'text' },
-    { id: 'excludedUsers', type: 'text' },
+    { id: 'excludedUsers',    type: 'text' },
+    { id: 'excludedPrefixes', type: 'text' },
     { id: 'fontUrl',       type: 'text' },
     // Events — toggles
     { id: 'showResubs',     type: 'check' },
