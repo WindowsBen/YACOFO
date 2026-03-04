@@ -23,7 +23,12 @@ function displayMessage(tags, message) {
     // ── Reply handling ────────────────────────────────────────────────────────
     const parentMsgId = tags['reply-parent-msg-id'];
     const parentUser  = tags['reply-parent-display-name'] || tags['reply-parent-user-login'];
-    const parentBody  = tags['reply-parent-msg-body'] || '';
+    const parentBody  = (tags['reply-parent-msg-body'] || '')
+        .replace(/\\s/g, ' ')
+        .replace(/\\:/g, ';')
+        .replace(/\\\\/g, '\\')
+        .replace(/\\r/g, '')
+        .replace(/\\n/g, '');
 
     let replyHTML = '';
     if (CONFIG.showReplies && parentMsgId && parentUser) {
