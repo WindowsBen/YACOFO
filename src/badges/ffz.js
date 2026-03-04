@@ -1,6 +1,7 @@
 // ─── badges/ffz.js ────────────────────────────────────────────────────────────
-// Fetches FFZ badge definitions from api.frankerfacez.com/v1/badges/ids.
-// Keyed by Twitch user ID (tags['user-id']) — no login name lookup needed.
+// Fetches FFZ badge definitions and maps them to Twitch user IDs.
+// FFZ's API returns a flat list of badges with a users array per badge,
+// so we invert that into a userId → badges lookup for O(1) render-time access.
 
 // twitchUserId (string) → array of { url, title }
 const ffzUserBadges = {};
@@ -12,19 +13,20 @@ async function fetchFFZBadges() {
 
         const data = await res.json();
 
-        // Clear before repopulating so reconnects don't duplicate badges
+        // Clear before repopulating so reconnects don't duplicate entries
         for (const key of Object.keys(ffzUserBadges)) delete ffzUserBadges[key];
 
-        // Build badge id → { url, title } lookup
+        // Build a badgeId → { url, title } lookup first
         const badgeDefs = {};
         for (const badge of data.badges || []) {
             if (!badge.urls && !badge.image) continue;
+            // Prefer highest resolution available
             const url = badge.urls?.['4'] || badge.urls?.['2'] || badge.urls?.['1'] || badge.image;
             if (!url) continue;
             badgeDefs[badge.id] = { url, title: badge.title || 'FFZ Badge' };
         }
 
-        // Invert users map: twitchUserId → [badge defs]
+        // Invert: for each badge, assign it to each user that has it
         for (const [badgeId, userIds] of Object.entries(data.users || {})) {
             const def = badgeDefs[badgeId];
             if (!def) continue;

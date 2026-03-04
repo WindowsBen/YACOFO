@@ -2,14 +2,18 @@
 // Builds the OBS overlay URL from current form state and handles copy-to-clipboard.
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Converts a #RRGGBB hex color + 0-100 opacity into an 8-char RRGGBBAA string
+// used in the URL (no # prefix, to keep the URL compact).
 function colorToHex8(hex, opacity) {
     const aa = Math.round(opacity / 100 * 255).toString(16).padStart(2, '0');
     return hex.slice(1) + aa; // RRGGBBAA, no #
 }
 
-const v  = id => document.getElementById(id).value;
-const ch = id => document.getElementById(id).checked;
-const c8 = (colorId, opacityId) => colorToHex8(v(colorId), parseInt(v(opacityId)));
+// Shorthand helpers for reading form values
+const v  = id => document.getElementById(id).value;    // text/number input value
+const ch = id => document.getElementById(id).checked;  // checkbox state
+const c8 = (colorId, opacityId) => colorToHex8(v(colorId), parseInt(v(opacityId))); // color+opacity → hex8
 
 // ── Generate ──────────────────────────────────────────────────────────────────
 function generateLink() {
@@ -19,6 +23,7 @@ function generateLink() {
     const token = localStorage.getItem('twitch_access_token') || '';
     const base  = window.location.href.replace('index.html', '');
 
+    // When all badges are disabled we only need the one flag — skip the other badge params
     const badgeParams = ch('disableAllBadges')
         ? '&disableAllBadges=1'
         : `&roleOnlyBadges=${ch('roleOnlyBadges') ? '1':'0'}&showExternalCosmetics=${ch('showExternalCosmetics') ? '1':'0'}`;
@@ -41,6 +46,8 @@ function generateLink() {
     const excludedUsers    = v('excludedUsers').trim();
     const excludedPrefixes = v('excludedPrefixes').trim();
 
+    // Each event type contributes its toggle, then colors and label only when enabled.
+    // filter(Boolean) strips the false entries (disabled events skip their color params).
     const eventParams = [
         `showResubs=${showResubs ? '1':'0'}`,
         showResubs && `resubAccent=${c8('resubAccent','resubAccentOpacity')}`,
@@ -74,7 +81,7 @@ function generateLink() {
 
     const fontParams = fontUrl ? `fontUrl=${encodeURIComponent(fontUrl)}` : '';
 
-    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}${ch('showPinned') ? '&showPinned=1' : ''}${ch('showPinned') && v('pinnedDuration') ? '&pinnedDuration='+v('pinnedDuration') : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
+    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&fontSize=${v('fontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
 
     document.getElementById('resultLink').textContent = url;
 
@@ -101,7 +108,10 @@ function copyLink() {
 
 // ── Export / Import ───────────────────────────────────────────────────────────
 
-// All form field IDs to capture — token intentionally excluded
+// All form field IDs and their types. Used by exportConfig/importConfig to
+// snapshot and restore every setting. Token is intentionally excluded —
+// whoever imports will authenticate with their own Twitch account.
+// ⚠️ Add new fields here whenever a new configurable option is introduced.
 const CONFIG_FIELDS = [
     // General
     { id: 'channel',       type: 'text' },
@@ -114,8 +124,6 @@ const CONFIG_FIELDS = [
     { id: 'excludedPrefixes', type: 'text'  },
     { id: 'showReplies',      type: 'check' },
     { id: 'meStyle',          type: 'text'  },
-    { id: 'showPinned',       type: 'check' },
-    { id: 'pinnedDuration',   type: 'text'  },
     { id: 'fontUrl',       type: 'text' },
     // Events — toggles
     { id: 'showResubs',     type: 'check' },
@@ -149,6 +157,8 @@ const CONFIG_FIELDS = [
     { id: 'toastEmotes',          type: 'check' },
 ];
 
+// Serialises all form values to JSON, then base64-encodes it into a
+// shareable alphanumeric string that can be pasted into importConfig().
 function exportConfig() {
     const data = {};
     CONFIG_FIELDS.forEach(({ id, type }) => {
@@ -168,6 +178,9 @@ function exportConfig() {
     document.getElementById('copyExportBtn').classList.remove('copied');
 }
 
+// Decodes a config string produced by exportConfig() and restores every
+// field, firing change/input events so dependent UI (opacity labels,
+// event colour panels, badge disabling) updates automatically.
 function importConfig() {
     const input = prompt('Paste your config string:');
     if (!input) return;

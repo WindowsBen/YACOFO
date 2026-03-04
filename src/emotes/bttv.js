@@ -1,8 +1,9 @@
 // ─── emotes/bttv.js ───────────────────────────────────────────────────────────
-// Fetches global and channel BetterTTV emotes into emoteMap.
+// Fetches global and channel BetterTTV emotes into the shared emoteMap.
 
 async function fetchBTTVEmotes(twitchUserId) {
     try {
+        // Global emotes — available in every channel
         const globalRes = await fetch('https://api.betterttv.net/3/cached/emotes/global');
         if (globalRes.ok) {
             const globals = await globalRes.json();
@@ -12,6 +13,7 @@ async function fetchBTTVEmotes(twitchUserId) {
             console.log(`[BTTV] Loaded ${globals.length} global emotes`);
         }
 
+        // Channel-specific emotes (both owned and shared)
         const channelRes = await fetch(`https://api.betterttv.net/3/cached/users/twitch/${twitchUserId}`);
         if (!channelRes.ok) { console.warn('[BTTV] Channel not found on BTTV'); return; }
 

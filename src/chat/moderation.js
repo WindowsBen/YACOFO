@@ -1,6 +1,9 @@
 // ─── chat/moderation.js ───────────────────────────────────────────────────────
-// Handles all moderation events: clear, ban, timeout, single message delete.
+// Listens for Twitch moderation events and removes affected messages from the DOM.
+// All message elements are tagged with data-username and data-msg-id at render
+// time (in renderer.js) so we can target them here without keeping a JS array.
 
+// Removes all visible messages from a given login name
 function removeUserMessages(username) {
     document.getElementById('chat-container')
         .querySelectorAll(`[data-username="${CSS.escape(username.toLowerCase())}"]`)
@@ -8,7 +11,7 @@ function removeUserMessages(username) {
 }
 
 function registerModerationListeners(client) {
-    // /clear — wipe everything
+    // /clear — wipe the entire chat window
     client.on('clearchat', () => {
         document.getElementById('chat-container').innerHTML = '';
     });
@@ -17,7 +20,7 @@ function registerModerationListeners(client) {
     client.on('timeout', (channel, username) => removeUserMessages(username));
     client.on('ban',     (channel, username) => removeUserMessages(username));
 
-    // Single message deleted by a mod or broadcaster
+    // A mod or broadcaster deleted a single specific message
     client.on('messagedeleted', (channel, username, deletedMessage, tags) => {
         const msgId = tags['target-msg-id'];
         if (msgId) document.querySelector(`[data-msg-id="${CSS.escape(msgId)}"]`)?.remove();

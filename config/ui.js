@@ -1,20 +1,24 @@
 // ─── config/ui.js ─────────────────────────────────────────────────────────────
-// Handles all interactive UI behaviour on the configurator page.
+// All interactive UI behaviour on the configurator page.
+// Keeps visual logic separate from auth (auth.js) and URL generation (generate.js).
 
-// ── Accordion open/close ──────────────────────────────────────────────────────
+// Toggles an accordion panel open or closed.
+// Locked accordions (before login) are ignored.
 function toggleAccordion(id) {
     const el = document.getElementById(id);
     if (el.classList.contains('locked')) return;
     el.classList.toggle('open');
 }
 
-// ── Event type color panel expand/collapse ────────────────────────────────────
+// Shows or hides the color/label options panel for an event type.
+// Called by the event toggle checkboxes via onchange.
 function toggleEventOptions(checkboxId, optionsId) {
     const checked = document.getElementById(checkboxId).checked;
     document.getElementById(optionsId).classList.toggle('visible', checked);
 }
 
-// ── Badge "Disable ALL" greys out dependent checkboxes ───────────────────────
+// When "Disable ALL badges" is checked, grey out and uncheck the dependent
+// badge options so it's clear they have no effect while the kill switch is on.
 function onDisableAllBadgesChange() {
     const disabled = document.getElementById('disableAllBadges').checked;
     ['roleOnlyBadges', 'showExternalCosmetics'].forEach(id => {
@@ -30,7 +34,7 @@ function onDisableAllBadgesChange() {
     });
 }
 
-// ── Opacity sliders → live percentage labels ──────────────────────────────────
+// Wire up all opacity sliders so their percentage label updates live as you drag
 window.addEventListener('load', () => {
     document.querySelectorAll('.opacity-slider').forEach(slider => {
         const label = document.getElementById(slider.id + 'Label');

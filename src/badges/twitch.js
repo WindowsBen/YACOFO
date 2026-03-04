@@ -1,6 +1,11 @@
 // ─── badges/twitch.js ─────────────────────────────────────────────────────────
-// Fetches global and channel Twitch badges via the Helix API.
-// Requires a valid accessToken and clientId from CONFIG.
+// Fetches Twitch badge definitions from the Helix API and stores them in badgeMap.
+//
+// Two fetches are made: global badges (bits, Prime, turbo, staff, etc.) and
+// channel badges (subscriber tiers, custom bits badges). Channel badges overwrite
+// global ones with the same key so the streamer's custom icons always take priority.
+//
+// Requires a valid OAuth token and clientId from CONFIG.
 
 async function fetchTwitchBadges(channelId) {
     if (!CONFIG.clientId || !CONFIG.token) {
@@ -14,12 +19,13 @@ async function fetchTwitchBadges(channelId) {
     };
 
     try {
-        // Global badges (admin, staff, turbo, Prime, bits, etc.)
+        // Global badges — available in every channel (admin, staff, turbo, Prime, bits tiers, etc.)
         const globalRes = await fetch('https://api.twitch.tv/helix/chat/badges/global', { headers });
         if (globalRes.ok) {
             const globalData = await globalRes.json();
             for (const set of globalData.data || []) {
                 for (const version of set.versions || []) {
+                    // Key format: "set_id/version_id" e.g. "subscriber/6" or "bits/1000"
                     badgeMap[`${set.set_id}/${version.id}`] = version.image_url_4x;
                 }
             }
@@ -29,8 +35,8 @@ async function fetchTwitchBadges(channelId) {
             return;
         }
 
-        // Channel badges (subscriber tiers, bits tiers, custom badges)
-        // Overwrites globals with same key so channel-specific icons always win
+        // Channel badges — subscriber tiers, custom bits badges, channel-specific icons.
+        // Written after globals so channel overrides win any key conflicts.
         const channelRes = await fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${channelId}`, { headers });
         if (channelRes.ok) {
             const channelData = await channelRes.json();

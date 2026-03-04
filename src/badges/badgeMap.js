@@ -1,7 +1,10 @@
 // ─── badges/badgeMap.js ───────────────────────────────────────────────────────
-// Shared badge registry and badge rendering.
-// "set/version" → image URL  e.g. "subscriber/6" → "https://..."
+// Shared Twitch badge registry and badge rendering logic.
+// Badge keys follow the format "set/version" e.g. "subscriber/6" or "bits/1000".
+// All badge providers (Twitch, FFZ, Chatterino) write into this or their own maps,
+// and renderBadges() reads from all of them to build the final badge HTML.
 
+// "set/version" → image URL for Twitch badges
 const badgeMap = {};
 
 function renderBadges(tags) {
@@ -10,9 +13,10 @@ function renderBadges(tags) {
     // Kill switch — return nothing if all badges are disabled
     if (CONFIG.disableAllBadges) return html;
 
-    // Twitch badges — tags.badges is already parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
+    // Twitch badges — tags.badges is pre-parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
     if (tags.badges) {
         for (const [setName, version] of Object.entries(tags.badges)) {
+            // Skip non-role badges when roleOnlyBadges is active
             if (CONFIG.roleOnlyBadges && !ROLE_BADGES.has(setName)) continue;
             const url = badgeMap[`${setName}/${version}`];
             if (url) {
@@ -21,8 +25,8 @@ function renderBadges(tags) {
         }
     }
 
-    // FFZ + Chatterino badges — hidden only when external cosmetics are off
-    // Independent of roleOnlyBadges — both can be active simultaneously
+    // FFZ and Chatterino badges — shown unless external cosmetics are disabled.
+    // These are keyed by Twitch user ID, not login name.
     if (CONFIG.showExternalCosmetics && tags.username) {
         const key = tags['user-id'] ? String(tags['user-id']) : null;
 

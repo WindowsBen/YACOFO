@@ -1,33 +1,41 @@
 // ─── badges/seventv.js ────────────────────────────────────────────────────────
-// Fetches per-user 7TV cosmetics (badge + paint) lazily on first message.
-// Uses an LRU cache capped at MAX_CACHE_SIZE to avoid memory bloat in large chats.
-// Only subscribes to live updates for cached users; unsubscribes on eviction.
+// Per-user 7TV cosmetics: custom badge and username paint.
+//
+// Cosmetics are fetched lazily on first message from a user and cached.
+// To handle large channels without memory bloat, the cache is an LRU (Least
+// Recently Used) Map capped at MAX_CACHE_SIZE. When a user is evicted, their
+// live update subscription is also cancelled to keep server-side sub count low.
+//
+// Live updates: 7TV fires a user.update event when someone changes their
+// cosmetics mid-stream. We re-fetch their data and update all their visible
+// messages in the DOM.
 
-const MAX_CACHE_SIZE = 200;
+const MAX_CACHE_SIZE = 200; // covers all active chatters with headroom
 
-// LRU cache: twitchUserId → cosmetics object
-// We maintain insertion order via a Map so oldest entries are easy to evict.
+// LRU cache: twitchUserId → cosmetics { badgeUrl, paint, sevenTVUserId }
+// Map preserves insertion order — oldest entries are at the front.
 const sevenTVCosmeticsCache = new Map();
 
-// twitchUserId → sevenTVUserId (for unsubscribing on eviction)
+// sevenTVUserId → twitchUserId reverse map, needed to unsubscribe on eviction
 const sevenTVUserIdMap = {};
 
-// Evict the oldest entry if we're over the cap
+// Evict the least-recently-used entry when the cache exceeds its cap.
+// Also sends an unsubscribe to the 7TV WebSocket for the evicted user.
 function _evictIfNeeded() {
     if (sevenTVCosmeticsCache.size <= MAX_CACHE_SIZE) return;
-    const oldestKey = sevenTVCosmeticsCache.keys().next().value;
+    const oldestKey = sevenTVCosmeticsCache.keys().next().value; // first key = oldest
     const evicted   = sevenTVCosmeticsCache.get(oldestKey);
     sevenTVCosmeticsCache.delete(oldestKey);
 
-    // Unsubscribe from live updates for this user
-    const sevenTVId = evicted?.sevenTVUserId || Object.keys(sevenTVUserIdMap).find(k => sevenTVUserIdMap[k] === oldestKey);
+    const sevenTVId = evicted?.sevenTVUserId;
     if (sevenTVId) {
         unsubscribe7TV('user.update', sevenTVId);
         delete sevenTVUserIdMap[sevenTVId];
     }
 }
 
-// Promote a cache entry to "most recently used" (move to end of Map)
+// Promote a cached entry to MRU by removing and re-inserting at the end of the Map.
+// Called on every cache hit so frequently chatting users are never evicted.
 function _touch(twitchUserId) {
     if (!sevenTVCosmeticsCache.has(twitchUserId)) return;
     const val = sevenTVCosmeticsCache.get(twitchUserId);
@@ -35,13 +43,15 @@ function _touch(twitchUserId) {
     sevenTVCosmeticsCache.set(twitchUserId, val);
 }
 
+// Fetches cosmetics for a Twitch user ID, using the cache where possible.
+// Sets a null sentinel immediately to prevent duplicate in-flight fetches.
 async function fetch7TVUserCosmetics(twitchUserId) {
     if (sevenTVCosmeticsCache.has(twitchUserId)) {
-        _touch(twitchUserId); // bump to MRU
+        _touch(twitchUserId);
         return sevenTVCosmeticsCache.get(twitchUserId);
     }
 
-    // Mark pending to prevent duplicate fetches from concurrent messages
+    // Sentinel: subsequent messages for the same user won't trigger another fetch
     sevenTVCosmeticsCache.set(twitchUserId, null);
 
     try {
@@ -53,13 +63,15 @@ async function fetch7TVUserCosmetics(twitchUserId) {
         const sevenTVUserId = data?.user?.id;
         const cosmetics     = { badgeUrl: null, paint: null, sevenTVUserId };
 
+        // Badge — just a CDN URL keyed by badge_id
         if (style?.badge_id) {
             cosmetics.badgeUrl = `https://cdn.7tv.app/badge/${style.badge_id}/4x.webp`;
         }
 
+        // Paint — requires a second GQL call to fetch the full paint definition
         if (style?.paint_id) {
             const paintRes = await fetch('https://7tv.io/v3/gql', {
-                method: 'POST',
+                method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: `{
                     cosmetics(list: ["${style.paint_id}"]) {
@@ -76,7 +88,7 @@ async function fetch7TVUserCosmetics(twitchUserId) {
         sevenTVCosmeticsCache.set(twitchUserId, cosmetics);
         _evictIfNeeded();
 
-        // Subscribe to live updates only for this cached user
+        // Subscribe to live cosmetic changes for this user
         if (sevenTVUserId) {
             sevenTVUserIdMap[sevenTVUserId] = twitchUserId;
             subscribe7TV('user.update', sevenTVUserId, (body) => handle7TVUserUpdate(sevenTVUserId, body));
@@ -90,25 +102,31 @@ async function fetch7TVUserCosmetics(twitchUserId) {
     }
 }
 
-// Called when 7TV fires a user.update event for a subscribed user
+// Called by the 7TV WebSocket when a subscribed user updates their cosmetics.
+// Waits 2s for the API to propagate the change, then re-fetches and repaints
+// all of that user's currently visible messages.
 async function handle7TVUserUpdate(sevenTVUserId, body) {
     const twitchUserId = sevenTVUserIdMap[sevenTVUserId];
     if (!twitchUserId) return;
 
-    // Wait 2s for 7TV's API to propagate the change
+    // Brief delay so the 7TV REST API reflects the change before we re-fetch
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // Bust the cache entry so fetch7TVUserCosmetics pulls fresh data
     sevenTVCosmeticsCache.delete(twitchUserId);
 
     const cosmetics = await fetch7TVUserCosmetics(twitchUserId);
     if (!cosmetics) return;
 
+    // Update all visible message elements belonging to this user
     document.querySelectorAll('[data-seventv-uid]').forEach(msgEl => {
         if (msgEl.dataset.seventvUid !== twitchUserId) return;
         reapply7TVCosmetics(msgEl, cosmetics);
     });
 }
 
+// Entry point called by renderer.js after a message is added to the DOM.
+// Tags the element with the user's Twitch ID so handle7TVUserUpdate can find it.
 async function apply7TVCosmetics(twitchUserId, messageElement) {
     if (CONFIG.disableAllBadges || !CONFIG.showExternalCosmetics) return;
 
@@ -119,11 +137,15 @@ async function apply7TVCosmetics(twitchUserId, messageElement) {
     reapply7TVCosmetics(messageElement, cosmetics);
 }
 
+// Removes stale cosmetics and applies fresh ones to a single message element.
+// Handles both badge (img tag in .badges) and paint (CSS class on .username).
+// Also paints .message-text for colored /me messages (data-me-colored="1").
 function reapply7TVCosmetics(messageElement, cosmetics) {
-    // ── Remove old badge ──
+    // Remove any previously injected 7TV badge image
     messageElement.querySelectorAll('.seventv-badge').forEach(el => el.remove());
 
-    // ── Remove old paint ──
+    // Remove old paint classes and their associated <style> tags from both
+    // the username span and the message-text span (the latter for /me messages)
     const usernameSpan = messageElement.querySelector('.username');
     const msgTextSpan  = messageElement.querySelector('.message-text');
     [usernameSpan, msgTextSpan].forEach(span => {
@@ -138,7 +160,7 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
         span.style.display    = '';
     });
 
-    // ── Apply new badge ──
+    // Inject the new badge into the .badges span
     if (cosmetics.badgeUrl) {
         const badgesSpan = messageElement.querySelector('.badges');
         if (badgesSpan) {
@@ -153,10 +175,9 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
         }
     }
 
-    // ── Apply new paint ──
+    // Apply paint to the username span, and also to message-text for /me colored actions
     if (cosmetics.paint && usernameSpan) {
         applyPaint(usernameSpan, cosmetics.paint);
-        // For colored /me messages, also paint the message text
         if (messageElement.dataset.meColored) {
             const msgText = messageElement.querySelector('.message-text');
             if (msgText) applyPaint(msgText, cosmetics.paint);
