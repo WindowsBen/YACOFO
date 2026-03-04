@@ -1,12 +1,16 @@
 // ─── seventv-ws.js ────────────────────────────────────────────────────────────
 // Single shared WebSocket connection to the 7TV EventSub.
 // Both emote set updates and user cosmetic updates subscribe through this.
+//
+// Handlers are keyed by "type:objectId" so multiple users can each have their
+// own user.update subscription without overwriting each other.
 
-const _7tvHandlers = {}; // topic → callback(body)
+const _7tvHandlers = {}; // "type:objectId" → callback(body)
+const _7tvSubs     = []; // list of { type, objectId } for reconnect
 
-let _7tvWS       = null;
-let _7tvReady    = false;
-const _7tvQueue  = []; // subscriptions requested before WS was open
+let _7tvWS      = null;
+let _7tvReady   = false;
+const _7tvQueue = []; // subscriptions queued before WS was open
 
 function get7TVWS() {
     if (_7tvWS) return _7tvWS;
@@ -16,7 +20,6 @@ function get7TVWS() {
     _7tvWS.onopen = () => {
         _7tvReady = true;
         console.log('[7TV WS] Connected');
-        // Flush any subscriptions that were queued before open
         for (const sub of _7tvQueue) {
             _7tvWS.send(JSON.stringify(sub));
         }
@@ -24,24 +27,34 @@ function get7TVWS() {
     };
 
     _7tvWS.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
+        let msg;
+        try { msg = JSON.parse(event.data); } catch { return; }
         if (msg.op !== 0) return; // op 0 = Dispatch
 
-        const type = msg.d?.type;
-        const body = msg.d?.body;
-        if (type && _7tvHandlers[type]) {
+        const type     = msg.d?.type;
+        const body     = msg.d?.body;
+        const objectId = body?.id || body?.object?.id;
+
+        // Route to the specific handler for this type+object
+        const key = `${type}:${objectId}`;
+        if (_7tvHandlers[key]) {
+            _7tvHandlers[key](body);
+            return;
+        }
+        // Fallback: handler registered without a specific objectId (e.g. emote set)
+        if (_7tvHandlers[type]) {
             _7tvHandlers[type](body);
         }
     };
 
     _7tvWS.onclose = () => {
         console.warn('[7TV WS] Closed — reconnecting in 5s...');
-        _7tvWS   = null;
+        _7tvWS    = null;
         _7tvReady = false;
         setTimeout(() => {
+            get7TVWS();
             // Re-subscribe everything after reconnect
-            const subs = Object.keys(_7tvHandlers);
-            get7TVWS(); // triggers reconnect
+            _7tvSubs.forEach(({ type, objectId }) => _sendSub(type, objectId));
         }, 5000);
     };
 
@@ -50,20 +63,26 @@ function get7TVWS() {
     return _7tvWS;
 }
 
-function subscribe7TV(type, objectId, handler) {
-    _7tvHandlers[type] = handler;
-
-    const sub = {
-        op: 35,
-        d:  { type, condition: { object_id: objectId } }
-    };
-
+function _sendSub(type, objectId) {
+    const payload = { op: 35, d: { type, condition: { object_id: objectId } } };
     if (_7tvReady && _7tvWS?.readyState === WebSocket.OPEN) {
-        _7tvWS.send(JSON.stringify(sub));
+        _7tvWS.send(JSON.stringify(payload));
     } else {
-        _7tvQueue.push(sub);
-        get7TVWS(); // ensure connection is started
+        _7tvQueue.push(payload);
+        get7TVWS();
+    }
+}
+
+function subscribe7TV(type, objectId, handler) {
+    // Key by type:objectId so each user gets their own slot
+    const key = objectId ? `${type}:${objectId}` : type;
+    _7tvHandlers[key] = handler;
+
+    // Track for reconnect
+    if (!_7tvSubs.find(s => s.type === type && s.objectId === objectId)) {
+        _7tvSubs.push({ type, objectId });
     }
 
+    _sendSub(type, objectId);
     console.log(`[7TV WS] Subscribed to ${type} for ${objectId}`);
 }
