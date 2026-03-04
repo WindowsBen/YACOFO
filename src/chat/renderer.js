@@ -26,6 +26,7 @@ function displayMessage(tags, message, isAction = false) {
     if (isAction && CONFIG.meStyle !== 'none') {
         if (CONFIG.meStyle === 'colored') {
             messageStyle = `style="color: ${escapeHTML(userColor)}"`;
+            messageElement.dataset.meColored = '1';
         } else if (CONFIG.meStyle === 'italic') {
             messageStyle = `style="font-style: italic"`;
         }

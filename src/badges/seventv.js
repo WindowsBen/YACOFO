@@ -125,16 +125,18 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
 
     // ── Remove old paint ──
     const usernameSpan = messageElement.querySelector('.username');
-    if (usernameSpan) {
-        [...usernameSpan.classList].forEach(cls => {
+    const msgTextSpan  = messageElement.querySelector('.message-text');
+    [usernameSpan, msgTextSpan].forEach(span => {
+        if (!span) return;
+        [...span.classList].forEach(cls => {
             if (cls.startsWith('seventv-paint-')) {
-                usernameSpan.classList.remove(cls);
+                span.classList.remove(cls);
                 document.querySelector(`style[data-paint="${cls}"]`)?.remove();
             }
         });
-        usernameSpan.style.textShadow = '';
-        usernameSpan.style.display    = '';
-    }
+        span.style.textShadow = '';
+        span.style.display    = '';
+    });
 
     // ── Apply new badge ──
     if (cosmetics.badgeUrl) {
@@ -154,5 +156,10 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
     // ── Apply new paint ──
     if (cosmetics.paint && usernameSpan) {
         applyPaint(usernameSpan, cosmetics.paint);
+        // For colored /me messages, also paint the message text
+        if (messageElement.dataset.meColored) {
+            const msgText = messageElement.querySelector('.message-text');
+            if (msgText) applyPaint(msgText, cosmetics.paint);
+        }
     }
 }
