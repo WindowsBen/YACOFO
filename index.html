@@ -72,9 +72,23 @@
 
                 <hr class="divider">
 
+                <span class="field-label">Space between messages (px)</span>
+                <input type="number" id="messageGap" placeholder="Default: 8" style="width:120px;">
+
+                <span class="field-label">Line height (for long messages)</span>
+                <input type="number" id="lineHeight" placeholder="Default: 1.8" step="0.1" style="width:120px;">
+
+                <hr class="divider">
+
+                <span class="field-label">Excluded users</span>
+                <input type="text" id="excludedUsers" placeholder="e.g. Nightbot, StreamElements">
+                <span class="hint">Comma-separated. These users will not appear in the overlay.</span>
+
+                <hr class="divider">
+
                 <span class="field-label">Custom Font URL</span>
                 <input type="text" id="fontUrl" placeholder="e.g. https://fonts.cdnfonts.com/css/motley-forces">
-                <span style="font-size:12px;color:#888;margin-top:4px;display:block;">Paste a CSS font link — the font name will be extracted automatically.</span>
+                <span class="hint">Paste a CSS font link — the font name will be extracted automatically.</span>
 
             </div>
         </div>

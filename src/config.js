@@ -15,6 +15,13 @@ const CONFIG = {
     fontSize:        params.get('fontSize'),
     shadowColor:     params.get('shadow'),
     showToastEmotes: params.get('toastEmotes') !== '0',
+    // Spacing
+    messageGap:      params.get('messageGap')  || '',
+    lineHeight:      params.get('lineHeight')  || '',
+    // Excluded users — stored as a lowercase Set for O(1) lookup
+    excludedUsers:   new Set(
+        (params.get('exclude') || '').split(',').map(u => u.trim().toLowerCase()).filter(Boolean)
+    ),
     // Per-type event toggles
     showResubs:      params.get('showResubs')      !== '0' && params.get('showResubs') === '1',
     showGifts:       params.get('showGifts')       !== '0' && params.get('showGifts')  === '1',
@@ -41,6 +48,8 @@ const CONFIG = {
 // Apply CSS variables
 if (CONFIG.fontSize)    document.documentElement.style.setProperty('--chat-font-size',    CONFIG.fontSize);
 if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color', hex8ToCss(CONFIG.shadowColor, '#000000FF'));
+if (CONFIG.messageGap)  document.documentElement.style.setProperty('--message-gap',       CONFIG.messageGap + 'px');
+if (CONFIG.lineHeight)  document.documentElement.style.setProperty('--message-line-height', CONFIG.lineHeight);
 
 // Load custom font if provided — extract font-family name from the CSS itself
 if (CONFIG.fontUrl) {
