@@ -51,6 +51,11 @@ client.on('action', (channel, tags, message, self) => {
 // We also use this to catch pinned message events and log all USERNOTICEs
 // to help discover what msg-ids fire for manual unpins.
 client.on('raw_message', (messageCloned, message) => {
+    // Temporary: log everything except PRIVMSG (too noisy) to find pin events
+    if (message.command !== 'PRIVMSG') {
+        console.log('[raw]', message.command, message.tags?.['msg-id'] || '', message.tags);
+    }
+
     if (message.command !== 'USERNOTICE') return;
     const tags = message.tags || {};
     const msgId = tags['msg-id'];
@@ -61,10 +66,8 @@ client.on('raw_message', (messageCloned, message) => {
     } else if (msgId === 'pinned-chat-update') {
         handlePinnedChatUpdate(tags, text);
     } else if (msgId === 'pinned-chat-remove' || msgId === 'unpin-chat' || msgId === 'moderator-removed-pin') {
-        // Try all known/plausible unpin msg-ids — log will reveal the real one
         handlePinnedChatRemove(tags);
     } else if (msgId && msgId.includes('pin')) {
-        // Catch any other pin-related events we don't know about yet
         console.log('[unknown pin event]', msgId, tags);
     }
 });
