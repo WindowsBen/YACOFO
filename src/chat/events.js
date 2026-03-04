@@ -128,10 +128,24 @@ function handleAnnouncement(tags, message) {
     const colorClass = ANNOUNCE_COLOR_CLASS[colorKey] || 'announce-primary';
     const username   = tags['display-name'] || tags.login || 'Moderator';
     const userColor  = tags.color || '#efeff1';
-    const badgesHTML = renderBadges(tags);
 
-    // Parse emotes from the raw IRC emotes tag
-    const parsedMsg = parseMessage(message, parseRawEmotesTag(tags.emotes));
+    // Raw IRC badges tag is "set/version,set/version" — parse into the object
+    // format that renderBadges expects (same shape tmi.js produces for PRIVMSG)
+    const rawBadges = tags.badges;
+    if (typeof rawBadges === 'string') {
+        tags.badges = {};
+        for (const pair of rawBadges.split(',')) {
+            const [set, version] = pair.split('/');
+            if (set) tags.badges[set] = version || '1';
+        }
+    }
+
+    // renderBadges uses tags.username for FFZ/Chatterino lookups —
+    // USERNOTICE provides the login name under a different key
+    if (!tags.username && tags.login) tags.username = tags.login;
+
+    const badgesHTML = renderBadges(tags);
+    const parsedMsg  = parseMessage(message, parseRawEmotesTag(tags.emotes));
 
     const container = document.getElementById('chat-container');
     const el        = document.createElement('div');
@@ -145,8 +159,8 @@ function handleAnnouncement(tags, message) {
         <span class="message-text">${parsedMsg}</span>`;
 
     // Tag for moderation targeting
-    if (tags['id'])       el.dataset.msgId   = tags['id'];
-    if (tags['login'])    el.dataset.username = tags['login'].toLowerCase();
+    if (tags['id'])    el.dataset.msgId   = tags['id'];
+    if (tags['login']) el.dataset.username = tags['login'].toLowerCase();
 
     container.appendChild(el);
     if (container.childNodes.length > 50) container.removeChild(container.firstChild);
