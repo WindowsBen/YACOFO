@@ -46,7 +46,6 @@ client.on('message', (channel, tags, message, self) => {
 client.on('raw_message', (messageCloned, message) => {
     if (message.command !== 'USERNOTICE') return;
     const tags = message.tags || {};
-    console.log('[USERNOTICE raw]', tags['msg-id'], tags);
     if (tags['msg-id'] === 'viewermilestone' && tags['msg-param-category'] === 'watch-streak') {
         const text = message.params?.[1] || '';
         handleWatchStreak(tags, text);
