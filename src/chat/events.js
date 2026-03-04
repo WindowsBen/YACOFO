@@ -110,13 +110,26 @@ function handleCheer(channel, userstate, message) {
 // Fired via raw_message in main.js (not a tmi.js named event) because Twitch
 // delivers these as USERNOTICE with msg-id = "viewermilestone".
 
+// Raw IRC emotes tag format: "id:start-end,start-end/id2:start-end"
+// tmi.js parses this automatically for regular messages, but raw_message tags
+// are unprocessed strings — so we convert them manually before passing to parseMessage.
+function parseRawEmotesTag(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    const result = {};
+    for (const chunk of raw.split('/')) {
+        const [id, positions] = chunk.split(':');
+        if (id && positions) result[id] = positions.split(',');
+    }
+    return Object.keys(result).length ? result : null;
+}
+
 function handleWatchStreak(tags, message) {
     if (!CONFIG.showStreaks) return;
     const name   = tags['display-name'] || tags.username;
     const streak = tags['msg-param-value'] || '?';  // number of consecutive streams watched
     const verb   = CONFIG.streakLabel || 'is on a';
     const detail = `${verb} ${streak}-stream watch streak!`;
-    // Parse emotes in the optional viewer message attached to the streak
-    const parsedMsg = message && message.trim() ? parseMessage(message.trim(), tags.emotes) : '';
+    // Parse the raw emotes string from IRC into the format parseMessage expects
+    const parsedMsg = message && message.trim() ? parseMessage(message.trim(), parseRawEmotesTag(tags.emotes)) : '';
     displayEventMessage(ICON_STREAK, name, detail, parsedMsg, true, 'streak-message');
 }
