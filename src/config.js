@@ -17,7 +17,8 @@ function hex8ToCss(hex8, fallback) {
 
 const CONFIG = {
     channelName:     params.get('channel'),
-    fontSize:        params.get('fontSize'),
+    nameFontSize:    params.get('nameFontSize'),
+    messageFontSize: params.get('messageFontSize'),
     shadowColor:     params.get('shadow'),
     showToastEmotes: params.get('toastEmotes') !== '0', // default on
 
@@ -66,7 +67,8 @@ const CONFIG = {
 };
 
 // ── Apply CSS variables ────────────────────────────────────────────────────────
-if (CONFIG.fontSize)    document.documentElement.style.setProperty('--chat-font-size',      CONFIG.fontSize);
+if (CONFIG.nameFontSize)    document.documentElement.style.setProperty('--name-font-size',    CONFIG.nameFontSize);
+if (CONFIG.messageFontSize) document.documentElement.style.setProperty('--message-font-size', CONFIG.messageFontSize);
 if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color',   hex8ToCss(CONFIG.shadowColor, '#000000FF'));
 if (CONFIG.messageGap)  document.documentElement.style.setProperty('--message-gap',         CONFIG.messageGap + 'px');
 if (CONFIG.lineHeight)  document.documentElement.style.setProperty('--message-line-height', CONFIG.lineHeight);
