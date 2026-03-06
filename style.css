@@ -31,6 +31,7 @@ body {
 
 .chat-message .badges {
     display: inline;
+    font-size: var(--name-font-size);
 }
 
 .chat-message .username {
