@@ -26,7 +26,7 @@ body {
     text-shadow: 1px 1px 2px var(--chat-shadow-color), -1px -1px 2px var(--chat-shadow-color);
     margin-bottom: var(--message-gap, 8px);
     word-wrap: break-word;
-    line-height: var(--message-line-height, 1.8);
+    line-height: var(--message-line-height, 1.5);
 }
 
 .chat-message .badges {
