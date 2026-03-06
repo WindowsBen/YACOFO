@@ -39,8 +39,8 @@ const CONFIG = {
     showAnnouncements: params.get('showAnnouncements') !== '0', // default on
 
     // Raid toggles — default on
-    showRaidIncoming:    params.get('showRaidIncoming')    !== '0',
-    showRaidOutgoing:    params.get('showRaidOutgoing')    !== '0',
+    showRaidIncoming:    params.get('showRaidIncoming')    === '1',
+    showRaidOutgoing:    params.get('showRaidOutgoing')    === '1',
     raidIncomingLabel:   params.get('raidIncomingLabel')   || '',
     raidOutgoingLabel:   params.get('raidOutgoingLabel')   || '',
 
