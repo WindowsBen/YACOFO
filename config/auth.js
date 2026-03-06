@@ -1,12 +1,7 @@
 // ─── config/auth.js ───────────────────────────────────────────────────────────
-// Twitch OAuth implicit flow for the configurator page.
-// On login, Twitch redirects back with an access_token in the URL hash.
-// The token is stored in localStorage so it persists across sessions and
-// can be automatically embedded in the generated OBS URL.
 
 const CLIENT_ID = 'ti9ahr6lkym6anpij3d4f2cyjhij18';
 
-// Redirects to Twitch's OAuth page — on return, handleOAuthRedirect() picks up the token
 function loginWithTwitch() {
     const redirectUri = window.location.origin + window.location.pathname;
     const authUrl = new URL('https://id.twitch.tv/oauth2/authorize');
@@ -17,7 +12,6 @@ function loginWithTwitch() {
     window.location.href = authUrl.toString();
 }
 
-// Updates the UI to show the logged-in state and unlocks all tabs
 function setLoggedIn() {
     document.getElementById('status-dot').className     = 'dot dot-green';
     document.getElementById('status-text').textContent  = 'Connected ✓';
@@ -26,10 +20,9 @@ function setLoggedIn() {
     const badge = document.getElementById('login-badge');
     badge.textContent = 'Connected';
     badge.classList.remove('locked-badge');
-    unlockTabs(); // defined in ui.js
+    unlockTabs(); // ui.js
 }
 
-// Fetches the logged-in user's Twitch login/display name and pre-fills the channel field
 async function fetchAndStoreUsername(token) {
     try {
         const res = await fetch('https://api.twitch.tv/helix/users', {
@@ -46,7 +39,6 @@ async function fetchAndStoreUsername(token) {
     } catch { /* silent */ }
 }
 
-// Checks if Twitch just redirected back with a token in the URL hash.
 function handleOAuthRedirect() {
     const hash = window.location.hash;
     if (!hash) return false;
@@ -59,13 +51,18 @@ function handleOAuthRedirect() {
     return true;
 }
 
+// Single init entry point — no competing load listeners
 window.addEventListener('load', async () => {
-    const freshLogin = handleOAuthRedirect();
-    // ui.js lockTabs() runs first via its own load listener
+    // 1. Lock everything first, synchronously
+    lockTabs();
+    initSliders();
 
-    const token = localStorage.getItem('twitch_access_token');
+    // 2. Then check auth and unlock if valid
+    const freshLogin = handleOAuthRedirect();
+    const token      = localStorage.getItem('twitch_access_token');
+
     if (token) {
-        setLoggedIn();
+        setLoggedIn(); // calls unlockTabs()
         if (freshLogin) {
             await fetchAndStoreUsername(token);
         } else {

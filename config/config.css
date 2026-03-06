@@ -541,3 +541,25 @@ select option { background: #18181b; }
     color: var(--text-muted);
     margin-bottom: 2px;
 }
+
+/* ─── Locked tab blur ────────────────────────────────────────────────────── */
+.tab-panel {
+    position: relative;
+}
+
+.tab-panel.tab-locked {
+    pointer-events: none;
+    user-select: none;
+}
+
+.tab-panel.tab-locked > * {
+    filter: blur(4px);
+    opacity: 0.5;
+    transition: filter 0.3s, opacity 0.3s;
+}
+
+.tab-panel:not(.tab-locked) > * {
+    filter: none;
+    opacity: 1;
+    transition: filter 0.3s, opacity 0.3s;
+}
