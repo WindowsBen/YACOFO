@@ -70,8 +70,14 @@ client.on('raw_message', (messageCloned, message) => {
         handleWatchStreak(tags, text);
     } else if (msgId === 'announcement') {
         handleAnnouncement(tags, text);
+    } else if (msgId === 'raid') {
+        // Only fires on the broadcaster's own channel when they initiate a raid
+        handleRaidOutgoing(tags);
     }
 });
+
+// Incoming raid — tmi.js exposes this as a named event
+client.on('raided', handleRaidIncoming);
 
 // Subscription events — tmi.js parses these from USERNOTICE into named events
 client.on('subscription',    handleSubscription);

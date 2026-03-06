@@ -38,6 +38,12 @@ const CONFIG = {
     meStyle:           params.get('meStyle') || 'colored', // 'colored' | 'italic' | 'none'
     showAnnouncements: params.get('showAnnouncements') !== '0', // default on
 
+    // Raid toggles — default on
+    showRaidIncoming:    params.get('showRaidIncoming')    !== '0',
+    showRaidOutgoing:    params.get('showRaidOutgoing')    !== '0',
+    raidIncomingLabel:   params.get('raidIncomingLabel')   || '',
+    raidOutgoingLabel:   params.get('raidOutgoingLabel')   || '',
+
     // Event message toggles — all default off (must be explicitly set to '1')
     showResubs:     params.get('showResubs')     === '1',
     showGifts:      params.get('showGifts')      === '1',
@@ -109,6 +115,10 @@ const cssVars = {
     '--highlight-bg':     hex8ToCss(params.get('highlightBg'),     '#2a002aCC'),
     '--streak-accent':    hex8ToCss(params.get('streakAccent'),    '#FF6400FF'),
     '--streak-bg':        hex8ToCss(params.get('streakBg'),        '#2a0f00CC'),
+    '--raid-incoming-accent': hex8ToCss(params.get('raidIncomingAccent'), '#E91916FF'),
+    '--raid-incoming-bg':     hex8ToCss(params.get('raidIncomingBg'),     '#2a0000CC'),
+    '--raid-outgoing-accent': hex8ToCss(params.get('raidOutgoingAccent'), '#00c8ffFF'),
+    '--raid-outgoing-bg':     hex8ToCss(params.get('raidOutgoingBg'),     '#00132aCC'),
 };
 for (const [key, val] of Object.entries(cssVars)) {
     document.documentElement.style.setProperty(key, val);

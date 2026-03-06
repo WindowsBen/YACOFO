@@ -286,6 +286,48 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Raid Incoming -->
+                    <div class="event-row">
+                        <label class="checkbox-wrapper"><input type="checkbox" id="showRaidIncoming" checked onchange="toggleEventOptions('showRaidIncoming','opts-raidIncoming')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Incoming Raids</strong></span></label>
+                        <div class="event-options" id="opts-raidIncoming">
+                            <div class="color-row">
+                                <span>Accent</span>
+                                <input type="color" id="raidIncomingAccent" value="#E91916">
+                                <input type="range" class="opacity-slider" id="raidIncomingAccentOpacity" min="0" max="100" value="100"><span id="raidIncomingAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="color-row">
+                                <span>Background</span>
+                                <input type="color" id="raidIncomingBg" value="#2a0000">
+                                <input type="range" class="opacity-slider" id="raidIncomingBgOpacity" min="0" max="100" value="80"><span id="raidIncomingBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="label-row">
+                                <span>Verb</span>
+                                <input type="text" id="raidIncomingLabel" placeholder="e.g. is raiding with">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raid Outgoing -->
+                    <div class="event-row">
+                        <label class="checkbox-wrapper"><input type="checkbox" id="showRaidOutgoing" checked onchange="toggleEventOptions('showRaidOutgoing','opts-raidOutgoing')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Outgoing Raids</strong></span></label>
+                        <div class="event-options" id="opts-raidOutgoing">
+                            <div class="color-row">
+                                <span>Accent</span>
+                                <input type="color" id="raidOutgoingAccent" value="#00c8ff">
+                                <input type="range" class="opacity-slider" id="raidOutgoingAccentOpacity" min="0" max="100" value="100"><span id="raidOutgoingAccentOpacityLabel">100%</span>
+                            </div>
+                            <div class="color-row">
+                                <span>Background</span>
+                                <input type="color" id="raidOutgoingBg" value="#00132a">
+                                <input type="range" class="opacity-slider" id="raidOutgoingBgOpacity" min="0" max="100" value="80"><span id="raidOutgoingBgOpacityLabel">80%</span>
+                            </div>
+                            <div class="label-row">
+                                <span>Verb</span>
+                                <input type="text" id="raidOutgoingLabel" placeholder="e.g. Raiding">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
