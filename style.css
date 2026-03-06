@@ -29,7 +29,7 @@ body {
     line-height: var(--message-line-height, 1.8);
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: baseline;
 }
 
 .chat-message .badges,
@@ -271,9 +271,9 @@ body {
 
 .reply-message-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: wrap;
-    width: 100%; /* force it onto its own line below the reply-context */
+    width: 100%;
     min-width: 0;
 }
 
