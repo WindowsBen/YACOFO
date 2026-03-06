@@ -87,6 +87,21 @@
         </div>
 
         <div class="tab-section">
+            <div class="tab-section-title">Animations</div>
+            <span class="field-label">Slide-in distance (px)</span>
+            <input type="number" id="slideDistance" placeholder="Default: 20" style="width:120px;">
+            <span class="hint">How far below messages start before sliding into position.</span>
+            <span class="field-label">Slide-in speed (ms)</span>
+            <input type="number" id="slideDuration" placeholder="Default: 300" style="width:120px;">
+            <hr class="divider">
+            <span class="field-label">Message lifetime (ms, 0 = stay forever)</span>
+            <input type="number" id="messageLifetime" placeholder="e.g. 30000" style="width:120px;">
+            <span class="hint">How long messages remain visible before fading out.</span>
+            <span class="field-label">Fade-out duration (ms)</span>
+            <input type="number" id="fadeDuration" placeholder="Default: 1000" style="width:120px;">
+        </div>
+
+        <div class="tab-section">
             <div class="tab-section-title">Message Behavior</div>
             <label class="checkbox-wrapper"><input type="checkbox" id="showAnnouncements" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show /announce messages</span></label>
             <label class="checkbox-wrapper"><input type="checkbox" id="showReplies" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show reply context above messages</span></label>

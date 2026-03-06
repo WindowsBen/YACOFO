@@ -23,8 +23,12 @@ const CONFIG = {
     showToastEmotes: params.get('toastEmotes') !== '0', // default on
 
     // Spacing — only set if the user changed from defaults
-    messageGap:  params.get('messageGap')  || '',  // px between messages (default 8)
-    lineHeight:  params.get('lineHeight')  || '',  // line-height for long messages (default 1.8)
+    messageGap:      params.get('messageGap')      || '',
+    lineHeight:      params.get('lineHeight')       || '',
+    slideDistance:   params.get('slideDistance')    || '',  // px — how far messages slide in from
+    slideDuration:   params.get('slideDuration')    || '',  // ms — slide-in speed
+    messageLifetime: params.get('messageLifetime')  || '',  // ms — 0 = messages stay forever
+    fadeDuration:    params.get('fadeDuration')     || '',  // ms — fade-out duration
 
     // Excluded users — lowercase Set for O(1) lookup on every message
     excludedUsers: new Set(
@@ -74,8 +78,11 @@ const CONFIG = {
 if (CONFIG.nameFontSize)    document.documentElement.style.setProperty('--name-font-size',    CONFIG.nameFontSize);
 if (CONFIG.messageFontSize) document.documentElement.style.setProperty('--message-font-size', CONFIG.messageFontSize);
 if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color',   hex8ToCss(CONFIG.shadowColor, '#000000FF'));
-if (CONFIG.messageGap)  document.documentElement.style.setProperty('--message-gap',         CONFIG.messageGap + 'px');
-if (CONFIG.lineHeight)  document.documentElement.style.setProperty('--message-line-height', CONFIG.lineHeight);
+if (CONFIG.messageGap)    document.documentElement.style.setProperty('--message-gap',         CONFIG.messageGap + 'px');
+if (CONFIG.lineHeight)    document.documentElement.style.setProperty('--message-line-height', CONFIG.lineHeight);
+if (CONFIG.slideDistance) document.documentElement.style.setProperty('--slide-distance',      CONFIG.slideDistance + 'px');
+if (CONFIG.slideDuration) document.documentElement.style.setProperty('--slide-duration',      CONFIG.slideDuration + 'ms');
+if (CONFIG.fadeDuration)  document.documentElement.style.setProperty('--fade-duration',       CONFIG.fadeDuration + 'ms');
 
 // ── Custom font ────────────────────────────────────────────────────────────────
 // Load the font stylesheet, then fetch it again to extract the font-family name

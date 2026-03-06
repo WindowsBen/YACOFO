@@ -54,9 +54,9 @@ body {
 }
 
 .chat-badge {
-    height: 0.9em;
-    width: 0.9em;
-    vertical-align: -0.06em;
+    height: 0.8em;
+    width: 0.8em;
+    vertical-align: -0.05em;
     margin-right: 2px;
     filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.6));
     object-fit: contain;
@@ -323,3 +323,30 @@ body {
 }
 .raid-incoming-message .event-icon  { color: var(--raid-incoming-accent); }
 .raid-incoming-message .event-label { color: var(--raid-incoming-accent); filter: brightness(1.4); }
+
+
+
+/* ─── Message enter animation ────────────────────────────────────────────── */
+@keyframes message-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(var(--slide-distance, 20px));
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message {
+    animation: message-slide-in var(--slide-duration, 0.3s) ease-out both;
+}
+
+/* ─── Message fade out ───────────────────────────────────────────────────── */
+.chat-message.fading-out {
+    transition: opacity var(--fade-duration, 1s) ease-out,
+                transform var(--fade-duration, 1s) ease-out;
+    opacity: 0 !important;
+    transform: translateY(-8px); /* subtle upward drift as it disappears */
+    pointer-events: none;
+}

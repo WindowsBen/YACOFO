@@ -95,6 +95,17 @@ function displayMessage(tags, message, isAction = false) {
         chatContainer.removeChild(chatContainer.firstChild);
     }
 
+    // If a message lifetime is set, fade the message out after that delay,
+    // then remove it from the DOM once the fade transition finishes.
+    if (CONFIG.messageLifetime > 0) {
+        setTimeout(() => {
+            messageElement.classList.add('fading-out');
+            const fadeDuration = parseFloat(getComputedStyle(document.documentElement)
+                .getPropertyValue('--fade-duration')) || 1000;
+            setTimeout(() => messageElement.remove(), fadeDuration);
+        }, CONFIG.messageLifetime);
+    }
+
     // Apply 7TV cosmetics (badge + paint) asynchronously — they appear shortly
     // after the message renders rather than blocking it
     if (tags['user-id']) {

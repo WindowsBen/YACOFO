@@ -45,6 +45,15 @@ function displayEventMessage(iconSvg, label, detail, extraMessage = '', messageI
     container.appendChild(el);
     // Keep the chat capped at 50 messages
     if (container.childNodes.length > 50) container.removeChild(container.firstChild);
+
+    if (CONFIG.messageLifetime > 0) {
+        setTimeout(() => {
+            el.classList.add('fading-out');
+            const fadeDuration = parseFloat(getComputedStyle(document.documentElement)
+                .getPropertyValue('--fade-duration')) || 1000;
+            setTimeout(() => el.remove(), fadeDuration);
+        }, CONFIG.messageLifetime);
+    }
 }
 
 // SVG icons for each event type
@@ -164,6 +173,15 @@ function handleAnnouncement(tags, message) {
 
     container.appendChild(el);
     if (container.childNodes.length > 50) container.removeChild(container.firstChild);
+
+    if (CONFIG.messageLifetime > 0) {
+        setTimeout(() => {
+            el.classList.add('fading-out');
+            const fadeDuration = parseFloat(getComputedStyle(document.documentElement)
+                .getPropertyValue('--fade-duration')) || 1000;
+            setTimeout(() => el.remove(), fadeDuration);
+        }, CONFIG.messageLifetime);
+    }
 
     // Apply 7TV cosmetics (badge + paint) after render
     if (tags['user-id']) apply7TVCosmetics(tags['user-id'], el);
