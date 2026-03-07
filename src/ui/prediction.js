@@ -36,7 +36,7 @@ function handlePubSubPrediction(data) {
     let inner;
     try { inner = JSON.parse(data.message); } catch { return; }
 
-    console.log('[Prediction] type:', inner.type, '| keys:', Object.keys(inner.data || {}));
+    console.log('[Prediction] type:', inner.type, '| status:', inner.data?.event?.status);
 
     const type       = inner.type;
     const prediction = inner.data?.event;
@@ -70,6 +70,8 @@ function handlePubSubPrediction(data) {
         _schedulePredictionDismiss();
     } else if (type === 'event-canceled') {
         _clearPrediction();
+    } else {
+        console.log('[Prediction] UNHANDLED type:', type, '| status:', inner.data?.event?.status);
     }
 }
 
