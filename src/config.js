@@ -43,6 +43,8 @@ const CONFIG = {
     showAnnouncements: params.get('showAnnouncements') !== '0', // default on
 
     // Raid toggles — default on
+    showBans:            params.get('showBans')            === '1',
+    showTimeouts:        params.get('showTimeouts')        === '1',
     showRaidIncoming:    params.get('showRaidIncoming')    === '1',
     raidIncomingLabel:   params.get('raidIncomingLabel')   || '',
     showRaidOutgoing:    params.get('showRaidOutgoing')    === '1',
@@ -122,6 +124,10 @@ const cssVars = {
     '--highlight-bg':     hex8ToCss(params.get('highlightBg'),     '#2a002aCC'),
     '--streak-accent':    hex8ToCss(params.get('streakAccent'),    '#FF6400FF'),
     '--streak-bg':        hex8ToCss(params.get('streakBg'),        '#2a0f00CC'),
+    '--ban-accent':           hex8ToCss(params.get('banAccent'),     '#FF4444FF'),
+    '--ban-bg':               hex8ToCss(params.get('banBg'),         '#2a0000CC'),
+    '--timeout-accent':       hex8ToCss(params.get('timeoutAccent'), '#FF8C00FF'),
+    '--timeout-bg':           hex8ToCss(params.get('timeoutBg'),     '#1a1200CC'),
     '--raid-incoming-accent': hex8ToCss(params.get('raidIncomingAccent'), '#E91916FF'),
     '--raid-incoming-bg':     hex8ToCss(params.get('raidIncomingBg'),     '#2a0000CC'),
     '--raid-outgoing-accent': hex8ToCss(params.get('raidOutgoingAccent'), '#FF8C00FF'),

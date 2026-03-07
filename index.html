@@ -255,6 +255,50 @@
             <div class="tab-section-title">Alerts</div>
 
             <div class="event-type-block">
+                <label class="checkbox-wrapper"><input type="checkbox" id="showBans" onchange="toggleEventOptions('showBans','opts-bans')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Bans</strong></span></label>
+                <div class="event-options" id="opts-bans">
+                    <div class="event-options-inner">
+                        <div class="event-option-row">
+                            <span class="option-label">Accent</span>
+                            <input type="color" id="banAccent" value="#FF4444">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" class="opacity-slider" id="banAccentOpacity" min="0" max="100" value="100">
+                            <span class="opacity-label" id="banAccentOpacityLabel">100%</span>
+                        </div>
+                        <div class="event-option-row">
+                            <span class="option-label">Background</span>
+                            <input type="color" id="banBg" value="#2a0000">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" class="opacity-slider" id="banBgOpacity" min="0" max="100" value="80">
+                            <span class="opacity-label" id="banBgOpacityLabel">80%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-type-block">
+                <label class="checkbox-wrapper"><input type="checkbox" id="showTimeouts" onchange="toggleEventOptions('showTimeouts','opts-timeouts')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Timeouts</strong></span></label>
+                <div class="event-options" id="opts-timeouts">
+                    <div class="event-options-inner">
+                        <div class="event-option-row">
+                            <span class="option-label">Accent</span>
+                            <input type="color" id="timeoutAccent" value="#FF8C00">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" class="opacity-slider" id="timeoutAccentOpacity" min="0" max="100" value="100">
+                            <span class="opacity-label" id="timeoutAccentOpacityLabel">100%</span>
+                        </div>
+                        <div class="event-option-row">
+                            <span class="option-label">Background</span>
+                            <input type="color" id="timeoutBg" value="#1a1200">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" class="opacity-slider" id="timeoutBgOpacity" min="0" max="100" value="80">
+                            <span class="opacity-label" id="timeoutBgOpacityLabel">80%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-type-block">
                 <label class="checkbox-wrapper"><input type="checkbox" id="showHighlights" onchange="toggleEventOptions('showHighlights','opts-highlights')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Highlighted Messages</strong></span></label>
                 <div class="event-options" id="opts-highlights">
                     <div class="event-options-inner">

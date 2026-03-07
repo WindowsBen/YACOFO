@@ -32,6 +32,8 @@ function generateLink() {
     const showGifts      = ch('showGifts');
     const showBits       = ch('showBits');
     const showRedeems    = ch('showRedeems');
+    const showBans       = ch('showBans');
+    const showTimeouts   = ch('showTimeouts');
     const showHighlights = ch('showHighlights');
     const showStreaks    = ch('showStreaks');
 
@@ -73,6 +75,12 @@ function generateLink() {
         showRedeems && `redeemBg=${c8('redeemBg','redeemBgOpacity')}`,
         showRedeems && redeemLabel && `redeemLabel=${encodeURIComponent(redeemLabel)}`,
 
+        `showBans=${showBans ? '1':'0'}`,
+        showBans     && `banAccent=${c8('banAccent','banAccentOpacity')}`,
+        showBans     && `banBg=${c8('banBg','banBgOpacity')}`,
+        `showTimeouts=${showTimeouts ? '1':'0'}`,
+        showTimeouts && `timeoutAccent=${c8('timeoutAccent','timeoutAccentOpacity')}`,
+        showTimeouts && `timeoutBg=${c8('timeoutBg','timeoutBgOpacity')}`,
         `showHighlights=${showHighlights ? '1':'0'}`,
         showHighlights && `highlightAccent=${c8('highlightAccent','highlightAccentOpacity')}`,
         showHighlights && `highlightBg=${c8('highlightBg','highlightBgOpacity')}`,
@@ -149,6 +157,12 @@ const CONFIG_FIELDS = [
     { id: 'showGifts',      type: 'check' },
     { id: 'showBits',       type: 'check' },
     { id: 'showRedeems',    type: 'check' },
+    { id: 'showBans',       type: 'check' },
+    { id: 'banAccent',      type: 'text' }, { id: 'banAccentOpacity',     type: 'text' },
+    { id: 'banBg',          type: 'text' }, { id: 'banBgOpacity',         type: 'text' },
+    { id: 'showTimeouts',   type: 'check' },
+    { id: 'timeoutAccent',  type: 'text' }, { id: 'timeoutAccentOpacity', type: 'text' },
+    { id: 'timeoutBg',      type: 'text' }, { id: 'timeoutBgOpacity',     type: 'text' },
     { id: 'showHighlights', type: 'check' },
     { id: 'showStreaks',    type: 'check' },
     // Events — colors
