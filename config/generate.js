@@ -98,6 +98,12 @@ function generateLink() {
         ch('showRaidOutgoing') && `raidOutgoingAccent=${c8('raidOutgoingAccent','raidOutgoingAccentOpacity')}`,
         ch('showRaidOutgoing') && `raidOutgoingBg=${c8('raidOutgoingBg','raidOutgoingBgOpacity')}`,
         ch('showRaidOutgoing') && v('raidOutgoingLabel').trim() && `raidOutgoingLabel=${encodeURIComponent(v('raidOutgoingLabel').trim())}`,
+        `showPolls=${ch('showPolls') ? '1':'0'}`,
+        ch('showPolls') && `pollAccent=${c8('pollAccent','pollAccentOpacity')}`,
+        ch('showPolls') && `pollBg=${c8('pollBg','pollBgOpacity')}`,
+        ch('showPolls') && `pollBar=${c8('pollBar','pollBarOpacity')}`,
+        ch('showPolls') && `pollWinner=${c8('pollWinner','pollWinnerOpacity')}`,
+        ch('showPolls') && v('pollLingerMs') && `pollLingerMs=${v('pollLingerMs')}`,
     ].filter(Boolean).join('&');
 
     const fontParams = fontUrl ? `fontUrl=${encodeURIComponent(fontUrl)}` : '';
@@ -192,6 +198,12 @@ const CONFIG_FIELDS = [
     { id: 'raidOutgoingAccent',     type: 'text' }, { id: 'raidOutgoingAccentOpacity', type: 'text' },
     { id: 'raidOutgoingBg',         type: 'text' }, { id: 'raidOutgoingBgOpacity',     type: 'text' },
     { id: 'raidOutgoingLabel',      type: 'text' },
+    { id: 'showPolls',              type: 'check' },
+    { id: 'pollAccent',             type: 'text' }, { id: 'pollAccentOpacity',  type: 'text' },
+    { id: 'pollBg',                 type: 'text' }, { id: 'pollBgOpacity',      type: 'text' },
+    { id: 'pollBar',                type: 'text' }, { id: 'pollBarOpacity',     type: 'text' },
+    { id: 'pollWinner',             type: 'text' }, { id: 'pollWinnerOpacity',  type: 'text' },
+    { id: 'pollLingerMs',           type: 'text' },
     // Badges & Cosmetics
     { id: 'disableAllBadges',     type: 'check' },
     { id: 'roleOnlyBadges',       type: 'check' },

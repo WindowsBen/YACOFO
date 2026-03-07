@@ -48,6 +48,8 @@ const CONFIG = {
     showRaidIncoming:    params.get('showRaidIncoming')    === '1',
     raidIncomingLabel:   params.get('raidIncomingLabel')   || '',
     showRaidOutgoing:    params.get('showRaidOutgoing')    === '1',
+    showPolls:           params.get('showPolls')           === '1',
+    pollLingerMs:        Number(params.get('pollLingerMs')) || 6000,
     raidOutgoingLabel:   params.get('raidOutgoingLabel')   || '',
 
     // Event message toggles — all default off (must be explicitly set to '1')
@@ -130,6 +132,10 @@ const cssVars = {
     '--timeout-bg':           hex8ToCss(params.get('timeoutBg'),     '#1a1200CC'),
     '--raid-incoming-accent': hex8ToCss(params.get('raidIncomingAccent'), '#E91916FF'),
     '--raid-incoming-bg':     hex8ToCss(params.get('raidIncomingBg'),     '#2a0000CC'),
+    '--poll-accent':          hex8ToCss(params.get('pollAccent'),  '#A970FF FF'),
+    '--poll-bg':              hex8ToCss(params.get('pollBg'),     '#0e0e1eEE'),
+    '--poll-bar-color':       hex8ToCss(params.get('pollBar'),    '#A970FFFF'),
+    '--poll-winner-color':    hex8ToCss(params.get('pollWinner'), '#FFD700FF'),
     '--raid-outgoing-accent': hex8ToCss(params.get('raidOutgoingAccent'), '#FF8C00FF'),
     '--raid-outgoing-bg':     hex8ToCss(params.get('raidOutgoingBg'),     '#2a1800CC'),
 };
