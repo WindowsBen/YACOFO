@@ -563,3 +563,23 @@ select option { background: #18181b; }
     opacity: 1;
     transition: filter 0.3s, opacity 0.3s;
 }
+
+/* PubSub-only feature warning */
+.pubsub-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 6px 0 2px;
+    padding: 6px 8px;
+    background: rgba(255, 160, 0, 0.08);
+    border: 1px solid rgba(255, 160, 0, 0.3);
+    border-radius: 5px;
+    font-size: 11px;
+    color: rgba(255, 160, 0, 0.85);
+    line-height: 1.4;
+}
+
+.pubsub-warning svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
