@@ -7,13 +7,6 @@ if (!CONFIG.channelName) {
     throw new Error('No channel specified');
 }
 
-// In preview mode (CONFIG.preview === true) skip all Twitch connections and
-// inject fake data instead. This is used by the configurator preview panel.
-if (CONFIG.preview) {
-    startPreviewMode();
-    throw new Error('preview'); // halt rest of main.js cleanly
-}
-
 const client = new tmi.Client({
     connection: { secure: true, reconnect: true },
     channels: [CONFIG.channelName],
