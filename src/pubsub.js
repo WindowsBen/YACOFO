@@ -70,7 +70,7 @@ function connectPubSub(channelId) {
 
         if (msg.type === 'RESPONSE') {
             if (msg.error) console.warn('[PubSub] LISTEN error:', msg.error);
-            else console.log('[PubSub] Subscribed successfully');
+            else console.log('[PubSub] Subscribed successfully — nonce:', msg.nonce);
             return;
         }
 
