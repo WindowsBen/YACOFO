@@ -66,7 +66,7 @@ body {
 .chat-emote {
     height: 1.6em;
     width: auto;
-    vertical-align: middle;
+    vertical-align: 0.1em;
     margin: 0 1px;
     filter: drop-shadow(1px 1px 1px var(--chat-shadow-color));
 }
@@ -74,7 +74,7 @@ body {
 .emote-stack {
     position: relative;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: 0.1em;
     margin: 0 1px;
 }
 
