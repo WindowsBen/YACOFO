@@ -48,6 +48,7 @@ const CONFIG = {
     showRaidIncoming:    params.get('showRaidIncoming')    === '1',
     raidIncomingLabel:   params.get('raidIncomingLabel')   || '',
     showRaidOutgoing:    params.get('showRaidOutgoing')    === '1',
+    preview:             params.get('preview')             === '1',
     showPolls:           params.get('showPolls')           === '1',
     showPredictions:     params.get('showPredictions')     === '1',
     showHypeTrain:       params.get('showHypeTrain')       === '1',

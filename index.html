@@ -61,7 +61,92 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             Generate
         </button>
+        <button class="tab-btn locked preview-btn" id="tab-btn-preview" onclick="togglePreview()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview
+        </button>
     </div>
+
+    <!-- ── Floating preview panel ────────────────────────────────────────── -->
+    <div id="preview-panel" class="preview-panel" style="display:none">
+        <div class="preview-panel-header">
+            <span class="preview-panel-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Live Preview
+            </span>
+            <span class="preview-panel-hint">Updates 1s after changes</span>
+            <div class="preview-panel-actions">
+                <button class="preview-action-btn" onclick="refreshPreview()" title="Refresh preview">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Refresh
+                </button>
+                <button class="preview-action-btn preview-close-btn" onclick="togglePreview()" title="Close preview">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="preview-iframe-wrap">
+            <iframe id="preview-iframe" src="" frameborder="0" allowtransparency="true"></iframe>
+        </div>
+    </div>
+
+    <script>
+    // ── Preview panel logic ───────────────────────────────────────────────────
+    let _previewOpen    = false;
+    let _previewDebounce = null;
+
+    function _buildPreviewURL() {
+        // Reuse generateLink's URL but extract it before it writes to the DOM.
+        // We intercept by temporarily overriding resultLink's textContent setter.
+        // Simpler: just rebuild it inline by calling the same helpers.
+        const channel = document.getElementById('channel')?.value?.trim() || 'preview';
+        const token   = localStorage.getItem('twitch_access_token') || '';
+        const base    = window.location.href.replace('index.html', '').replace(/\/$/, '');
+
+        // Grab the full param string from generateLink by temporarily redirecting
+        const origText = document.getElementById('resultLink')?.textContent;
+        generateLink();
+        const generatedURL = document.getElementById('resultLink')?.textContent || '';
+        if (origText !== undefined) document.getElementById('resultLink').textContent = origText;
+
+        if (!generatedURL || generatedURL.startsWith('Click')) {
+            // Fallback minimal URL if generateLink requires a channel
+            return `${base}/overlay.html#channel=${encodeURIComponent(channel)}&preview=1&token=${encodeURIComponent(token)}`;
+        }
+        // Append preview=1 to the hash params
+        return generatedURL.replace('#', '#preview=1&');
+    }
+
+    function refreshPreview() {
+        if (!_previewOpen) return;
+        const url = _buildPreviewURL();
+        const iframe = document.getElementById('preview-iframe');
+        iframe.src = '';
+        setTimeout(() => { iframe.src = url; }, 50);
+    }
+
+    function togglePreview() {
+        const panel = document.getElementById('preview-panel');
+        const btn   = document.getElementById('tab-btn-preview');
+        _previewOpen = !_previewOpen;
+        panel.style.display = _previewOpen ? 'flex' : 'none';
+        btn.classList.toggle('active', _previewOpen);
+        if (_previewOpen) refreshPreview();
+    }
+
+    // Debounced auto-refresh: rebuild preview 1s after any input change
+    function _schedulePreviewRefresh() {
+        if (!_previewOpen) return;
+        clearTimeout(_previewDebounce);
+        _previewDebounce = setTimeout(refreshPreview, 1000);
+    }
+
+    // Attach change listener to all inputs/selects/checkboxes after DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('input',  _schedulePreviewRefresh);
+        document.addEventListener('change', _schedulePreviewRefresh);
+    });
+    </script>
 
     <!-- ── Tab: General ──────────────────────────────────────────────────── -->
     <div class="tab-panel" id="tab-general">
