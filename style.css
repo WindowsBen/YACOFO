@@ -399,34 +399,59 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    opacity: 0;
-    transition: opacity 0.15s ease-in;
+    opacity: 1; /* stage itself no longer fades — children do individually */
 }
 
-.mod-anim-stage.visible  { opacity: 1; }
 .mod-anim-stage.fading   { opacity: 0; transition: opacity 0.5s ease-out; }
 
 /* ── Hammer ─────────────────────────────────────────────────────────── */
 .mod-anim-hammer {
     width: 90px;
     height: 90px;
-    /* Pivot from the base of the handle so the swing arc feels physical */
     transform-origin: 55% 100%;
     transform: rotate(-65deg) translateX(-10px);
     filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.8, 1);
+    opacity: 0;
 }
 
-/* Swing forward on impact */
+.mod-anim-stage.visible .mod-anim-hammer {
+    opacity: 1;
+    transition:
+        opacity   0.25s ease-in,
+        transform 0.25s cubic-bezier(0.4, 0, 0.8, 1);
+}
+
+/* Swing forward on impact — transform transition overridden here */
 .mod-anim-hammer.swinging {
     transform: rotate(25deg) translateX(5px);
-    transition: transform 0.18s cubic-bezier(0.2, 0, 0.4, 1.6);
+    transition: transform 0.18s cubic-bezier(0.2, 0, 0.4, 1.6) !important;
+}
+
+/* ── Name ────────────────────────────────────────────────────────────── */
+.mod-anim-name {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 20px currentColor,
+        2px 2px 0 rgba(0,0,0,0.8),
+        -1px -1px 0 rgba(0,0,0,0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease-in 0.15s; /* slight delay after hammer */
+}
+
+.mod-anim-stage.visible .mod-anim-name {
+    opacity: 1;
 }
 
 /* ── Shockwave ───────────────────────────────────────────────────────── */
 .mod-anim-shockwave {
     position: absolute;
-    /* Position at the hammer head impact point */
     top: 55px;
     left: 50%;
     transform: translateX(-50%) scale(0);
@@ -444,21 +469,6 @@ body {
 
 .mod-anim-shockwave.visible {
     animation: shockwave-burst 0.4s ease-out forwards;
-}
-
-/* ── Target name ─────────────────────────────────────────────────────── */
-.mod-anim-name {
-    display: flex;
-    align-items: center;
-    gap: 1px;
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-shadow:
-        0 0 20px currentColor,
-        2px 2px 0 rgba(0,0,0,0.8),
-        -1px -1px 0 rgba(0,0,0,0.8);
 }
 
 .ban-anim .mod-anim-name     { color: #FF4444; }
@@ -512,16 +522,14 @@ body {
     position: relative;
     width: 90px;
     height: 90px;
-    /* Start above the stage — descends into position */
     transform: translateY(-60px);
     opacity: 0;
     filter: drop-shadow(0 0 14px rgba(255, 140, 0, 0.7));
     transition:
         transform 0.45s cubic-bezier(0.4, 0, 0.2, 1.4),
-        opacity   0.2s ease-in;
+        opacity   0.3s ease-in 0.1s; /* slight delay so name fades in together */
 }
 
-/* When stage becomes visible, fade the clock in */
 .mod-anim-stage.visible .mod-anim-clock {
     opacity: 1;
 }
