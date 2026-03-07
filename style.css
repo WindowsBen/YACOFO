@@ -505,3 +505,83 @@ body {
     text-shadow: 0 1px 4px rgba(0,0,0,0.8);
     white-space: nowrap;
 }
+
+/* ─── Timeout clock animation ────────────────────────────────────────────────── */
+
+.mod-anim-clock {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    /* Start above the stage — descends into position */
+    transform: translateY(-60px);
+    opacity: 0;
+    filter: drop-shadow(0 0 14px rgba(255, 140, 0, 0.7));
+    transition:
+        transform 0.45s cubic-bezier(0.4, 0, 0.2, 1.4),
+        opacity   0.2s ease-in;
+}
+
+/* When stage becomes visible, fade the clock in */
+.mod-anim-stage.visible .mod-anim-clock {
+    opacity: 1;
+}
+
+/* Clock drops down to sit just above the name */
+.mod-anim-clock.descending {
+    transform: translateY(0px);
+}
+
+/* Slight bounce/squish on landing */
+.mod-anim-clock.landed {
+    transform: translateY(0px) scaleY(0.92) scaleX(1.06);
+    transition: transform 0.1s ease-out;
+}
+
+/* Clock SVG layers — stack them exactly on top of each other */
+.mod-anim-clock svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Hour hand spins — slower (one full rotation per 0.6s) */
+@keyframes spin-hour {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Minute hand spins — faster (one full rotation per 0.2s) */
+@keyframes spin-minute {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Hands rotate around the clock center point (50% 50% of the SVG viewBox) */
+.clock-hand {
+    transform-origin: 50% 50%;
+}
+
+.clock-hand.spinning-hour {
+    animation: spin-hour 0.6s linear infinite;
+}
+
+.clock-hand.spinning-minute {
+    animation: spin-minute 0.18s linear infinite;
+}
+
+/* Duration badge positioned below clock face */
+.mod-anim-duration {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 140, 0, 0.9);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    white-space: nowrap;
+}
