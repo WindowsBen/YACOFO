@@ -55,8 +55,31 @@ function displayMessage(tags, message, isAction = false) {
 
     let replyHTML = '';
     if (CONFIG.showReplies && parentMsgId && parentUser) {
-        // Twitch prepends "@Username " to the message body for replies — strip it
-        const cleanMessage = message.replace(/^@\S+\s*/, '');
+        // tmi.js prepends "@Username " to reply messages. Strip it, but also
+        // offset the Twitch emote character positions by the same amount —
+        // they are relative to the full string, not the stripped one.
+        const prefixMatch = message.match(/^@\S+\s*/);
+        const prefixLen   = prefixMatch ? prefixMatch[0].length : 0;
+        const cleanMessage = prefixLen > 0 ? message.slice(prefixLen) : message;
+
+        // Rebuild emotes map with adjusted positions
+        let adjustedEmotes = tags.emotes;
+        if (prefixLen > 0 && tags.emotes) {
+            adjustedEmotes = {};
+            for (const [id, positions] of Object.entries(tags.emotes)) {
+                adjustedEmotes[id] = positions
+                    .map(pos => {
+                        const [s, e] = pos.split('-').map(Number);
+                        return `${s - prefixLen}-${e - prefixLen}`;
+                    })
+                    .filter(pos => {
+                        // Drop any positions that ended up negative (shouldn't happen,
+                        // but guard against malformed data)
+                        const [s] = pos.split('-').map(Number);
+                        return s >= 0;
+                    });
+            }
+        }
 
         // Cap snippet at 60 chars to keep the quote bar compact.
         // Twitch emote positions aren't available for parent messages so we
@@ -75,7 +98,7 @@ function displayMessage(tags, message, isAction = false) {
             ${replyHTML}
             <div class="reply-message-row">
                 <span class="badges">${badgesHTML}</span><span class="username" style="color: ${escapeHTML(userColor)}">${escapeHTML(username)}:</span>
-                <span class="message-text" ${messageStyle}>${parseMessage(cleanMessage, tags.emotes)}</span>
+                <span class="message-text" ${messageStyle}>${parseMessage(cleanMessage, adjustedEmotes)}</span>
             </div>`;
     } else {
         messageElement.innerHTML = `
