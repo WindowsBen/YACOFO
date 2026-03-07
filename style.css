@@ -283,11 +283,10 @@ body {
 }
 
 .reply-parent-body .chat-emote {
-    height: 1em;
+    height: calc(var(--name-font-size) * 0.9);
     width: auto;
     vertical-align: middle;
     color: transparent; /* hides alt text while image loads */
-    font-size: 0;       /* collapses the text node if image fails entirely */
 }
 
 /* ─── Announcement messages ─────────────────────────────────────────────────── */

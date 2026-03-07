@@ -85,19 +85,12 @@ function displayMessage(tags, message, isAction = false) {
         // Look up the parent message's emotes from our rolling cache, then seed
         // twitchEmoteByName so the word scanner can resolve them by name.
         const parentEmotes = recentMessageEmotes[parentMsgId] || {};
-        console.log('[Reply] parentMsgId:', parentMsgId);
-        console.log('[Reply] parentRaw:', parentRaw);
-        console.log('[Reply] parentBody:', parentBody);
-        console.log('[Reply] recentMessageEmotes keys:', Object.keys(recentMessageEmotes));
-        console.log('[Reply] parentEmotes:', JSON.stringify(parentEmotes));
         for (const [id, positions] of Object.entries(parentEmotes)) {
             const [s, e] = positions[0].split('-').map(Number);
-            // Use the raw (unescaped) parent body — positions are relative to it
             const name = parentRaw.slice(s, e + 1);
-            console.log('[Reply] seeding twitchEmoteByName:', name, '→', id);
             if (name) twitchEmoteByName[name] = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
         }
-        // Also seed from the current reply's own emotes (for the main message parse later)
+        // Also seed from the current reply's own emotes
         if (tags.emotes) {
             for (const [id, positions] of Object.entries(tags.emotes)) {
                 const [s, e] = positions[0].split('-').map(Number);
@@ -105,11 +98,8 @@ function displayMessage(tags, message, isAction = false) {
                 if (name) twitchEmoteByName[name] = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
             }
         }
-        console.log('[Reply] twitchEmoteByName at parse time:', JSON.stringify(twitchEmoteByName));
         const snippet       = parentBody.length > 60 ? parentBody.slice(0, 60).trimEnd() + '…' : parentBody;
-        console.log('[Reply] snippet:', snippet);
         const parsedSnippet = parseMessage(snippet, null);
-        console.log('[Reply] parsedSnippet HTML:', parsedSnippet);
 
         replyHTML = `
             <div class="reply-context" data-reply-to="${escapeHTML(parentMsgId)}">
@@ -133,10 +123,7 @@ function displayMessage(tags, message, isAction = false) {
     // Tag the element for moderation targeting — login name (not display-name)
     // because ban/timeout events fire with the login name
     if (tags['id'])    messageElement.dataset.msgId   = tags['id'];
-    if (tags['id']) {
-        cacheMessageEmotes(tags['id'], tags.emotes);
-        console.log('[Cache] stored emotes for msg', tags['id'], ':', JSON.stringify(tags.emotes));
-    }
+    if (tags['id'])    cacheMessageEmotes(tags['id'], tags.emotes);
     if (tags.username) messageElement.dataset.username = tags.username.toLowerCase();
 
     chatContainer.appendChild(messageElement);
