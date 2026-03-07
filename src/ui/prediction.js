@@ -36,30 +36,33 @@ function handlePubSubPrediction(data) {
     let inner;
     try { inner = JSON.parse(data.message); } catch { return; }
 
-    console.log('[Prediction] type:', inner.type, '| status:', inner.data?.event?.status);
-
     const type       = inner.type;
     const prediction = inner.data?.event;
-    if (!prediction) {
-        console.log('[Prediction] no event object, full data:', JSON.stringify(inner).slice(0, 400));
-        return;
-    }
+    if (!prediction) return;
 
-    if (type === 'event-created') {
-        _showPrediction(prediction, 'open');
-    } else if (type === 'event-updated') {
+    // Twitch sends everything as event-updated with a status field.
+    // Separate event-locked / event-canceled types don't fire in practice.
+    const status = prediction.status ?? '';
+
+    if (type === 'event-created' || (type === 'event-updated' && status === 'ACTIVE')) {
+        // Prediction open — create or update live bars
         if (_predEl) {
             _updatePredictionBars(prediction, 'open');
+            if (!_predCountdownId) _startPredictionCountdown(prediction);
         } else {
             _showPrediction(prediction, 'open');
         }
-    } else if (type === 'event-locked') {
+
+    } else if (status === 'LOCKED' || type === 'event-locked') {
+        // Betting closed — stop countdown, show lock badge
+        if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
         if (_predEl) {
             _updatePredictionBars(prediction, 'locked');
         } else {
             _showPrediction(prediction, 'locked');
         }
-    } else if (type === 'event-resolved') {
+
+    } else if (status === 'RESOLVED' || type === 'event-resolved') {
         if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
         if (_predEl) {
             _resolvePrediction(prediction);
@@ -68,10 +71,10 @@ function handlePubSubPrediction(data) {
             setTimeout(() => _resolvePrediction(prediction), 100);
         }
         _schedulePredictionDismiss();
-    } else if (type === 'event-canceled') {
+
+    } else if (status === 'CANCELED' || status === 'CANCEL_PENDING' || type === 'event-canceled') {
+        if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
         _clearPrediction();
-    } else {
-        console.log('[Prediction] UNHANDLED type:', type, '| status:', inner.data?.event?.status);
     }
 }
 
