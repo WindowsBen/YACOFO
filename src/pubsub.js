@@ -118,6 +118,8 @@ function reconnectPubSub() {
 }
 
 function handlePubSubMessage(data) {
+    // Log ALL incoming PubSub messages to diagnose missing events
+    console.log('[PubSub] message topic:', data?.topic, '| raw:', data?.message?.slice(0, 200));
     if (data?.topic?.startsWith('raid.')) {
         handlePubSubRaid(data);
         return;
@@ -145,6 +147,7 @@ function handlePubSubMessage(data) {
 // Handles outgoing raid events from PubSub topic raid.<channelId>.
 // Fires when the broadcaster initiates a raid to another channel.
 function handlePubSubRaid(data) {
+    console.log('[PubSub] raid message received, showRaidOutgoing:', CONFIG.showRaidOutgoing);
     if (!CONFIG.showRaidOutgoing) return;
 
     let inner;
@@ -152,6 +155,7 @@ function handlePubSubRaid(data) {
 
     // PubSub fires multiple raid events during the countdown — only show
     // the initial 'raid_go_v2' which confirms the raid actually went through
+    console.log('[PubSub] raid inner type:', inner.type, '| data:', JSON.stringify(inner).slice(0, 300));
     if (inner.type !== 'raid_go_v2') return;
 
     const raid        = inner.raid;
