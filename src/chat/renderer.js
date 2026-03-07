@@ -44,14 +44,15 @@ function displayMessage(tags, message, isAction = false) {
     // Twitch sends parent message data in IRC tags when a user hits "Reply".
     // We show a compact quoted bar above the message instead of just the @mention.
     // IRC tag values escape spaces as \s and semicolons as \: — unescape them first.
-    const parentMsgId = tags['reply-parent-msg-id'];
-    const parentUser  = tags['reply-parent-display-name'] || tags['reply-parent-user-login'];
-    const parentBody  = (tags['reply-parent-msg-body'] || '')
-        .replace(/\\s/g, ' ')   // IRC \s → space
-        .replace(/\\:/g, ';')   // IRC \: → semicolon
-        .replace(/\\\\/g, '\\') // IRC \\ → backslash
-        .replace(/\\r/g, '')    // strip carriage return
-        .replace(/\\n/g, '');   // strip newline
+    const parentMsgId  = tags['reply-parent-msg-id'];
+    const parentUser   = tags['reply-parent-display-name'] || tags['reply-parent-user-login'];
+    const parentRaw    = tags['reply-parent-msg-body'] || '';  // raw IRC-escaped string
+    const parentBody   = parentRaw
+        .replace(/\\s/g,  ' ')   // IRC \s → space
+        .replace(/\\:/g,  ';')   // IRC \: → semicolon
+        .replace(/\\\\/g, '\\')  // IRC \\ → backslash
+        .replace(/\\r/g,  '')    // strip carriage return
+        .replace(/\\n/g,  '');   // strip newline
 
     let replyHTML = '';
     if (CONFIG.showReplies && parentMsgId && parentUser) {
@@ -81,14 +82,19 @@ function displayMessage(tags, message, isAction = false) {
             }
         }
 
-        // Cap snippet at 60 chars to keep the quote bar compact.
-        // Seed twitchEmoteByName from this message's emote tags first — the
-        // snippet is parsed before the main message so the cache isn't warm yet.
+        // Look up the parent message's emotes from our rolling cache, then seed
+        // twitchEmoteByName so the word scanner can resolve them by name.
+        const parentEmotes = recentMessageEmotes[parentMsgId] || {};
+        for (const [id, positions] of Object.entries(parentEmotes)) {
+            const [s, e] = positions[0].split('-').map(Number);
+            // Use the raw (unescaped) parent body — positions are relative to it
+            const name = parentRaw.slice(s, e + 1);
+            if (name) twitchEmoteByName[name] = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
+        }
+        // Also seed from the current reply's own emotes (for the main message parse later)
         if (tags.emotes) {
             for (const [id, positions] of Object.entries(tags.emotes)) {
-                // We just need one position to get the name from the full message string
-                const pos  = positions[0];
-                const [s, e] = pos.split('-').map(Number);
+                const [s, e] = positions[0].split('-').map(Number);
                 const name = message.slice(s, e + 1);
                 if (name) twitchEmoteByName[name] = `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/3.0`;
             }
@@ -118,6 +124,7 @@ function displayMessage(tags, message, isAction = false) {
     // Tag the element for moderation targeting — login name (not display-name)
     // because ban/timeout events fire with the login name
     if (tags['id'])    messageElement.dataset.msgId   = tags['id'];
+    if (tags['id'])    cacheMessageEmotes(tags['id'], tags.emotes);
     if (tags.username) messageElement.dataset.username = tags.username.toLowerCase();
 
     chatContainer.appendChild(messageElement);

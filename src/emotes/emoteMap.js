@@ -14,3 +14,19 @@ const zeroWidthEmotes = new Set();
 // API, and also filled passively as messages with Twitch emotes are parsed.
 // Used to render Twitch emotes in reply snippets where position data is absent.
 const twitchEmoteByName = {};
+
+// Rolling cache of recent message-id → emote tags object.
+// Lets reply rendering look up the parent message's emotes by ID.
+// Capped at 200 entries to avoid unbounded growth.
+const recentMessageEmotes = {};
+const RECENT_EMOTES_CAP   = 200;
+let   recentEmoteKeys     = [];
+
+function cacheMessageEmotes(msgId, emotes) {
+    if (!msgId || !emotes) return;
+    recentMessageEmotes[msgId] = emotes;
+    recentEmoteKeys.push(msgId);
+    if (recentEmoteKeys.length > RECENT_EMOTES_CAP) {
+        delete recentMessageEmotes[recentEmoteKeys.shift()];
+    }
+}
