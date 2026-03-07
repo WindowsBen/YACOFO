@@ -32,7 +32,7 @@ function connectPubSub(channelId) {
         _pubsubReconnectMs = 1000; // reset backoff on successful connect
 
         // Subscribe to channel point redemptions
-        _pubsubWS.send(JSON.stringify({
+        const listenPayload = {
             type: 'LISTEN',
             nonce: 'cp_' + Date.now(),
             data: {
@@ -42,7 +42,9 @@ function connectPubSub(channelId) {
                 ],
                 auth_token: CONFIG.token
             }
-        }));
+        };
+        console.log('[PubSub] Sending LISTEN:', JSON.stringify(listenPayload).replace(CONFIG.token, 'TOKEN_REDACTED'));
+        _pubsubWS.send(JSON.stringify(listenPayload));
 
         schedulePubSubPing();
     };
@@ -65,11 +67,7 @@ function connectPubSub(channelId) {
         }
 
         if (msg.type === 'RESPONSE') {
-            if (msg.error) {
-                console.warn('[PubSub] LISTEN error:', msg.error);
-            } else {
-                console.log('[PubSub] Listening for channel point redemptions');
-            }
+            console.log('[PubSub] RESPONSE:', JSON.stringify(msg));
             return;
         }
 
