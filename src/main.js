@@ -69,6 +69,9 @@ client.on('raw_message', (messageCloned, message) => {
         const tags     = message.tags || {};
         const rewardId = tags['custom-reward-id'];
         const body     = message.params?.[1] || '';
+        if (rewardId) {
+            console.log('[Redeem] PRIVMSG custom-reward-id:', rewardId, '| body:', JSON.stringify(body), '| tags:', JSON.stringify(tags));
+        }
         // Only handle if tmi.js won't — i.e. the body is empty (no text input)
         if (rewardId && !body.trim()) {
             // Parse raw IRC badges string into object format for renderBadges

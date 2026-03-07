@@ -90,14 +90,6 @@ function buildTokens(message, twitchEmotes) {
             if (emoteMap[raw]) {
                 const isZeroWidth = zeroWidthEmotes.has(raw);
                 const img = `<img class="chat-emote${isZeroWidth ? ' zero-width' : ''}" src="${emoteMap[raw]}" alt="${escapeHTML(word)}" title="${escapeHTML(word)}">`;
-            } else if (twitchEmoteByName[raw]) {
-                // Twitch emote matched by name from passive cache (used in reply snippets)
-                tokens.push({
-                    html: `<img class="chat-emote" src="${twitchEmoteByName[raw]}" alt="${escapeHTML(word)}" title="${escapeHTML(word)}">`,
-                    isEmote: true
-                });
-                tokens.push({ html: ' ', isEmote: false });
-                continue;
 
                 if (isZeroWidth) {
                     // Zero-width: find the last real emote token and stack onto it
@@ -126,6 +118,14 @@ function buildTokens(message, twitchEmotes) {
                 } else {
                     tokens.push({ html: img, isEmote: true, stacked: false });
                 }
+            } else if (twitchEmoteByName[raw]) {
+                // Twitch emote matched by name from passive cache (used in reply snippets
+                // where position data isn't available)
+                tokens.push({
+                    html:    `<img class="chat-emote" src="${twitchEmoteByName[raw]}" alt="${escapeHTML(word)}" title="${escapeHTML(word)}">`,
+                    isEmote: true,
+                    stacked: false
+                });
             } else {
                 // Plain text word — escape and push
                 tokens.push({ html: escapeHTML(word), isEmote: false });
