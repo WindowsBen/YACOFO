@@ -51,3 +51,37 @@ async function fetchTwitchBadges(channelId) {
         console.error('[Badges] Failed to fetch Twitch badges:', err);
     }
 }
+
+// Fetches global and channel Twitch emotes from Helix and populates
+// twitchEmoteByName so emote names in reply snippets can be resolved
+// to images without needing position data.
+async function fetchTwitchEmotes(channelId) {
+    if (!CONFIG.token || !CONFIG.clientId) return;
+    const headers = {
+        'Authorization': `Bearer ${CONFIG.token}`,
+        'Client-Id':     CONFIG.clientId,
+    };
+    try {
+        // Global emotes
+        const globalRes = await fetch('https://api.twitch.tv/helix/chat/emotes/global', { headers });
+        if (globalRes.ok) {
+            const data = await globalRes.json();
+            for (const emote of (data.data || [])) {
+                twitchEmoteByName[emote.name] =
+                    `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/3.0`;
+            }
+        }
+        // Channel emotes (subscriber emotes, Bits emotes, etc.)
+        const channelRes = await fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${channelId}`, { headers });
+        if (channelRes.ok) {
+            const data = await channelRes.json();
+            for (const emote of (data.data || [])) {
+                twitchEmoteByName[emote.name] =
+                    `https://static-cdn.jtvnw.net/emoticons/v2/${emote.id}/default/dark/3.0`;
+            }
+        }
+        console.log(`[Emotes] Twitch emote name cache: ${Object.keys(twitchEmoteByName).length} entries`);
+    } catch (err) {
+        console.error('[Emotes] Failed to fetch Twitch emotes:', err);
+    }
+}

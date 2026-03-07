@@ -11,10 +11,6 @@
 //   2. Scan remaining text word-by-word for third-party emotes
 //   3. Stack any zero-width emotes onto the previous emote token
 
-// Passive cache of Twitch emote name → CDN URL, built from messages we've seen.
-// Used to render Twitch emotes in reply snippets where position data is unavailable.
-const twitchEmoteByName = {};
-
 // Builds a flat array of tokens from the message.
 // Each token: { html: string, isEmote: bool, stacked: bool }
 function buildTokens(message, twitchEmotes) {

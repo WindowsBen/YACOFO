@@ -30,6 +30,7 @@ client.on('roomstate', (channel, state) => {
         fetchBTTVEmotes(twitchUserId),
         fetch7TVEmotes(twitchUserId),
         fetchTwitchBadges(twitchUserId),
+        fetchTwitchEmotes(twitchUserId),
         fetchFFZBadges(),
         fetchChatterinoBadges(),
         fetchCheermotes(twitchUserId),
