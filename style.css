@@ -377,3 +377,131 @@ body {
     animation: message-fade-out var(--fade-duration, 1000ms) ease-out forwards;
     pointer-events: none;
 }
+
+/* ─── Mod Animation Overlay ──────────────────────────────────────────────────
+   Fixed container that sits above everything else. Animations render here,
+   independent of the chat container.                                         */
+
+#mod-anim-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9000;
+}
+
+/* ── Stage (one per animation instance) ────────────────────────────── */
+.mod-anim-stage {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.15s ease-in;
+}
+
+.mod-anim-stage.visible  { opacity: 1; }
+.mod-anim-stage.fading   { opacity: 0; transition: opacity 0.5s ease-out; }
+
+/* ── Hammer ─────────────────────────────────────────────────────────── */
+.mod-anim-hammer {
+    width: 90px;
+    height: 90px;
+    /* Pivot from the base of the handle so the swing arc feels physical */
+    transform-origin: 55% 100%;
+    transform: rotate(-65deg) translateX(-10px);
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.8, 1);
+}
+
+/* Swing forward on impact */
+.mod-anim-hammer.swinging {
+    transform: rotate(25deg) translateX(5px);
+    transition: transform 0.18s cubic-bezier(0.2, 0, 0.4, 1.6);
+}
+
+/* ── Shockwave ───────────────────────────────────────────────────────── */
+.mod-anim-shockwave {
+    position: absolute;
+    /* Position at the hammer head impact point */
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes shockwave-burst {
+    0%   { transform: translateX(-50%) scale(0.2); opacity: 1; }
+    60%  { transform: translateX(-50%) scale(1.4); opacity: 0.8; }
+    100% { transform: translateX(-50%) scale(2);   opacity: 0; }
+}
+
+.mod-anim-shockwave.visible {
+    animation: shockwave-burst 0.4s ease-out forwards;
+}
+
+/* ── Target name ─────────────────────────────────────────────────────── */
+.mod-anim-name {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 20px currentColor,
+        2px 2px 0 rgba(0,0,0,0.8),
+        -1px -1px 0 rgba(0,0,0,0.8);
+}
+
+.ban-anim .mod-anim-name     { color: #FF4444; }
+.timeout-anim .mod-anim-name { color: #FF8C00; }
+
+.mod-anim-name span {
+    display: inline-block;
+}
+
+/* ── Ban: scatter explosion ──────────────────────────────────────────── */
+@keyframes letter-scatter {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    20%  { opacity: 1; }
+    100% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)); opacity: 0; }
+}
+
+.mod-anim-name span.scatter {
+    animation: letter-scatter 0.6s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+/* ── Timeout: freeze and drop ────────────────────────────────────────── */
+@keyframes letter-freeze {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; filter: brightness(1); }
+    15%  { transform: translate(0, -6px) rotate(0deg); filter: brightness(2) saturate(0); }
+    30%  { transform: translate(0, -6px) rotate(0deg); opacity: 1; filter: brightness(1.5) saturate(0) hue-rotate(180deg); }
+    100% { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)); opacity: 0; filter: brightness(0.4) saturate(0); }
+}
+
+.mod-anim-name span.freeze {
+    animation: letter-freeze 0.7s ease-in forwards;
+}
+
+/* ── Duration badge (timeout only) ──────────────────────────────────── */
+.mod-anim-duration {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 140, 0, 0.85);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    white-space: nowrap;
+}

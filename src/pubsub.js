@@ -43,7 +43,6 @@ function connectPubSub(channelId) {
                 auth_token: CONFIG.token
             }
         }));
-        _pubsubWS.send(JSON.stringify(listenPayload));
 
         schedulePubSubPing();
     };
