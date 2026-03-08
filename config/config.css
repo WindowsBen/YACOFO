@@ -609,11 +609,22 @@ select option { background: #18181b; }
     background: #1a1a2e;
     border: 1px solid rgba(169, 112, 255, 0.4);
     border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 11px;
-    line-height: 1.5;
-    color: rgba(255,255,255,0.8);
+    overflow: hidden;
     pointer-events: none;
     box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+
+.tip-preview {
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.tip-desc {
+    padding: 7px 10px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.7);
     white-space: normal;
+    font-family: sans-serif;
 }
