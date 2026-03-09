@@ -200,11 +200,14 @@ function _miniShadow() {
 
 // Chat message (font size / font preview)
 function _miniChat() {
-    const nameSz = parseInt(document.getElementById('nameFontSize')?.value || 16);
-    const msgSz  = parseInt(document.getElementById('messageFontSize')?.value || 16);
+    const nameSz  = parseInt(document.getElementById('nameFontSize')?.value || 16);
+    const msgSz   = parseInt(document.getElementById('messageFontSize')?.value || 16);
+    const style   = document.getElementById('meStyle')?.value || 'colored';
+    const msgColor = style === 'colored' ? '#9B59B6' : 'rgba(255,255,255,0.85)';
+    const msgStyle = style === 'italic'  ? 'font-style:italic;' : '';
     return `<div style="${_font()};padding:2px 0;">
         <span style="color:#9B59B6;font-weight:700;font-size:${nameSz}px;">CoolViewer99</span>
-        <span style="color:rgba(255,255,255,0.85);font-size:${msgSz}px;"> Hey, great stream!</span>
+        <span style="color:${msgColor};font-size:${msgSz}px;${msgStyle}"> * dances around the stream</span>
     </div>`;
 }
 
@@ -270,7 +273,7 @@ const SETTING_TIPS = {
     showAnnouncements:{ desc: 'Show /announce messages posted by mods or the broadcaster.' },
     showReplies:      { desc: 'Show the quoted parent message above reply messages.' },
     toastEmotes:      { desc: 'Displays when a 7TV emote is added to the current set (Notification above chat).' },
-    meStyle:          { desc: 'How /me action messages are styled — colored, italic, or plain.', preview: _miniChat },
+    meStyle:          { desc: 'How /me action messages are styled — colored (uses name color), italic, or plain. Preview shows a /me message.', preview: _miniChat },
     disableAllBadges:      { desc: 'Hide every badge — Twitch, 7TV, FFZ, and Chatterino.' },
     roleOnlyBadges:        { desc: 'Only show Broadcaster, Mod, and VIP badges.' },
     showExternalCosmetics: { desc: 'Show third-party badges and name paints from 7TV, BTTV, and FFZ.' },
