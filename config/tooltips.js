@@ -75,13 +75,21 @@ function _ensureAnimCSS() {
 function _font() { return `font-family:'${_previewFontFamily}',sans-serif`; }
 
 // Generic event message row
-function _miniEvent(icon, label, name, detail, accentId, accentOpId, bgId, bgOpId) {
+// icon — SVG emoji string
+// username — the bold accent-colored name (event-label)
+// detail — the italic action text (event-detail)
+// accentId/bgId — config input IDs
+function _miniEvent(icon, username, detail, accentId, accentOpId, bgId, bgOpId, extraMsg = '') {
     const accent = _rgba(accentId, accentOpId, '#9146FF');
     const bg     = _rgba(bgId, bgOpId, '#1a0a2e');
-    return `<div style="border-left:3px solid ${accent};background:${bg};border-radius:4px;padding:5px 7px;font-size:11px;line-height:1.4;${_font()}">
-        <span style="color:${accent};font-weight:700;">${icon} ${label}</span>
-        <span style="color:#fff;font-weight:600;"> ${name}</span>
-        <span style="color:rgba(255,255,255,0.55);"> ${detail}</span>
+    const extra  = extraMsg ? `<span style="display:block;color:rgba(255,255,255,0.85);margin-top:2px;">${extraMsg}</span>` : '';
+    return `<div style="border-left:3px solid ${accent};background:${bg};border-radius:4px;padding:5px 7px;font-size:11px;line-height:1.5;${_font()};display:flex;align-items:flex-start;gap:6px;">
+        <span style="color:${accent};flex-shrink:0;margin-top:1px;">${icon}</span>
+        <span>
+            <span style="color:${accent};font-weight:700;filter:brightness(1.4);">${username}</span>
+            <span style="color:#e0d0ff;font-style:italic;"> ${detail}</span>
+            ${extra}
+        </span>
     </div>`;
 }
 
@@ -268,40 +276,40 @@ const SETTING_TIPS = {
     showExternalCosmetics: { desc: 'Show third-party badges and name paints from 7TV, BTTV, and FFZ.' },
 
     showResubs:  { desc: 'Show an event message when someone subscribes or resubscribes.',
-                   preview: () => _miniEvent('⭐','subscribed for','CoolViewer99','6 months','resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
+                   preview: () => _miniEvent('⭐','CoolViewer99', `${document.getElementById('resubLabel')?.value||'resubscribed'} (6 months, Tier 1)`,'resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
     resubAccent: { desc: 'Border and icon color for resub event messages.',
-                   preview: () => _miniEvent('⭐','subscribed for','CoolViewer99','6 months','resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
+                   preview: () => _miniEvent('⭐','CoolViewer99', `${document.getElementById('resubLabel')?.value||'resubscribed'} (6 months, Tier 1)`,'resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
     resubBg:     { desc: 'Background color for resub event messages.',
-                   preview: () => _miniEvent('⭐','subscribed for','CoolViewer99','6 months','resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
+                   preview: () => _miniEvent('⭐','CoolViewer99', `${document.getElementById('resubLabel')?.value||'resubscribed'} (6 months, Tier 1)`,'resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
     resubLabel:  { desc: 'Custom verb in resub messages.',
-                   preview: () => _miniEvent('⭐', document.getElementById('resubLabel')?.value||'subscribed for','CoolViewer99','6 months','resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
+                   preview: () => _miniEvent('⭐','CoolViewer99', `${document.getElementById('resubLabel')?.value||'resubscribed'} (6 months, Tier 1)`,'resubAccent','resubAccentOpacity','resubBg','resubBgOpacity') },
 
     showGifts:   { desc: 'Show an event message when someone gifts subscriptions.',
-                   preview: () => _miniEvent('🎁','gifted a sub to','StreamFan42','LuckyRecipient','giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
+                   preview: () => _miniEvent('🎁','StreamFan42', `${document.getElementById('giftLabel')?.value||'gifted'} a Tier 1 sub to LuckyRecipient!`,'giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
     giftAccent:  { desc: 'Border and icon color for gift sub messages.',
-                   preview: () => _miniEvent('🎁','gifted a sub to','StreamFan42','LuckyRecipient','giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
+                   preview: () => _miniEvent('🎁','StreamFan42', `${document.getElementById('giftLabel')?.value||'gifted'} a Tier 1 sub to LuckyRecipient!`,'giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
     giftBg:      { desc: 'Background color for gift sub messages.',
-                   preview: () => _miniEvent('🎁','gifted a sub to','StreamFan42','LuckyRecipient','giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
+                   preview: () => _miniEvent('🎁','StreamFan42', `${document.getElementById('giftLabel')?.value||'gifted'} a Tier 1 sub to LuckyRecipient!`,'giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
     giftLabel:   { desc: 'Custom verb in gift messages.',
-                   preview: () => _miniEvent('🎁', document.getElementById('giftLabel')?.value||'gifted a sub to','StreamFan42','LuckyRecipient','giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
+                   preview: () => _miniEvent('🎁','StreamFan42', `${document.getElementById('giftLabel')?.value||'gifted'} a Tier 1 sub to LuckyRecipient!`,'giftAccent','giftAccentOpacity','giftBg','giftBgOpacity') },
 
     showBits:    { desc: 'Show an event message when someone cheers with bits.',
-                   preview: () => _miniEvent('💎','cheered','ChatLurker99','100 bits','bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
+                   preview: () => _miniEvent('💎','ChatLurker99', `${document.getElementById('bitsLabel')?.value||'cheered'} 100 bits!`,'bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
     bitsAccent:  { desc: 'Border and icon color for cheer messages.',
-                   preview: () => _miniEvent('💎','cheered','ChatLurker99','100 bits','bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
+                   preview: () => _miniEvent('💎','ChatLurker99', `${document.getElementById('bitsLabel')?.value||'cheered'} 100 bits!`,'bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
     bitsBg:      { desc: 'Background color for cheer messages.',
-                   preview: () => _miniEvent('💎','cheered','ChatLurker99','100 bits','bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
+                   preview: () => _miniEvent('💎','ChatLurker99', `${document.getElementById('bitsLabel')?.value||'cheered'} 100 bits!`,'bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
     bitsLabel:   { desc: 'Custom verb in cheer messages.',
-                   preview: () => _miniEvent('💎', document.getElementById('bitsLabel')?.value||'cheered','ChatLurker99','100 bits','bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
+                   preview: () => _miniEvent('💎','ChatLurker99', `${document.getElementById('bitsLabel')?.value||'cheered'} 100 bits!`,'bitsAccent','bitsAccentOpacity','bitsBg','bitsBgOpacity') },
 
     showRedeems:  { desc: 'Show an event message for channel point redemptions. Requires your own token.',
-                    preview: () => _miniEvent('⚡','redeemed','StreamFan42','Hydrate!','redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
+                    preview: () => _miniEvent('⚡','StreamFan42', `${document.getElementById('redeemLabel')?.value||'redeemed'} Hydrate!`,'redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
     redeemAccent: { desc: 'Border and icon color for redemption messages.',
-                    preview: () => _miniEvent('⚡','redeemed','StreamFan42','Hydrate!','redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
+                    preview: () => _miniEvent('⚡','StreamFan42', `${document.getElementById('redeemLabel')?.value||'redeemed'} Hydrate!`,'redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
     redeemBg:     { desc: 'Background color for redemption messages.',
-                    preview: () => _miniEvent('⚡','redeemed','StreamFan42','Hydrate!','redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
+                    preview: () => _miniEvent('⚡','StreamFan42', `${document.getElementById('redeemLabel')?.value||'redeemed'} Hydrate!`,'redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
     redeemLabel:  { desc: 'Custom verb in redemption messages.',
-                    preview: () => _miniEvent('⚡', document.getElementById('redeemLabel')?.value||'redeemed','StreamFan42','Hydrate!','redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
+                    preview: () => _miniEvent('⚡','StreamFan42', `${document.getElementById('redeemLabel')?.value||'redeemed'} Hydrate!`,'redeemAccent','redeemAccentOpacity','redeemBg','redeemBgOpacity') },
 
     showBans:  { desc: 'Play the hammer animation when a user is banned.',
                  preview: () => _miniBanAnimated('banAccent','banAccentOpacity') },
@@ -325,30 +333,30 @@ const SETTING_TIPS = {
                        preview: () => _miniHighlight('highlightAccent','highlightAccentOpacity','highlightBg','highlightBgOpacity') },
 
     showStreaks:  { desc: 'Show an event message for watch streak milestones.',
-                   preview: () => _miniEvent('🔥','watch streak:','NightOwl','30 days','streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
+                   preview: () => _miniEvent('🔥','NightOwl', `${document.getElementById('streakLabel')?.value||'is on a'} 30-stream watch streak!`,'streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
     streakAccent: { desc: 'Border and icon color for watch streak messages.',
-                   preview: () => _miniEvent('🔥','watch streak:','NightOwl','30 days','streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
+                   preview: () => _miniEvent('🔥','NightOwl', `${document.getElementById('streakLabel')?.value||'is on a'} 30-stream watch streak!`,'streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
     streakBg:     { desc: 'Background color for watch streak messages.',
-                   preview: () => _miniEvent('🔥','watch streak:','NightOwl','30 days','streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
+                   preview: () => _miniEvent('🔥','NightOwl', `${document.getElementById('streakLabel')?.value||'is on a'} 30-stream watch streak!`,'streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
     streakLabel:  { desc: 'Custom label text in watch streak messages.',
-                   preview: () => _miniEvent('🔥', document.getElementById('streakLabel')?.value||'watch streak:','NightOwl','30 days','streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
+                   preview: () => _miniEvent('🔥','NightOwl', `${document.getElementById('streakLabel')?.value||'is on a'} 30-stream watch streak!`,'streakAccent','streakAccentOpacity','streakBg','streakBgOpacity') },
 
     showRaidIncoming:   { desc: 'Show an event message when another channel raids you.',
-                          preview: () => _miniEvent('🚀','is raiding with','BigRaider','250 viewers','raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
+                          preview: () => _miniEvent('🚀','BigRaider', `${document.getElementById('raidIncomingLabel')?.value||'is raiding with'} 250 viewers!`,'raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
     raidIncomingAccent: { desc: 'Border and icon color for incoming raid messages.',
-                          preview: () => _miniEvent('🚀','is raiding with','BigRaider','250 viewers','raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
+                          preview: () => _miniEvent('🚀','BigRaider', `${document.getElementById('raidIncomingLabel')?.value||'is raiding with'} 250 viewers!`,'raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
     raidIncomingBg:     { desc: 'Background color for incoming raid messages.',
-                          preview: () => _miniEvent('🚀','is raiding with','BigRaider','250 viewers','raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
+                          preview: () => _miniEvent('🚀','BigRaider', `${document.getElementById('raidIncomingLabel')?.value||'is raiding with'} 250 viewers!`,'raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
     raidIncomingLabel:  { desc: 'Custom verb in incoming raid messages.',
-                          preview: () => _miniEvent('🚀', document.getElementById('raidIncomingLabel')?.value||'is raiding with','BigRaider','250 viewers','raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
+                          preview: () => _miniEvent('🚀','BigRaider', `${document.getElementById('raidIncomingLabel')?.value||'is raiding with'} 250 viewers!`,'raidIncomingAccent','raidIncomingAccentOpacity','raidIncomingBg','raidIncomingBgOpacity') },
     showRaidOutgoing:   { desc: 'Show an event message when you raid another channel. Requires your own token.',
-                          preview: () => _miniEvent('🚀','raiding','You','FriendlyStreamer','raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
+                          preview: () => _miniEvent('🚀','Outgoing Raid', `${document.getElementById('raidOutgoingLabel')?.value||'raiding'} FriendlyStreamer with 120 viewers!`,'raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
     raidOutgoingAccent: { desc: 'Border and icon color for outgoing raid messages.',
-                          preview: () => _miniEvent('🚀','raiding','You','FriendlyStreamer','raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
+                          preview: () => _miniEvent('🚀','Outgoing Raid', `${document.getElementById('raidOutgoingLabel')?.value||'raiding'} FriendlyStreamer with 120 viewers!`,'raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
     raidOutgoingBg:     { desc: 'Background color for outgoing raid messages.',
-                          preview: () => _miniEvent('🚀','raiding','You','FriendlyStreamer','raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
+                          preview: () => _miniEvent('🚀','Outgoing Raid', `${document.getElementById('raidOutgoingLabel')?.value||'raiding'} FriendlyStreamer with 120 viewers!`,'raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
     raidOutgoingLabel:  { desc: 'Custom verb in outgoing raid messages.',
-                          preview: () => _miniEvent('🚀', document.getElementById('raidOutgoingLabel')?.value||'raiding','You','FriendlyStreamer','raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
+                          preview: () => _miniEvent('🚀','Outgoing Raid', `${document.getElementById('raidOutgoingLabel')?.value||'raiding'} FriendlyStreamer with 120 viewers!`,'raidOutgoingAccent','raidOutgoingAccentOpacity','raidOutgoingBg','raidOutgoingBgOpacity') },
 
     showPolls:    { desc: 'Show an active poll widget in the center of the overlay. Requires your own token.', preview: _miniPoll },
     pollAccent:   { desc: 'Border, icon, and percentage text color for the poll widget.', preview: _miniPoll },
