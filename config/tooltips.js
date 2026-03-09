@@ -364,17 +364,34 @@ const SETTING_TIPS = {
 };
 
 // ── Tooltip DOM ───────────────────────────────────────────────────────────────
-let _tipEl = null;
+let _tipEl      = null;
+let _activeTip  = null;  // currently shown tip object
+let _activeAnchor = null;
 
 function _createTooltip() {
     _tipEl = document.createElement('div');
     _tipEl.className = 'setting-tooltip';
     _tipEl.style.display = 'none';
     document.body.appendChild(_tipEl);
+
+    // Re-render preview whenever any input changes while a tooltip is open
+    document.addEventListener('input',  _rerenderActiveTip);
+    document.addEventListener('change', _rerenderActiveTip);
+}
+
+function _rerenderActiveTip() {
+    if (!_activeTip || !_tipEl || _tipEl.style.display === 'none') return;
+    const previewEl = _tipEl.querySelector('.tip-preview');
+    if (previewEl && _activeTip.preview) {
+        previewEl.innerHTML = _activeTip.preview();
+    }
 }
 
 function _showTip(tip, anchor) {
     if (!_tipEl) return;
+    _activeTip    = tip;
+    _activeAnchor = anchor;
+
     let html = '';
     if (tip.preview) html += `<div class="tip-preview">${tip.preview()}</div>`;
     html += `<div class="tip-desc">${tip.desc}</div>`;
@@ -400,6 +417,8 @@ function _showTip(tip, anchor) {
 
 function _hideTip() {
     if (_tipEl) _tipEl.style.display = 'none';
+    _activeTip    = null;
+    _activeAnchor = null;
 }
 
 // ── Injection ─────────────────────────────────────────────────────────────────
