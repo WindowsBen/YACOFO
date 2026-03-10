@@ -55,6 +55,12 @@ async function getRewardName(broadcasterId, rewardId) {
 function renderRedemption(username, rewardName, userInput) {
     const verb = CONFIG.redeemLabel || 'redeemed';
 
+    // ── Bubble mode ───────────────────────────────────────────────────────────
+    if (CONFIG.chatStyle === 'bubbles') {
+        displayBubbleRedeem(username, rewardName, userInput);
+        return;
+    }
+
     const ICON_REDEEM = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9V9h2v4zm0-6H9V5h2v2z"/></svg>`;
 
     const container = document.getElementById('chat-container');

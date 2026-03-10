@@ -160,8 +160,32 @@
         '        event-bubble-glow  2s   ease-in-out 0.65s infinite;',
         '}',
 
-        // ── Inner text labels ─────────────────────────────────────────────────
-        '.bubble-username{font-weight:700;font-size:var(--name-font-size,15px);display:inline;}',
+        // ── Small event bubble (raids, streaks, redeems, announcements) ────────
+        '.soap-bubble-small-event{',
+        '    min-width:180px;max-width:300px;padding:12px 20px;',
+        '}',
+
+        // ── Highlighted message bubble ────────────────────────────────────────
+        '.bubble-highlighted{',
+        '    border-color:rgba(255,100,255,0.7) !important;',
+        '    box-shadow:0 0 16px rgba(255,0,255,0.25),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(200,0,200,0.12) !important;',
+        '}',
+
+        // ── Reply context inside a bubble ─────────────────────────────────────
+        '.bubble-reply-ctx{',
+        '    display:block; font-size:0.8em;',
+        '    color:rgba(255,255,255,0.55);',
+        '    margin-bottom:4px;',
+        '    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;',
+        '}',
+        '.bubble-reply-ctx .reply-icon{width:10px;height:10px;vertical-align:middle;margin-right:3px;opacity:0.7;}',
+        '.bubble-reply-ctx .reply-parent-name{font-weight:700;color:rgba(255,255,255,0.7);}',
+
+        // ── Announcement header inside bubble ─────────────────────────────────
+        '.bubble-announce-header{font-size:0.75em;font-weight:700;letter-spacing:0.5px;opacity:0.9;}',
+
+        // ── Extra user input line in event bubbles ────────────────────────────
+        '.bubble-event-extra{display:block;margin-top:3px;font-size:0.85em;color:rgba(255,255,255,0.75);}',
         '.bubble-message {display:inline;color:rgba(255,255,255,0.9);}',
         '.bubble-event-icon  {display:block;font-size:22px;text-align:center;margin-bottom:5px;}',
         '.bubble-event-label {display:block;font-weight:800;font-size:14px;letter-spacing:0.5px;text-align:center;margin-bottom:2px;}',
@@ -382,46 +406,82 @@ function displayBubbleMessage(tags, parsedMessageHTML, isAction) {
     const userColor  = tags.color || '#b0d0ff';
     const badgesHTML = typeof renderBadges === 'function' ? renderBadges(tags) : '';
 
+    // ── /me styling ───────────────────────────────────────────────────────────
     let msgStyle = '';
     if (isAction && CONFIG.meStyle !== 'none') {
         if      (CONFIG.meStyle === 'colored') msgStyle = 'color:' + userColor;
         else if (CONFIG.meStyle === 'italic')  msgStyle = 'font-style:italic';
     }
 
+    // ── Highlighted message ───────────────────────────────────────────────────
+    const isHighlight = tags['msg-id'] === 'highlighted-message';
+    if (isHighlight && !CONFIG.showHighlights) return;
+
+    // ── Reply context ─────────────────────────────────────────────────────────
+    const parentMsgId = tags['reply-parent-msg-id'];
+    const parentUser  = tags['reply-parent-display-name'] || tags['reply-parent-user-login'];
+    const parentRaw   = (tags['reply-parent-msg-body'] || '')
+        .replace(/\\s/g,  ' ').replace(/\\:/g, ';')
+        .replace(/\\\\/g, '\\').replace(/\\r/g, '').replace(/\\n/g, '');
+
+    let replyHTML = '';
+    let mainMessage = parsedMessageHTML;
+
+    if (CONFIG.showReplies && parentMsgId && parentUser) {
+        // Strip the leading @mention tmi.js prepends and adjust emote offsets
+        const prefixMatch = (tags._rawMessage || '').match(/^@\S+\s*/);
+        const prefixLen   = prefixMatch ? prefixMatch[0].length : 0;
+
+        const snippet       = parentRaw.length > 50 ? parentRaw.slice(0, 50).trimEnd() + '…' : parentRaw;
+        const parsedSnippet = parseMessage(snippet, null);
+
+        replyHTML = '<div class="bubble-reply-ctx">' +
+            '<svg class="reply-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>' +
+            '<span class="reply-parent-name">' + escapeHTML(parentUser) + '</span> ' +
+            '<span class="reply-parent-body">' + parsedSnippet + '</span>' +
+        '</div>';
+    }
+
     const el = document.createElement('div');
-    el.className = 'soap-bubble';
+    el.className = 'soap-bubble' + (isHighlight ? ' bubble-highlighted' : '');
 
     if (tags['id'])    el.dataset.msgId   = tags['id'];
     if (tags.username) el.dataset.username = tags.username.toLowerCase();
+    // Flag for 7TV paint to also color the message text on /me colored
+    if (isAction && CONFIG.meStyle === 'colored') el.dataset.meColored = '1';
 
     el.innerHTML =
         '<div class="bubble-content">' +
+            replyHTML +
             '<span class="badges">' + badgesHTML + '</span>' +
             '<span class="bubble-username username" style="color:' + userColor + '">' + escapeHTML(username) + '</span>' +
-            '<span class="bubble-message"' + (msgStyle ? ' style="' + msgStyle + '"' : '') + '> ' + parsedMessageHTML + '</span>' +
+            '<span class="bubble-message message-text"' + (msgStyle ? ' style="' + msgStyle + '"' : '') + '> ' + mainMessage + '</span>' +
         '</div>';
 
     // Random spawn position — keep away from screen edges
-    const maxL = Math.max(10, window.innerWidth  - 280);
+    const maxL = Math.max(10, window.innerWidth  - 320);
     const maxT = Math.max(10, window.innerHeight - 120);
     el.style.left = _rand(5, maxL) + 'px';
     el.style.top  = _rand(5, maxT) + 'px';
 
     overlay.appendChild(el);
 
-    // Phase 1 — blow up (double rAF ensures transition fires)
+    // Cap bubble overlay at 50 elements (same as normal chat)
+    const allBubbles = overlay.querySelectorAll('.soap-bubble:not(.soap-bubble-event)');
+    if (allBubbles.length > 50) allBubbles[0].remove();
+
+    // Phase 1 — inflate
     requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('bubble-visible')));
 
-    // Phase 2 — start drifting after inflate animation completes (~700ms)
+    // Phase 2 — drift after inflate settles
     const motionScale = CONFIG.bubbleMotion || 5;
-    setTimeout(function () {
-        _startBubbleDrift(el, motionScale);
-    }, 700);
+    setTimeout(function () { _startBubbleDrift(el, motionScale); }, 700);
 
-    // Phase 3 — pop at end of lifetime
+    // Phase 3 — pop at lifetime end
     const lifetime = CONFIG.messageLifetime > 0 ? CONFIG.messageLifetime : 8000;
-    setTimeout(function () { _popBubble(el, false); }, lifetime);
+    setTimeout(function () { if (el.isConnected) _popBubble(el, false); }, lifetime);
 
+    // 7TV cosmetics (badge + paint)
     if (tags['user-id'] && typeof apply7TVCosmetics === 'function') {
         apply7TVCosmetics(tags['user-id'], el);
     }
@@ -429,50 +489,169 @@ function displayBubbleMessage(tags, parsedMessageHTML, isAction) {
 
 // ── Event bubble (subs / bits) ─────────────────────────────────────────────────
 // Returns true if handled; false to fall back to normal event message rendering.
+// displayBubbleEvent — renders any event type as a bubble.
+// Special events (sub/gift/bits) get a large glowing center-screen bubble.
+// All other events (raids, streaks, redeems) get a regular-sized bubble at a
+// random position so they stay visible alongside chat bubbles.
+// Always returns true — caller should never fall back to #chat-container in bubble mode.
 function displayBubbleEvent(iconSvg, label, detail, typeClass) {
-    const isSpecial = typeClass.includes('sub-message')  ||
-                      typeClass.includes('gift-message') ||
-                      typeClass.includes('bits-message');
-    if (!isSpecial) return false;
-
     const overlay = _bubbleOverlay();
     if (!overlay) return true;
 
-    const el = document.createElement('div');
-    el.className        = 'soap-bubble soap-bubble-event';
-    el.style.left       = '50%';
-    el.style.top        = '40%';
-    el.style.transform  = 'translateX(-50%) scale(0)';
-    el.style.opacity    = '0';
-    el.style.transition = 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
+    const isSpecial = typeClass.includes('sub-message')  ||
+                      typeClass.includes('gift-message') ||
+                      typeClass.includes('bits-message');
 
-    el.innerHTML =
+    const el = document.createElement('div');
+    el.className = 'soap-bubble' + (isSpecial ? ' soap-bubble-event' : ' soap-bubble-small-event');
+
+    const innerHTML =
         '<div class="bubble-content">' +
-            '<span class="bubble-event-icon">'   + iconSvg          + '</span>' +
+            '<span class="bubble-event-icon">'   + iconSvg           + '</span>' +
             '<span class="bubble-event-label">'  + escapeHTML(label)  + '</span>' +
             '<span class="bubble-event-detail">' + escapeHTML(detail) + '</span>' +
         '</div>';
 
-    overlay.appendChild(el);
+    if (isSpecial) {
+        // Center-screen, large glowing bubble
+        el.style.left       = '50%';
+        el.style.top        = '40%';
+        el.style.transform  = 'translateX(-50%) scale(0)';
+        el.style.opacity    = '0';
+        el.style.transition = 'transform 0.65s cubic-bezier(0.22,1,0.36,1), opacity 0.2s ease';
+        el.innerHTML = innerHTML;
+        overlay.appendChild(el);
 
-    requestAnimationFrame(function () {
         requestAnimationFrame(function () {
-            el.style.transform = 'translateX(-50%) scale(1)';
-            el.style.opacity   = '1';
-            el.classList.add('bubble-visible');
+            requestAnimationFrame(function () {
+                el.style.transform = 'translateX(-50%) scale(1)';
+                el.style.opacity   = '1';
+                el.classList.add('bubble-visible');
+            });
         });
-    });
 
-    // Pop after 5 seconds — snapshot position first so particles spawn at the right place
-    setTimeout(function () {
-        var rect = el.getBoundingClientRect();
-        el.style.left      = rect.left + 'px';
-        el.style.top       = rect.top  + 'px';
-        el.style.transform = 'none';
-        _popBubble(el, true);
-    }, 5000);
+        // Pop after 5s — snapshot position so particles appear at the right spot
+        setTimeout(function () {
+            var rect = el.getBoundingClientRect();
+            el.style.left      = rect.left + 'px';
+            el.style.top       = rect.top  + 'px';
+            el.style.transform = 'none';
+            _popBubble(el, true);
+        }, 5000);
+
+    } else {
+        // Regular-sized event bubble — spawns at random position and drifts
+        const maxL = Math.max(10, window.innerWidth  - 320);
+        const maxT = Math.max(10, window.innerHeight - 120);
+        el.style.left = _rand(5, maxL) + 'px';
+        el.style.top  = _rand(5, maxT) + 'px';
+        el.innerHTML = innerHTML;
+        overlay.appendChild(el);
+
+        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('bubble-visible')));
+
+        const motionScale = CONFIG.bubbleMotion || 5;
+        setTimeout(function () { _startBubbleDrift(el, motionScale); }, 700);
+
+        const lifetime = CONFIG.messageLifetime > 0 ? CONFIG.messageLifetime : 8000;
+        setTimeout(function () { if (el.isConnected) _popBubble(el, false); }, lifetime);
+    }
 
     return true;
+}
+
+// displayBubbleAnnouncement — renders a /announce as a distinct bubble
+// with a coloured border matching the announcement colour.
+function displayBubbleAnnouncement(colorClass, username, userColor, badgesHTML, parsedMsg, tags) {
+    const overlay = _bubbleOverlay();
+    if (!overlay) return;
+
+    const colorMap = {
+        'announce-primary': 'rgba(180,140,255,0.7)',
+        'announce-blue':    'rgba(80,160,255,0.7)',
+        'announce-green':   'rgba(80,220,120,0.7)',
+        'announce-orange':  'rgba(255,160,60,0.7)',
+        'announce-purple':  'rgba(180,80,255,0.7)',
+    };
+    const accentColor = colorMap[colorClass] || colorMap['announce-primary'];
+
+    const el = document.createElement('div');
+    el.className = 'soap-bubble bubble-announcement';
+    el.style.borderColor = accentColor;
+    el.style.boxShadow   = '0 0 14px ' + accentColor.replace('0.7', '0.3') + ', inset 0 2px 8px rgba(255,255,255,0.15)';
+
+    if (tags && tags['id'])    el.dataset.msgId   = tags['id'];
+    if (tags && tags['login']) el.dataset.username = tags['login'].toLowerCase();
+
+    el.innerHTML =
+        '<div class="bubble-content">' +
+            '<span class="bubble-announce-header" style="color:' + accentColor + '">📣 Announcement</span>' +
+            '<br>' +
+            '<span class="badges">' + badgesHTML + '</span>' +
+            '<span class="bubble-username username" style="color:' + userColor + '">' + escapeHTML(username) + '</span>' +
+            '<span class="bubble-message message-text"> ' + parsedMsg + '</span>' +
+        '</div>';
+
+    const maxL = Math.max(10, window.innerWidth  - 320);
+    const maxT = Math.max(10, window.innerHeight - 120);
+    el.style.left = _rand(5, maxL) + 'px';
+    el.style.top  = _rand(5, maxT) + 'px';
+
+    overlay.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('bubble-visible')));
+
+    const motionScale = CONFIG.bubbleMotion || 5;
+    setTimeout(function () { _startBubbleDrift(el, motionScale); }, 700);
+
+    const lifetime = CONFIG.messageLifetime > 0 ? CONFIG.messageLifetime : 8000;
+    setTimeout(function () { if (el.isConnected) _popBubble(el, false); }, lifetime);
+
+    if (tags && tags['user-id'] && typeof apply7TVCosmetics === 'function') {
+        apply7TVCosmetics(tags['user-id'], el);
+    }
+}
+
+// displayBubbleRedeem — renders a redemption as a bubble.
+function displayBubbleRedeem(username, rewardName, userInput) {
+    const ICON_REDEEM = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9V9h2v4zm0-6H9V5h2v2z"/></svg>';
+    const verb        = CONFIG.redeemLabel || 'redeemed';
+    const parsedInput = userInput ? parseMessage(userInput, null) : '';
+    const overlay     = _bubbleOverlay();
+    if (!overlay) return;
+
+    const el = document.createElement('div');
+    el.className = 'soap-bubble soap-bubble-small-event';
+    el.style.borderColor = 'rgba(255,184,0,0.6)';
+    el.style.boxShadow   = '0 0 12px rgba(255,184,0,0.25), inset 0 2px 8px rgba(255,255,255,0.15)';
+
+    el.innerHTML =
+        '<div class="bubble-content">' +
+            '<span class="bubble-event-icon">' + ICON_REDEEM + '</span>' +
+            '<span class="bubble-event-label">' + escapeHTML(username) + '</span>' +
+            '<span class="bubble-event-detail">' + escapeHTML(verb) + ' <strong>' + escapeHTML(rewardName) + '</strong></span>' +
+            (parsedInput ? '<span class="bubble-event-extra"> ' + parsedInput + '</span>' : '') +
+        '</div>';
+
+    const maxL = Math.max(10, window.innerWidth  - 320);
+    const maxT = Math.max(10, window.innerHeight - 120);
+    el.style.left = _rand(5, maxL) + 'px';
+    el.style.top  = _rand(5, maxT) + 'px';
+
+    overlay.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('bubble-visible')));
+
+    const motionScale = CONFIG.bubbleMotion || 5;
+    setTimeout(function () { _startBubbleDrift(el, motionScale); }, 700);
+
+    const lifetime = CONFIG.messageLifetime > 0 ? CONFIG.messageLifetime : 8000;
+    setTimeout(function () { if (el.isConnected) _popBubble(el, false); }, lifetime);
+}
+
+// _clearBubbleOverlay — wipes all chat bubbles (clearchat). Leaves HT bubbles.
+function _clearBubbleOverlay() {
+    var overlay = _bubbleOverlay();
+    if (!overlay) return;
+    overlay.querySelectorAll('.soap-bubble').forEach(function (el) { el.remove(); });
 }
 
 // ── Hype Train bubble mode ─────────────────────────────────────────────────────
