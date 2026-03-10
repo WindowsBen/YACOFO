@@ -40,6 +40,7 @@ const CONFIG = {
 
     showReplies:       params.get('showReplies') !== '0', // default on
     meStyle:           params.get('meStyle') || 'colored', // 'colored' | 'italic' | 'none'
+    chatStyle:         params.get('chatStyle') || 'default', // 'default' | 'bubbles'
     showAnnouncements: params.get('showAnnouncements') !== '0', // default on
 
     // Raid toggles — default on

@@ -274,6 +274,7 @@ const SETTING_TIPS = {
     showReplies:      { desc: 'Show the quoted parent message above reply messages.' },
     toastEmotes:      { desc: 'Displays when a 7TV emote is added to the current set (Notification above chat).' },
     meStyle:          { desc: 'How /me action messages are styled — colored (uses name color), italic, or plain. Preview shows a /me message.', preview: _miniChat },
+    chatStyle:        { desc: 'Default: messages stack in a column. Bubbles 🫧: each message spawns as a floating soap bubble at a random screen position — drifts, then pops. Subs and bits get a large glowing center bubble.' },
     disableAllBadges:      { desc: 'Hide every badge — Twitch, 7TV, FFZ, and Chatterino.' },
     roleOnlyBadges:        { desc: 'Only show Broadcaster, Mod, and VIP badges.' },
     showExternalCosmetics: { desc: 'Show third-party badges and name paints from 7TV, BTTV, and FFZ.' },

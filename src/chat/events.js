@@ -23,6 +23,12 @@ function subPlanLabel(plan) {
 // messageIsHTML — true if extraMessage is already parsed HTML (e.g. cheermotes)
 // typeClass   — CSS class suffix for per-event-type accent/bg colors
 function displayEventMessage(iconSvg, label, detail, extraMessage = '', messageIsHTML = false, typeClass = '') {
+    // ── Bubble mode — subs and bits get a big center bubble ───────────────────
+    if (CONFIG.chatStyle === 'bubbles') {
+        const handled = displayBubbleEvent(iconSvg, label, detail, typeClass);
+        if (handled) return;
+        // non-special events (raids, streaks, redeems) fall through to normal rendering below
+    }
     const container = document.getElementById('chat-container');
     const el = document.createElement('div');
     el.className = `chat-message event-message${typeClass ? ' ' + typeClass : ''}`;
