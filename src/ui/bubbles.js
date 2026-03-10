@@ -20,68 +20,115 @@
     const s = document.createElement('style');
     s.id = 'bubble-styles';
     s.textContent = [
-        // ── Overlay container ────────────────────────────────────────────────
-        '#bubble-overlay {',
-        '    position:fixed; inset:0;',
-        '    pointer-events:none; overflow:hidden; z-index:10;',
-        '}',
 
-        // ── Base soap bubble shell ───────────────────────────────────────────
-        '.soap-bubble {',
+        // ── Overlay container ────────────────────────────────────────────────
+        '#bubble-overlay{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10;}',
+
+        // ── Soap bubble shell ─────────────────────────────────────────────────
+        // Real soap bubble: near-transparent body, very thin iridescent membrane,
+        // a bright crescent specular at top-left, faint caustic glow at bottom.
+        '.soap-bubble{',
         '    position:absolute;',
         '    min-width:180px; max-width:320px;',
         '    border-radius:999px;',
         '    padding:14px 26px;',
-        '    background:transparent;',
-        '    box-shadow:inset 0 0 25px rgba(255,255,255,0.08);',
+
+        // Almost fully transparent fill — soap film is just a thin layer
+        '    background: radial-gradient(ellipse at 38% 32%,',
+        '        rgba(255,255,255,0.13) 0%,',
+        '        rgba(180,225,255,0.05) 40%,',
+        '        rgba(80,140,210,0.07) 100%);',
+
+        // Thin glowing border — color cycles via keyframe animation below
+        '    border:1.5px solid rgba(160,210,255,0.55);',
+
+        // Outer soft glow + inner light
+        '    box-shadow:',
+        '        0 0 10px rgba(140,200,255,0.18),',
+        '        inset 0 2px 8px rgba(255,255,255,0.18),',
+        '        inset 0 -4px 10px rgba(80,140,220,0.12);',
+
         '    color:rgba(255,255,255,0.95);',
         '    font-size:var(--message-font-size,15px);',
         '    font-family:var(--chat-font-family,sans-serif);',
         '    line-height:1.4; word-break:break-word;',
         '    pointer-events:none;',
         '    isolation:isolate; overflow:hidden;',
-        '    transform:scale(0); opacity:0;',
-        '    transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;',
-        '}',
-        '.soap-bubble.bubble-visible { opacity:1; transform:scale(1); }',
 
-        // ── Iridescent span layers (Uiverse.io technique) ────────────────────
-        '.soap-bubble span.b-s {',
-        '    position:absolute; border-radius:50%; pointer-events:none;',
+        // Start invisible + collapsed; bubble-inflate animation plays on spawn
+        '    opacity:0; transform:scale(0);',
         '}',
-        '.soap-bubble span.b-s:nth-child(1){inset:6px; border-left:  12px solid #0fb4ff;filter:blur(3.5px);}',
-        '.soap-bubble span.b-s:nth-child(2){inset:6px; border-right: 12px solid #ff4484;filter:blur(3.5px);}',
-        '.soap-bubble span.b-s:nth-child(3){inset:6px; border-top:   12px solid #ffeb3b;filter:blur(3.5px);}',
-        '.soap-bubble span.b-s:nth-child(4){inset:20px;border-left:  12px solid #ff4484;filter:blur(5px);}',
-        '.soap-bubble span.b-s:nth-child(5){inset:6px; border-bottom:8px  solid #fff;filter:blur(3.5px);transform:rotate(330deg);}',
 
-        // ── White highlight blobs ─────────────────────────────────────────────
+        // ── Iridescent membrane shimmer ───────────────────────────────────────
+        // Cycles border-color + shadow hue around the visible spectrum
+        '@keyframes bubble-iridescence{',
+        '  0%  {border-color:rgba(160,220,255,0.55);box-shadow:0 0 10px rgba(140,200,255,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(80,140,220,0.12);}',
+        '  16% {border-color:rgba(200,160,255,0.55);box-shadow:0 0 10px rgba(180,140,255,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(140,80,220,0.12);}',
+        '  33% {border-color:rgba(160,255,200,0.55);box-shadow:0 0 10px rgba(140,255,180,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(80,220,140,0.12);}',
+        '  50% {border-color:rgba(255,220,140,0.55);box-shadow:0 0 10px rgba(255,200,120,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(220,140,60,0.12);}',
+        '  66% {border-color:rgba(255,160,180,0.55);box-shadow:0 0 10px rgba(255,140,160,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(220,80,100,0.12);}',
+        '  83% {border-color:rgba(160,200,255,0.55);box-shadow:0 0 10px rgba(140,180,255,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(80,120,220,0.12);}',
+        ' 100% {border-color:rgba(160,220,255,0.55);box-shadow:0 0 10px rgba(140,200,255,0.18),inset 0 2px 8px rgba(255,255,255,0.18),inset 0 -4px 10px rgba(80,140,220,0.12);}',
+        '}',
+
+        // ── Blow-up (inflate) animation ───────────────────────────────────────
+        // Mimics the elastic wobble of a real bubble being blown:
+        // rapid expansion → slight overshoot → micro-bounces → settle
+        '@keyframes bubble-inflate{',
+        '  0%   {transform:scale(0);    opacity:0;}',
+        '  55%  {transform:scale(1.12); opacity:1;}',
+        '  70%  {transform:scale(0.96);}',
+        '  82%  {transform:scale(1.05);}',
+        '  91%  {transform:scale(0.99);}',
+        '  100% {transform:scale(1);    opacity:1;}',
+        '}',
+
+        // Class added by JS to trigger inflate + iridescence together
+        '.soap-bubble.bubble-visible{',
+        '    animation:',
+        '        bubble-inflate     0.65s cubic-bezier(0.22,1,0.36,1) forwards,',
+        '        bubble-iridescence 5s   linear 0.65s infinite;',
+        '}',
+
+        // ── Crescent specular highlight ───────────────────────────────────────
+        // Main reflection arc — bright white crescent at top-left,
+        // like sunlight catching the near side of a real bubble
         '.soap-bubble::before{',
-        '    content:"";position:absolute;',
-        '    top:22%;left:14%;width:18px;height:18px;',
-        '    border-radius:50%;background:#fff;z-index:10;filter:blur(1px);pointer-events:none;',
+        '    content:""; position:absolute;',
+        '    top:10%; left:8%;',
+        '    width:44%; height:28%;',
+        '    border-radius:50%;',
+        '    border-top:2px solid rgba(255,255,255,0.75);',
+        '    border-left:1px solid rgba(255,255,255,0.3);',
+        '    background:transparent;',
+        '    transform:rotate(-28deg);',
+        '    z-index:6; pointer-events:none;',
         '}',
+        // Tiny secondary sparkle below the main arc
         '.soap-bubble::after{',
-        '    content:"";position:absolute;',
-        '    top:40%;left:26%;width:12px;height:12px;',
-        '    border-radius:50%;background:#fff;z-index:10;filter:blur(1px);pointer-events:none;',
+        '    content:""; position:absolute;',
+        '    top:22%; left:18%;',
+        '    width:12%; height:8%;',
+        '    border-radius:50%;',
+        '    background:rgba(255,255,255,0.45);',
+        '    z-index:6; pointer-events:none;',
         '}',
 
-        // ── Content floats above the color spans ──────────────────────────────
+        // ── Content floats above decorative layers ────────────────────────────
         '.bubble-content{position:relative;z-index:5;}',
 
-        // ── Drift animations ──────────────────────────────────────────────────
-        // drift keyframes injected per-bubble by _startBubbleDrift()
-
-        // ── Pop ───────────────────────────────────────────────────────────────
+        // ── Pop animation ─────────────────────────────────────────────────────
+        // Real bubble pops: a pinhole tears open, membrane retracts outward
+        // in ~50ms with a bright flash, leaving only water droplets.
+        // We simulate with a quick bright flash + rapid scale-out + fade.
         '@keyframes bubble-pop{',
-        '  0%  {transform:scale(1);   opacity:1; filter:brightness(1);}',
-        '  35% {transform:scale(1.15);opacity:0.9;filter:brightness(2);}',
-        '  100%{transform:scale(0.05);opacity:0;}',
+        '  0%   {transform:scale(1);   opacity:1; filter:brightness(1);}',
+        '  18%  {transform:scale(1.08);opacity:1; filter:brightness(2.8);}',
+        '  100% {transform:scale(1.4); opacity:0; filter:brightness(1);}',
         '}',
-        '.bubble-popping{animation:bubble-pop 0.25s ease-in forwards !important;}',
+        '.bubble-popping{animation:bubble-pop 0.28s ease-out forwards !important;}',
 
-        // ── Pop particles ─────────────────────────────────────────────────────
+        // ── Pop particles (water droplets) ────────────────────────────────────
         '.bubble-particle,.bubble-sparkle{',
         '    position:absolute;border-radius:50%;opacity:1;pointer-events:none;',
         '    animation:bubble-particle-fly var(--fly-dur,0.5s) ease-out forwards;',
@@ -92,24 +139,28 @@
         '}',
 
         // ── Event bubble (subs / bits) ────────────────────────────────────────
+        // Bigger, more prominent — sits center-screen with pulsing outer glow
         '.soap-bubble-event{',
-        '    min-width:240px;max-width:380px;padding:22px 30px;border-radius:999px;',
-        '    box-shadow:inset 0 0 40px rgba(255,255,255,0.10),0 0 30px rgba(160,100,255,0.35);',
+        '    min-width:240px; max-width:380px;',
+        '    padding:22px 30px; border-radius:999px;',
+        '    box-shadow:',
+        '        0 0 20px rgba(160,100,255,0.3),',
+        '        0 0 40px rgba(160,100,255,0.12),',
+        '        inset 0 2px 10px rgba(255,255,255,0.2),',
+        '        inset 0 -6px 14px rgba(100,60,200,0.15);',
         '}',
-        '.soap-bubble-event::before{width:24px;height:24px;top:18%;left:12%;}',
-        '.soap-bubble-event::after {width:16px;height:16px;top:38%;left:24%;}',
-        '.soap-bubble-event span.b-s:nth-child(1){inset:8px; border-left:  16px solid #0fb4ff;filter:blur(5px);}',
-        '.soap-bubble-event span.b-s:nth-child(2){inset:8px; border-right: 16px solid #ff4484;filter:blur(5px);}',
-        '.soap-bubble-event span.b-s:nth-child(3){inset:8px; border-top:   16px solid #ffeb3b;filter:blur(5px);}',
-        '.soap-bubble-event span.b-s:nth-child(4){inset:25px;border-left:  16px solid #a855f7;filter:blur(7px);}',
-        '.soap-bubble-event span.b-s:nth-child(5){inset:8px; border-bottom:12px solid #fff;filter:blur(5px);transform:rotate(330deg);}',
         '@keyframes event-bubble-glow{',
-        '  0%,100%{box-shadow:inset 0 0 40px rgba(255,255,255,0.10),0 0 25px rgba(160,100,255,0.35);}',
-        '  50%    {box-shadow:inset 0 0 40px rgba(255,255,255,0.10),0 0 50px rgba(160,100,255,0.65),0 0 80px rgba(80,160,255,0.25);}',
+        '  0%,100%{box-shadow:0 0 20px rgba(160,100,255,0.3),0 0 40px rgba(160,100,255,0.12),inset 0 2px 10px rgba(255,255,255,0.2),inset 0 -6px 14px rgba(100,60,200,0.15);}',
+        '  50%    {box-shadow:0 0 35px rgba(160,100,255,0.55),0 0 70px rgba(160,100,255,0.25),inset 0 2px 10px rgba(255,255,255,0.2),inset 0 -6px 14px rgba(100,60,200,0.15);}',
         '}',
-        '.soap-bubble-event.bubble-visible{animation:event-bubble-glow 2s ease-in-out infinite;}',
+        '.soap-bubble-event.bubble-visible{',
+        '    animation:',
+        '        bubble-inflate     0.65s cubic-bezier(0.22,1,0.36,1) forwards,',
+        '        bubble-iridescence 5s   linear 0.65s infinite,',
+        '        event-bubble-glow  2s   ease-in-out 0.65s infinite;',
+        '}',
 
-        // ── Inner text layout ─────────────────────────────────────────────────
+        // ── Inner text labels ─────────────────────────────────────────────────
         '.bubble-username{font-weight:700;font-size:var(--name-font-size,15px);display:inline;}',
         '.bubble-message {display:inline;color:rgba(255,255,255,0.9);}',
         '.bubble-event-icon  {display:block;font-size:22px;text-align:center;margin-bottom:5px;}',
@@ -118,43 +169,54 @@
 
         // ── Hype train edge bubbles ───────────────────────────────────────────
         '.ht-bubble{',
-        '    position:absolute;width:72px;height:72px;border-radius:50%;',
-        '    background:transparent;box-shadow:inset 0 0 20px rgba(255,255,255,0.08);',
-        '    overflow:hidden;isolation:isolate;',
+        '    position:absolute; width:80px; height:80px; border-radius:50%;',
+        '    background:radial-gradient(ellipse at 38% 32%,rgba(255,255,255,0.13) 0%,rgba(255,180,80,0.06) 50%,rgba(200,80,20,0.08) 100%);',
+        '    border:1.5px solid rgba(255,160,80,0.55);',
+        '    box-shadow:0 0 10px rgba(255,140,60,0.2),inset 0 2px 8px rgba(255,255,255,0.15),inset 0 -4px 10px rgba(200,80,20,0.1);',
+        '    overflow:hidden; isolation:isolate;',
         '    display:flex;flex-direction:column;align-items:center;justify-content:center;',
-        '    pointer-events:none;opacity:0;transform:scale(0);',
+        '    pointer-events:none; opacity:0; transform:scale(0);',
         '    transition:opacity 0.4s ease,transform 0.4s cubic-bezier(0.34,1.56,0.64,1);',
         '}',
         '.ht-bubble::before{',
-        '    content:"";position:absolute;top:14%;left:18%;width:10px;height:10px;',
-        '    border-radius:50%;background:#fff;z-index:10;filter:blur(0.8px);',
+        '    content:""; position:absolute;',
+        '    top:10%; left:8%; width:42%; height:26%;',
+        '    border-radius:50%;',
+        '    border-top:2px solid rgba(255,255,255,0.7);',
+        '    border-left:1px solid rgba(255,255,255,0.25);',
+        '    background:transparent;',
+        '    transform:rotate(-28deg); z-index:6; pointer-events:none;',
         '}',
         '.ht-bubble::after{',
-        '    content:"";position:absolute;top:28%;left:28%;width:7px;height:7px;',
-        '    border-radius:50%;background:#fff;z-index:10;filter:blur(0.8px);',
+        '    content:""; position:absolute;',
+        '    top:22%; left:18%; width:14%; height:9%;',
+        '    border-radius:50%;',
+        '    background:rgba(255,255,255,0.4);',
+        '    z-index:6; pointer-events:none;',
         '}',
-        '.ht-bubble span.b-s{position:absolute;border-radius:50%;pointer-events:none;}',
-        '.ht-bubble span.b-s:nth-child(1){inset:4px; border-left:  8px solid #FF6B35;filter:blur(2.5px);}',
-        '.ht-bubble span.b-s:nth-child(2){inset:4px; border-right: 8px solid #ff4484;filter:blur(2.5px);}',
-        '.ht-bubble span.b-s:nth-child(3){inset:4px; border-top:   8px solid #ffeb3b;filter:blur(2.5px);}',
-        '.ht-bubble span.b-s:nth-child(4){inset:12px;border-left:  8px solid #ff4484;filter:blur(3.5px);}',
-        '.ht-bubble span.b-s:nth-child(5){inset:4px; border-bottom:6px  solid #fff;filter:blur(2.5px);transform:rotate(330deg);}',
-        '.ht-bubble.ht-bubble-visible{opacity:1;transform:scale(1);}',
-        '.ht-bubble-icon {position:relative;z-index:5;font-size:20px;line-height:1;}',
+        '.ht-bubble.ht-bubble-visible{',
+        '    opacity:1; transform:scale(1);',
+        '    animation:ht-iridescence 4s linear infinite;',
+        '}',
+        '@keyframes ht-iridescence{',
+        '  0%  {border-color:rgba(255,160,80,0.55);}',
+        '  33% {border-color:rgba(255,80,160,0.55);}',
+        '  66% {border-color:rgba(255,220,80,0.55);}',
+        ' 100% {border-color:rgba(255,160,80,0.55);}',
+        '}',
+        '.ht-bubble-icon {position:relative;z-index:5;font-size:22px;line-height:1;}',
         '.ht-bubble-level{position:relative;z-index:5;font-size:9px;font-weight:800;color:rgba(255,220,120,0.95);letter-spacing:0.5px;margin-top:2px;}',
 
         '@keyframes ht-bubble-bob-a{0%,100%{translate:0 -8px;}50%{translate: 6px 8px;}}',
         '@keyframes ht-bubble-bob-b{0%,100%{translate:0 -8px;}50%{translate:-8px 8px;}}',
         '@keyframes ht-bubble-bob-c{0%,100%{translate:0 -8px;}50%{translate:10px 6px;}}',
-        '.ht-bubble-bob-a{animation:ht-bubble-bob-a var(--bob-dur,3s) ease-in-out infinite;}',
-        '.ht-bubble-bob-b{animation:ht-bubble-bob-b var(--bob-dur,3s) ease-in-out infinite;}',
-        '.ht-bubble-bob-c{animation:ht-bubble-bob-c var(--bob-dur,3s) ease-in-out infinite;}',
+        '.ht-bubble-bob-a{animation:ht-iridescence 4s linear infinite,ht-bubble-bob-a var(--bob-dur,3s) ease-in-out infinite;}',
+        '.ht-bubble-bob-b{animation:ht-iridescence 4s linear infinite,ht-bubble-bob-b var(--bob-dur,3s) ease-in-out infinite;}',
+        '.ht-bubble-bob-c{animation:ht-iridescence 4s linear infinite,ht-bubble-bob-c var(--bob-dur,3s) ease-in-out infinite;}',
 
-        '@keyframes ht-bubble-flyoff{',
-        '  0%  {opacity:1;}',
-        '  100%{opacity:0;translate:var(--flyoff-x,0px) var(--flyoff-y,-300px);}',
-        '}',
+        '@keyframes ht-bubble-flyoff{0%{opacity:1;}100%{opacity:0;translate:var(--flyoff-x,0px) var(--flyoff-y,-300px);}}',
         '.ht-bubble-flying{animation:ht-bubble-flyoff 1.2s ease-in forwards !important;}',
+
     ].join('\n');
     document.head.appendChild(s);
 })();
@@ -203,8 +265,7 @@ function _cleanupDriftStyle(el) {
     }
 }
 
-// Shared iridescent span markup — same 5 spans used in every bubble type
-const _SPANS = '<span class="b-s"></span><span class="b-s"></span><span class="b-s"></span><span class="b-s"></span><span class="b-s"></span>';
+// No span layers — visuals handled entirely by CSS border/box-shadow/::before/::after
 
 // ── Pop effect ─────────────────────────────────────────────────────────────────
 // Snapshots the bubble's current screen position, clears the drift animation
@@ -280,7 +341,6 @@ function displayBubbleMessage(tags, parsedMessageHTML, isAction) {
     if (tags.username) el.dataset.username = tags.username.toLowerCase();
 
     el.innerHTML =
-        _SPANS +
         '<div class="bubble-content">' +
             '<span class="badges">' + badgesHTML + '</span>' +
             '<span class="bubble-username username" style="color:' + userColor + '">' + escapeHTML(username) + '</span>' +
@@ -333,7 +393,6 @@ function displayBubbleEvent(iconSvg, label, detail, typeClass) {
     el.style.transition = 'transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
 
     el.innerHTML =
-        _SPANS +
         '<div class="bubble-content">' +
             '<span class="bubble-event-icon">'   + iconSvg          + '</span>' +
             '<span class="bubble-event-label">'  + escapeHTML(label)  + '</span>' +
@@ -390,7 +449,6 @@ function _buildHtBubble(pos, level) {
     el.dataset.bobClass = _pick(_BOB_CLASSES);
     el.dataset.bobDur   = _rand(2.5, 4.5).toFixed(1);
     el.innerHTML =
-        _SPANS +
         '<span class="ht-bubble-icon">🚂</span>' +
         '<span class="ht-bubble-level">LVL ' + level + '</span>';
     return el;
