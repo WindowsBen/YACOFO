@@ -145,15 +145,16 @@ function handlePubSubMessage(data) {
     const redemption = inner.data?.redemption;
     if (!redemption) return;
 
-    const rewardId   = redemption.reward?.id;
-    const rewardName = redemption.reward?.title || 'Channel Point Reward';
-    const username   = redemption.user?.display_name || redemption.user?.login || '';
-    const userInput  = redemption.user_input || '';
+    const rewardId     = redemption.reward?.id;
+    const rewardName   = redemption.reward?.title || 'Channel Point Reward';
+    const username     = redemption.user?.display_name || redemption.user?.login || '';
+    const userInput    = redemption.user_input || '';
+    const redemptionId = redemption.id || '';  // unique per redemption event
 
     // Cache the reward name so getRewardName() doesn't need to fetch it
     if (rewardId) rewardNameCache[rewardId] = rewardName;
 
-    handlePubSubRedemption(rewardId, rewardName, username, userInput);
+    handlePubSubRedemption(rewardId, rewardName, username, userInput, redemptionId);
 }
 // raid id → true, prevents duplicate messages if Twitch fires the event
 // multiple times during the countdown.

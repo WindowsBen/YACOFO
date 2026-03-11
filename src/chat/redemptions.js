@@ -99,7 +99,9 @@ async function handleRedemption(broadcasterId, tags, message) {
 
     const username = tags['display-name'] || tags.username || '';
 
-    // Suppress if PubSub already rendered this within the dedup window
+    // Suppress if PubSub already rendered this within the dedup window.
+    // IRC always fires after PubSub for text-input redeems, so if PubSub
+    // already wrote the key we can safely skip.
     const dedupKey = `${rewardId}:${username.toLowerCase()}`;
     const now = Date.now();
     if (recentRedemptions[dedupKey] && now - recentRedemptions[dedupKey] < REDEEM_DEDUP_MS) return;
@@ -109,13 +111,24 @@ async function handleRedemption(broadcasterId, tags, message) {
     renderRedemption(username, rewardName, message || '');
 }
 
-// Called from PubSub path (all redeems, with and without text input)
-function handlePubSubRedemption(rewardId, rewardName, username, userInput) {
+// Called from PubSub path (all redeems, with and without text input).
+// redemptionId is the unique per-event UUID from Twitch — used as the primary
+// dedup key so that multiple status-update events for the same redemption
+// (e.g. UNFULFILLED → FULFILLED) don't render more than once.
+function handlePubSubRedemption(rewardId, rewardName, username, userInput, redemptionId) {
     if (!CONFIG.showRedeems) return;
 
-    // Mark this as recently shown so the IRC path doesn't double-render
-    const dedupKey = `${rewardId}:${username.toLowerCase()}`;
-    recentRedemptions[dedupKey] = Date.now();
+    const now = Date.now();
+
+    // Dedup by unique redemption ID (most reliable — each physical redemption has one)
+    if (redemptionId) {
+        if (recentRedemptions[redemptionId] && now - recentRedemptions[redemptionId] < REDEEM_DEDUP_MS) return;
+        recentRedemptions[redemptionId] = now;
+    }
+
+    // Also stamp the reward:user key so the IRC path skips its duplicate fire
+    const userKey = `${rewardId}:${username.toLowerCase()}`;
+    recentRedemptions[userKey] = now;
 
     renderRedemption(username, rewardName, userInput);
 }
