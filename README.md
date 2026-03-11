@@ -1,6 +1,6 @@
 # Twitch Chat Overlay
 
-A self-hosted, fully configurable Twitch chat overlay designed for OBS and other broadcast software. Runs entirely in a browser source — no applications to install, no subscriptions, no tracking.
+A fully configurable Twitch chat overlay designed for OBS and other broadcast software. Runs entirely in a browser source — no applications to install, no subscriptions, no tracking.
 
 ---
 
