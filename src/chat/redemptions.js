@@ -138,17 +138,21 @@ async function handleRedemption(broadcasterId, tags, message) {
 function handlePubSubRedemption(rewardId, rewardName, username, userInput, redemptionId) {
     if (!CONFIG.showRedeems) return;
 
-    const now = Date.now();
+    const now     = Date.now();
+    const raceKey = `${rewardId}:${username.toLowerCase()}`;
 
-    // Dedup by unique redemption ID — blocks any status-transition re-fire
+    // Dedup by unique redemption ID — blocks status-transition re-fires
     if (redemptionId) {
         if (recentRedemptionIds[redemptionId] && now - recentRedemptionIds[redemptionId] < REDEEM_ID_TTL) return;
         recentRedemptionIds[redemptionId] = now;
     }
 
-    // Stamp the race key so that if the IRC path is mid-await for the same
-    // text-input redeem, its post-await check sees our newer timestamp and skips.
-    const raceKey = `${rewardId}:${username.toLowerCase()}`;
+    // Also check the race key — IRC may have already rendered this in the time
+    // it took the PubSub message to arrive. IRC writes the race key before its
+    // await, so if it's set and recent we know IRC got there first.
+    if (recentRedemptionRace[raceKey] && now - recentRedemptionRace[raceKey] < REDEEM_RACE_TTL) return;
+
+    // Stamp race key so any subsequent IRC post-await check sees PubSub won
     recentRedemptionRace[raceKey] = now;
 
     renderRedemption(username, rewardName, userInput);
