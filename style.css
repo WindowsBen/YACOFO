@@ -22,8 +22,6 @@ body {
     box-sizing: border-box;
 }
 
-/* In bubble mode the container is unused — bubbles live in #bubble-overlay */
-body.bubble-mode #chat-container { display: none; }
 
 .chat-message {
     text-shadow: 1px 1px 2px var(--chat-shadow-color), -1px -1px 2px var(--chat-shadow-color);

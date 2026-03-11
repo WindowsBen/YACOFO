@@ -11,14 +11,6 @@ function displayMessage(tags, message, isAction = false) {
     // Drop messages that start with an excluded prefix (e.g. "!" for bot commands)
     if (CONFIG.excludedPrefixes.length && CONFIG.excludedPrefixes.some(p => message.startsWith(p))) return;
 
-    // ── Bubble mode ───────────────────────────────────────────────────────────
-    if (CONFIG.chatStyle === 'bubbles') {
-        const parsed = parseMessage(message, tags.emotes);
-        displayBubbleMessage(tags, parsed, isAction);
-        if (tags['id']) cacheMessageEmotes(tags['id'], tags.emotes);
-        return;
-    }
-
     const chatContainer  = document.getElementById('chat-container');
     const messageElement = document.createElement('div');
     messageElement.classList.add('chat-message');

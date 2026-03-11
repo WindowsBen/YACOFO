@@ -28,21 +28,6 @@ function handlePubSubHypeTrain(data) {
     const train = inner.data;
     if (!train) { console.log('[HypeTrain] no data object'); return; }
 
-    // ── Bubble mode — delegate to bubble hype train handler ───────────────────
-    if (CONFIG.chatStyle === 'bubbles') {
-        const progress = train.progress ?? train;
-        const level    = progress.level ?? train.level ?? 1;
-        if (type === 'hype-train-start') {
-            bubbleHypeTrainShow(level);
-        } else if (type === 'hype-train-level-up' || type === 'hype-train-progression') {
-            bubbleHypeTrainUpdate(level);
-        } else if (type === 'hype-train-end') {
-            bubbleHypeTrainUpdate(level);
-            setTimeout(() => bubbleHypeTrainEnd(), CONFIG.hypeTrainLingerMs ?? 6000);
-        }
-        return;
-    }
-
     if (type === 'hype-train-start') {
         _showHypeTrain(train);
 

@@ -23,11 +23,6 @@ function subPlanLabel(plan) {
 // messageIsHTML — true if extraMessage is already parsed HTML (e.g. cheermotes)
 // typeClass   — CSS class suffix for per-event-type accent/bg colors
 function displayEventMessage(iconSvg, label, detail, extraMessage = '', messageIsHTML = false, typeClass = '') {
-    // ── Bubble mode — all events rendered as bubbles ──────────────────────────
-    if (CONFIG.chatStyle === 'bubbles') {
-        displayBubbleEvent(iconSvg, label, detail, typeClass);
-        return;
-    }
     const container = document.getElementById('chat-container');
     const el = document.createElement('div');
     el.className = `chat-message event-message${typeClass ? ' ' + typeClass : ''}`;
@@ -159,12 +154,6 @@ function handleAnnouncement(tags, message) {
 
     const badgesHTML = renderBadges(tags);
     const parsedMsg  = parseMessage(message, parseRawEmotesTag(tags.emotes));
-
-    // ── Bubble mode ───────────────────────────────────────────────────────────
-    if (CONFIG.chatStyle === 'bubbles') {
-        displayBubbleAnnouncement(colorClass, username, userColor, badgesHTML, parsedMsg, tags);
-        return;
-    }
 
     const container = document.getElementById('chat-container');
     const el        = document.createElement('div');

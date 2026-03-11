@@ -7,8 +7,6 @@ if (!CONFIG.channelName) {
     throw new Error('No channel specified');
 }
 
-// Apply bubble-mode class so CSS can hide the standard chat container
-if (CONFIG.chatStyle === 'bubbles') document.body.classList.add('bubble-mode');
 
 const client = new tmi.Client({
     connection: { secure: true, reconnect: true },

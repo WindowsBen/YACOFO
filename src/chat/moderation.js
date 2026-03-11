@@ -11,9 +11,6 @@ function removeUserMessages(username) {
     document.getElementById('chat-container')
         .querySelectorAll(selector)
         .forEach(el => el.remove());
-    // Also remove from bubble overlay when in bubble mode
-    const bubbleOverlay = document.getElementById('bubble-overlay');
-    if (bubbleOverlay) bubbleOverlay.querySelectorAll(selector).forEach(el => el.remove());
 }
 
 // Formats a timeout duration into a human-readable string
@@ -27,8 +24,6 @@ function registerModerationListeners(client) {
     // /clear — wipe the entire chat window
     client.on('clearchat', () => {
         document.getElementById('chat-container').innerHTML = '';
-        // In bubble mode wipe all chat bubbles (leave hype train bubbles)
-        if (typeof _clearBubbleOverlay === 'function') _clearBubbleOverlay();
     });
 
     // Timeout — remove messages and optionally show animation
@@ -49,8 +44,6 @@ function registerModerationListeners(client) {
     client.on('messagedeleted', (channel, username, deletedMessage, tags) => {
         const msgId = tags['target-msg-id'];
         if (!msgId) return;
-        const selector = `[data-msg-id="${CSS.escape(msgId)}"]`;
-        document.querySelector(selector)?.remove();
-        document.getElementById('bubble-overlay')?.querySelector(selector)?.remove();
+        if (msgId) document.querySelector(`[data-msg-id="${CSS.escape(msgId)}"]`)?.remove();
     });
 }
