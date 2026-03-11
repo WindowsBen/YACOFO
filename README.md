@@ -55,19 +55,13 @@ A self-hosted, fully configurable Twitch chat overlay designed for OBS and other
 
 ## Setup
 
-### 1. Deploy to GitHub Pages
+### 1. Open the Configurator
 
-Fork or clone this repository, enable GitHub Pages on the `main` branch (root), and your overlay will be live at:
+Visit **[windowsben.github.io/\<repo-name\>](https://windowsben.github.io)** — you'll land on the configuration page directly. No account, no install, nothing to download.
 
-```
-https://<your-username>.github.io/<repo-name>/
-```
+> A custom domain is coming soon.
 
-### 2. Open the Configurator
-
-Visit your GitHub Pages URL. You'll land on the configuration page (`index.html`).
-
-### 3. Log in with Twitch
+### 2. Log in with Twitch
 
 Click **Login with Twitch**. This opens Twitch's OAuth flow and grants the overlay read-only access to your channel data. The token is stored only in your browser's URL — it is never sent to any server other than Twitch's own API.
 
@@ -83,7 +77,7 @@ Click **Login with Twitch**. This opens Twitch's OAuth flow and grants the overl
 
 > All scopes are **read-only**. This overlay cannot post messages, moderate users, or make any changes to your channel.
 
-### 4. Configure
+### 3. Configure
 
 Work through the tabs:
 
@@ -94,18 +88,29 @@ Work through the tabs:
 
 The **Live Preview** panel on the right updates in real time as you change any setting.
 
-### 5. Generate and Copy the URL
+### 4. Generate and Copy the URL
 
 Switch to the **Generate** tab and click **Generate Link**. Copy the resulting URL.
 
 > Whenever you change a setting, the Generate tab will flash to remind you to regenerate your link.
 
-### 6. Add to OBS
+### 5. Add to OBS
 
 1. In OBS, add a new **Browser Source**
 2. Paste the generated URL into the URL field
 3. Set width and height to match your canvas (e.g. 1920 × 1080)
 4. Check **Refresh browser when scene becomes active** (optional but recommended)
+
+---
+
+## Self-Hosting
+
+The overlay is entirely static files with no build step, so you can host it anywhere.
+
+1. Fork or clone this repository
+2. Enable GitHub Pages on the `main` branch (root) in your repo settings
+3. Update the Twitch OAuth redirect URI in `config/auth.js` to point to your own URL
+4. Everything else works as-is
 
 ---
 
