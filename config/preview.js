@@ -147,6 +147,13 @@ function _badges(...roles) {
         .join('');
 }
 
+function _shadow() {
+    const sc = _prgba('shadowColor','shadowOpacity','#00000000');
+    // Skip if effectively transparent
+    if (sc === 'rgba(0,0,0,0)' || sc === 'rgba(0,0,0,0.00)' || sc.endsWith(',0)')) return '';
+    return `text-shadow:1px 1px 3px ${sc},0 0 6px ${sc};`;
+}
+
 // ── Shared message styles ─────────────────────────────────────────────────────
 function _msgWrap(extra = '') {
     const gap = _pnum('messageGap', 8);
@@ -156,23 +163,24 @@ function _msgWrap(extra = '') {
 }
 
 function _nameSpan(name, color, badgeHtml = '') {
-    const sc     = _prgba('shadowColor','shadowOpacity','#00000000');
-    const ns     = _pnum('nameFontSize', 15);
-    const shadow = (sc !== 'rgba(0,0,0,0)' && sc !== 'rgba(0,0,0,0.00)')
-        ? `text-shadow:1px 1px 3px ${sc},0 0 6px ${sc};` : '';
-    return `${badgeHtml}<span style="color:${color};font-weight:700;font-size:${ns}px;${shadow}${_pfont()}">${name}</span>`;
+    const ns = _pnum('nameFontSize', 15);
+    return `${badgeHtml}<span style="color:${color};font-weight:700;font-size:${ns}px;${_shadow()}${_pfont()}">${name}</span>`;
+}
+
+function _msgText(text, extraStyle = '') {
+    return `<span style="color:${_tc()};${_shadow()}${extraStyle}"> ${text}</span>`;
 }
 
 // ── Message renderers ─────────────────────────────────────────────────────────
 function _msgChat(name, color, text, badgeHtml = '') {
-    return `<div style="${_msgWrap()}">${_nameSpan(name, color, badgeHtml)}<span style="color:${_tc()};"> ${text}</span></div>`;
+    return `<div style="${_msgWrap()}">${_nameSpan(name, color, badgeHtml)}${_msgText(text)}</div>`;
 }
 
 function _msgMe() {
     const style = _pv('meStyle', 'colored');
     const color = '#E91E8C';
-    const ts = style === 'colored' ? `color:${color};` :
-               style === 'italic'  ? `font-style:italic;color:${_tc()};` : `color:${_tc()};`;
+    const ts = style === 'colored' ? `color:${color};${_shadow()}` :
+               style === 'italic'  ? `font-style:italic;color:${_tc()};${_shadow()}` : `color:${_tc()};${_shadow()}`;
     return `<div style="${_msgWrap()}">${_nameSpan('PurpleFox', color)}<span style="${ts}"> * dances in the chat</span></div>`;
 }
 
@@ -180,7 +188,7 @@ function _msgHighlight() {
     const accent = _prgba('highlightAccent','highlightAccentOpacity','#FFAA00');
     const bg     = _prgba('highlightBg','highlightBgOpacity','#2a1e00');
     return `<div style="${_msgWrap(`border-left:3px solid ${accent};background:${bg};border-radius:4px;padding:5px 8px;`)}">
-        ${_nameSpan('GoldViewer','#FFD700', _badges('bits'))}<span style="color:${_tc()};"> ✨ This message is highlighted!</span>
+        ${_nameSpan('GoldViewer','#FFD700', _badges('bits'))}${_msgText('✨ This message is highlighted!')}
     </div>`;
 }
 
@@ -190,7 +198,7 @@ function _msgReply() {
             <svg style="width:10px;height:10px;vertical-align:middle;margin-right:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
             <span style="color:${_tcFaint('rgba(255,255,255,0.6)','rgba(0,0,0,0.5)')};font-weight:600;">StreamerDude</span> lol nice one
         </div>
-        ${_nameSpan('RegularFan','#3498DB', _badges('subscriber'))}<span style="color:${_tc()};"> @StreamerDude haha same</span>
+        ${_nameSpan('RegularFan','#3498DB', _badges('subscriber'))}${_msgText('@StreamerDude haha same')}
     </div>`;
 }
 
@@ -215,7 +223,7 @@ function _msgAnnouncement() {
     const lh     = parseFloat(_pv('lineHeight','')) || 1.4;
     return `<div style="border-left:3px solid ${accent};background:${bg};border-radius:4px;padding:6px 8px;margin-bottom:${gap}px;line-height:${lh};${_pfont()}">
         <div style="color:${accent};font-size:11px;font-weight:700;margin-bottom:3px;">${ICON}Announcement</div>
-        ${_nameSpan('ModeratorBot','#9146FF', _badges('moderator'))}<span style="color:${_tc()};"> Remember to follow the community guidelines! 📋</span>
+        ${_nameSpan('ModeratorBot','#9146FF', _badges('moderator'))}${_msgText('Remember to follow the community guidelines! 📋')}
     </div>`;
 }
 
