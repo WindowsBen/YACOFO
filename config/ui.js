@@ -67,4 +67,22 @@ function initSliders() {
     const cs = document.getElementById('chatStyle');
     const bo = document.getElementById('bubble-options');
     if (cs && bo) bo.classList.toggle('locked', cs.value !== 'bubbles');
+
+    // Generate tab blink — pulses the Generate tab and button when any setting changes
+    // so the user knows they need to regenerate their link.
+    function _blinkGenerate() {
+        const tabBtn    = document.getElementById('tab-btn-generate');
+        const genBtn    = document.querySelector('.btn-generate');
+        [tabBtn, genBtn].forEach(el => {
+            if (!el) return;
+            // Remove class first to restart animation if already running
+            el.classList.remove('needs-regen');
+            void el.offsetWidth; // reflow
+            el.classList.add('needs-regen');
+            el.addEventListener('animationend', () => el.classList.remove('needs-regen'), { once: true });
+        });
+    }
+
+    document.addEventListener('input',  _blinkGenerate);
+    document.addEventListener('change', _blinkGenerate);
 }
