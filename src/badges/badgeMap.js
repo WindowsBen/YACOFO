@@ -63,6 +63,7 @@ function renderBadges(tags) {
     const sourceRoomId    = tags['source-room-id'];
     const sourceRoomLogin = tags['source-room-login'];
     if (sourceRoomId && sourceRoomLogin && String(sourceRoomId) !== String(broadcasterId)) {
+        console.log('[SharedChat] renderBadges hit — roomId:', sourceRoomId, 'login:', sourceRoomLogin, 'broadcasterId:', broadcasterId);
         const safeLogin = sourceRoomLogin.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
         const cached    = _sourceAvatarCache[sourceRoomId];
         const avatarUrl = cached?.url || '';
