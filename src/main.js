@@ -25,6 +25,7 @@ client.on('roomstate', (channel, state) => {
     const twitchUserId = state['room-id'];
     if (!twitchUserId) return;
     broadcasterId = twitchUserId;
+    setHostRoomId(twitchUserId); // give badgeMap.js its own copy for shared chat
 
     Promise.all([
         fetchFFZEmotes(twitchUserId),

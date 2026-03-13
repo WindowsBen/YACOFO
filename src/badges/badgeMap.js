@@ -23,6 +23,12 @@ const _sourceAvatarCache = {};
 // True once the first guest-channel message is seen this session
 let _sharedChatActive = false;
 
+// The host channel's room ID — set by main.js via setHostRoomId() on roomstate.
+// Keeping a local copy avoids any cross-script scoping issues with main.js's
+// broadcasterId let-declaration.
+let _hostRoomId = null;
+function setHostRoomId(id) { _hostRoomId = id ? String(id) : null; }
+
 // Timestamp of the last guest message — used to time out shared chat if
 // Twitch doesn't send an explicit end event we can reliably detect.
 let _lastGuestMessageTime = 0;
@@ -99,7 +105,7 @@ function renderBadges(tags) {
 
     // ── Shared chat source badge ───────────────────────────────────────────────
     const sourceRoomId = tags['source-room-id'];
-    const isGuestMsg   = sourceRoomId && String(sourceRoomId) !== String(broadcasterId);
+    const isGuestMsg   = sourceRoomId && String(sourceRoomId) !== _hostRoomId;
 
     if (isGuestMsg) {
         // Stamp time so the timeout checker knows shared chat is still alive
@@ -109,7 +115,7 @@ function renderBadges(tags) {
         // the host channel's avatar so it's ready for future host messages.
         if (!_sharedChatActive) {
             _sharedChatActive = true;
-            if (broadcasterId) _fetchSourceAvatar(String(broadcasterId));
+            if (_hostRoomId) _fetchSourceAvatar(_hostRoomId);
         }
         // Fetch this guest channel's avatar if not already cached
         if (!(sourceRoomId in _sourceAvatarCache)) {
@@ -117,13 +123,13 @@ function renderBadges(tags) {
         }
         html += _sourceBadgeHtml(sourceRoomId);
 
-    } else if (_sharedChatActive && broadcasterId) {
+    } else if (_sharedChatActive && _hostRoomId) {
         // Host channel message while shared chat is active — show host avatar.
         // Fetch is already in flight or done from the block above.
-        if (!(String(broadcasterId) in _sourceAvatarCache)) {
-            _fetchSourceAvatar(String(broadcasterId));
+        if (!(_hostRoomId in _sourceAvatarCache)) {
+            _fetchSourceAvatar(_hostRoomId);
         }
-        html += _sourceBadgeHtml(String(broadcasterId));
+        html += _sourceBadgeHtml(_hostRoomId);
     }
 
     // Twitch badges — tags.badges is pre-parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
