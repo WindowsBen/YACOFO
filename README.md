@@ -58,9 +58,7 @@ A fully configurable Twitch chat overlay for OBS and other broadcast software. R
 
 ### 1. Open the Configurator
 
-Visit **[windowsben.github.io/\<repo-name\>](https://windowsben.github.io)** — you'll land on the configuration page directly. No account, no install, nothing to download.
-
-> A custom domain is coming soon.
+Visit **[yacofo.chat](https://yacofo.chat)** — you'll land on the configuration page directly. No account, no install, nothing to download.
 
 ### 2. Log in with Twitch
 
