@@ -8,17 +8,45 @@
 const badgeMap = {};
 
 // ── Shared chat source channel avatars ────────────────────────────────────────
-// Twitch sends source-room-id / source-room-login on every shared chat message
-// from a guest channel. We show the guest channel's profile picture as a small
-// circular badge before the user's regular badges.
+// Twitch sends source-room-id on every shared chat message from a guest channel.
+// Once we see the first guest message we consider shared chat "active" and from
+// that point ALL messages — including those from the host channel — get a small
+// circular channel avatar badge before their regular badges.
 //
-// Avatars are fetched lazily on first sight of a room ID and cached for the
-// session. A null sentinel prevents duplicate in-flight fetches. Once resolved,
-// any <img> elements already in the DOM with that data-source-room-id get their
-// src patched in — the same pattern as 7TV cosmetics.
+// Avatars are fetched lazily on first sight of a room ID and cached. A null
+// sentinel prevents duplicate in-flight fetches. Once resolved, any <img>
+// elements already in the DOM for that room get their src patched in.
 
-// roomId → { url, login } after fetch, null while fetch is in flight
+// roomId → { url, login } once fetched, null while fetch is in flight
 const _sourceAvatarCache = {};
+
+// True once the first guest-channel message is seen this session
+let _sharedChatActive = false;
+
+// Timestamp of the last guest message — used to time out shared chat if
+// Twitch doesn't send an explicit end event we can reliably detect.
+let _lastGuestMessageTime = 0;
+const SHARED_CHAT_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes of guest silence
+
+// Called when shared chat is confirmed ended (either by ROOMSTATE detection
+// in main.js once we know the exact tag, or by the timeout below).
+// Removes all source badges from the DOM and resets state.
+function _endSharedChat() {
+    if (!_sharedChatActive) return;
+    _sharedChatActive = false;
+    _lastGuestMessageTime = 0;
+    console.log('[SharedChat] Session ended — removing source badges');
+    document.querySelectorAll('.source-channel-badge').forEach(el => el.remove());
+}
+
+// Periodic check: if shared chat has been active but no guest message has
+// arrived in SHARED_CHAT_TIMEOUT_MS, consider the session over.
+setInterval(() => {
+    if (!_sharedChatActive) return;
+    if (Date.now() - _lastGuestMessageTime > SHARED_CHAT_TIMEOUT_MS) {
+        _endSharedChat();
+    }
+}, 60_000);
 
 async function _fetchSourceAvatar(roomId) {
     if (roomId in _sourceAvatarCache) return;
@@ -38,6 +66,7 @@ async function _fetchSourceAvatar(roomId) {
 
         _sourceAvatarCache[roomId] = { url: user.profile_image_url, login: user.display_name || user.login || '' };
 
+        // Patch any already-rendered badges for this room that are still blank
         document.querySelectorAll(`.source-channel-badge[data-source-room-id="${CSS.escape(roomId)}"]`)
             .forEach(img => {
                 img.src   = user.profile_image_url;
@@ -49,6 +78,19 @@ async function _fetchSourceAvatar(roomId) {
     }
 }
 
+// Build the source badge img HTML for a given room ID
+function _sourceBadgeHtml(roomId) {
+    const cached    = _sourceAvatarCache[roomId];
+    const avatarUrl = cached?.url  || '';
+    const label     = cached?.login || '';
+    return `<img class="chat-badge source-channel-badge"`
+         + ` src="${escapeHTML(avatarUrl)}"`
+         + ` data-source-room-id="${escapeHTML(roomId)}"`
+         + ` alt="${escapeHTML(label)}"`
+         + ` title="${label ? `From ${escapeHTML(label)}'s chat` : 'Shared chat'}"`
+         + ` width="18" height="18">`;
+}
+
 function renderBadges(tags) {
     let html = '';
 
@@ -56,24 +98,32 @@ function renderBadges(tags) {
     if (CONFIG.disableAllBadges) return html;
 
     // ── Shared chat source badge ───────────────────────────────────────────────
-    // Compare source-room-id against broadcasterId (set in main.js on roomstate)
-    // so messages from the host channel never get the badge.
     const sourceRoomId = tags['source-room-id'];
-    if (sourceRoomId && String(sourceRoomId) !== String(broadcasterId)) {
-        const cached = _sourceAvatarCache[sourceRoomId];
-        const avatarUrl = cached?.url || '';
-        const label     = cached?.login || '';
+    const isGuestMsg   = sourceRoomId && String(sourceRoomId) !== String(broadcasterId);
 
+    if (isGuestMsg) {
+        // Stamp time so the timeout checker knows shared chat is still alive
+        _lastGuestMessageTime = Date.now();
+
+        // First guest message seen — mark shared chat as active and pre-fetch
+        // the host channel's avatar so it's ready for future host messages.
+        if (!_sharedChatActive) {
+            _sharedChatActive = true;
+            if (broadcasterId) _fetchSourceAvatar(String(broadcasterId));
+        }
+        // Fetch this guest channel's avatar if not already cached
         if (!(sourceRoomId in _sourceAvatarCache)) {
             _fetchSourceAvatar(sourceRoomId);
         }
+        html += _sourceBadgeHtml(sourceRoomId);
 
-        html += `<img class="chat-badge source-channel-badge"`
-              + ` src="${escapeHTML(avatarUrl)}"`
-              + ` data-source-room-id="${escapeHTML(sourceRoomId)}"`
-              + ` alt="${escapeHTML(label)}"`
-              + ` title="${label ? `From ${escapeHTML(label)}'s chat` : 'Shared chat'}"`
-              + ` width="18" height="18">`;
+    } else if (_sharedChatActive && broadcasterId) {
+        // Host channel message while shared chat is active — show host avatar.
+        // Fetch is already in flight or done from the block above.
+        if (!(String(broadcasterId) in _sourceAvatarCache)) {
+            _fetchSourceAvatar(String(broadcasterId));
+        }
+        html += _sourceBadgeHtml(String(broadcasterId));
     }
 
     // Twitch badges — tags.badges is pre-parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
