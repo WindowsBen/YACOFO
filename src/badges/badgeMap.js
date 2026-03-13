@@ -20,8 +20,7 @@ const badgeMap = {};
 // roomId → { url, login } after fetch, null while fetch is in flight
 const _sourceAvatarCache = {};
 
-async function _fetchSourceAvatar(roomId, login) {
-    // Sentinel — already fetching or already done
+async function _fetchSourceAvatar(roomId) {
     if (roomId in _sourceAvatarCache) return;
     _sourceAvatarCache[roomId] = null;
 
@@ -37,17 +36,16 @@ async function _fetchSourceAvatar(roomId, login) {
         const user = data.data?.[0];
         if (!user?.profile_image_url) return;
 
-        _sourceAvatarCache[roomId] = { url: user.profile_image_url, login: user.display_name || login };
+        _sourceAvatarCache[roomId] = { url: user.profile_image_url, login: user.display_name || user.login || '' };
 
-        // Patch any badge imgs already in the DOM that are still showing the placeholder
         document.querySelectorAll(`.source-channel-badge[data-source-room-id="${CSS.escape(roomId)}"]`)
             .forEach(img => {
                 img.src   = user.profile_image_url;
-                img.title = `From ${escapeHTML(user.display_name || login)}'s chat`;
-                img.alt   = user.display_name || login;
+                img.title = `From ${escapeHTML(user.display_name || user.login || '')}'s chat`;
+                img.alt   = user.display_name || user.login || '';
             });
     } catch (e) {
-        console.warn('[SharedChat] Could not fetch avatar for', login, e);
+        console.warn('[SharedChat] Could not fetch avatar for room', roomId, e);
     }
 }
 
@@ -60,28 +58,21 @@ function renderBadges(tags) {
     // ── Shared chat source badge ───────────────────────────────────────────────
     // Compare source-room-id against broadcasterId (set in main.js on roomstate)
     // so messages from the host channel never get the badge.
-    const sourceRoomId    = tags['source-room-id'];
-    const sourceRoomLogin = tags['source-room-login'];
-    if (sourceRoomId && sourceRoomLogin && String(sourceRoomId) !== String(broadcasterId)) {
-        console.log('[SharedChat] renderBadges hit — roomId:', sourceRoomId, 'login:', sourceRoomLogin, 'broadcasterId:', broadcasterId);
-        const safeLogin = sourceRoomLogin.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
-        const cached    = _sourceAvatarCache[sourceRoomId];
+    const sourceRoomId = tags['source-room-id'];
+    if (sourceRoomId && String(sourceRoomId) !== String(broadcasterId)) {
+        const cached = _sourceAvatarCache[sourceRoomId];
         const avatarUrl = cached?.url || '';
-        const label     = cached?.login || safeLogin;
+        const label     = cached?.login || '';
 
-        // Kick off the avatar fetch if we haven't seen this room before.
-        // Fire-and-forget — the DOM patch above handles updating existing imgs.
         if (!(sourceRoomId in _sourceAvatarCache)) {
-            _fetchSourceAvatar(sourceRoomId, safeLogin);
+            _fetchSourceAvatar(sourceRoomId);
         }
 
-        // Render the img immediately — src is blank until the fetch resolves,
-        // at which point _fetchSourceAvatar patches it in.
         html += `<img class="chat-badge source-channel-badge"`
               + ` src="${escapeHTML(avatarUrl)}"`
               + ` data-source-room-id="${escapeHTML(sourceRoomId)}"`
               + ` alt="${escapeHTML(label)}"`
-              + ` title="From ${escapeHTML(label)}'s chat"`
+              + ` title="${label ? `From ${escapeHTML(label)}'s chat` : 'Shared chat'}"`
               + ` width="18" height="18">`;
     }
 

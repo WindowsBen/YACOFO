@@ -69,18 +69,6 @@ client.on('action', (channel, tags, message, self) => {
 // Non-text redeems are EventSub/PubSub-only and cannot be caught here.
 
 client.on('raw_message', (messageCloned, message) => {
-    // ── Shared chat diagnostic ─────────────────────────────────────────────────
-    // Log ALL tags on every PRIVMSG so we can see exactly what Twitch sends
-    // during a shared chat session. Remove once confirmed working.
-    if (message.command === 'PRIVMSG') {
-        const t = message.tags || {};
-        const sourceKeys = Object.keys(t).filter(k => k.toLowerCase().includes('source'));
-        if (sourceKeys.length) {
-            console.log('[SharedChat] PRIVMSG tags with "source":', sourceKeys.reduce((o, k) => { o[k] = t[k]; return o; }, {}));
-            console.log('[SharedChat] broadcasterId at time of message:', broadcasterId);
-        }
-    }
-
     if (message.command !== 'USERNOTICE') return;
     const tags  = message.tags || {};
     const msgId = tags['msg-id'];
