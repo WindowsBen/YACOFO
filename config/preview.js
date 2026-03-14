@@ -148,8 +148,9 @@ let _pvThirdPartyLoaded = false;
 
 function _pvBadgeImg(url, title) {
     if (!url) return '';
-    return `<img src="${url}" width="18" height="18" alt="${title}" title="${title}"
-        style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;height:0.8em;width:0.8em;object-fit:contain;">`;
+    return `<img src="${url}" width="18" height="18" alt="" title="${title}"
+        style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;height:0.8em;width:0.8em;object-fit:contain;"
+        onerror="this.style.display='none'">`;
 }
 
 async function _pvFetchTwitchBadges() {
@@ -225,12 +226,32 @@ async function _pvFetchThirdPartyBadges() {
         if (res.ok) {
             const data = await res.json();
             const first = data.badges?.[0];
-            if (first?.image1x) _pvBadgeUrl.chatterino = first.image1x;
+            if (first) {
+                _pvBadgeUrl.chatterino = first.image4x || first.image2x || first.image1x || '';
+            }
         }
     } catch(e) {}
 
-    // 7TV — use a known stable badge ID (7TV staff badge)
-    _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/62ef56a6ab83c7d9f79a1f8c/4x.webp';
+    // 7TV — fetch the global emote set to find a real badge from their API
+    try {
+        const res = await fetch('https://7tv.io/v3/gql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: `{ namedCosmetic(name:"badge",list:[]) { ... on CosmeticBadge { id name tag host { files { name format } } } } }` })
+        });
+        // GQL approach may not work — fall back to known stable subscriber badge
+        // The 7TV subscriber badge is a permanent cosmetic that doesn't rotate
+        if (!res.ok) throw new Error('gql failed');
+        const data = await res.json();
+        const badge = data?.data?.namedCosmetic;
+        if (badge?.host?.files?.[0]) {
+            const file = badge.host.files.find(f => f.name === '4x') || badge.host.files[0];
+            _pvBadgeUrl.seventv = `https://cdn.7tv.app/badge/${badge.id}/${file.name}.${file.format.toLowerCase()}`;
+        } else throw new Error('no badge data');
+    } catch {
+        // Stable fallback: 7TV staff badge which has existed since launch
+        _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/6102002eaad3a00f8b146f16/4x.webp';
+    }
 
     renderChatPreview();
 }
@@ -241,8 +262,15 @@ async function _pvInitBadges() {
         await _pvFetchTwitchBadges();
         renderChatPreview();
     }
-    const channel = document.getElementById('channel')?.value?.trim();
-    _pvFetchChannelBadges(channel);
+    // Channel field may not be populated yet on first load (auth.js fills it
+    // asynchronously). Poll once immediately and again after a short delay to
+    // catch the value once auth init has finished writing it.
+    const tryChannel = () => {
+        const channel = document.getElementById('channel')?.value?.trim();
+        if (channel) _pvFetchChannelBadges(channel);
+    };
+    tryChannel();
+    setTimeout(tryChannel, 1500);
     _pvFetchThirdPartyBadges();
 }
 
