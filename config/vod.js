@@ -134,6 +134,7 @@ async function _fetchVodChat(videoId, onProgress) {
         if (!res.ok) throw new Error(`GQL ${res.status}`);
 
         const json = await res.json();
+        console.log('[VOD] raw:', JSON.stringify(json).slice(0, 800));
         const data = Array.isArray(json) ? json[0] : json;
         const comments = data?.data?.video?.comments;
         if (!comments) throw new Error('No comment data returned');
