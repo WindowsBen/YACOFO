@@ -146,6 +146,7 @@ async function _fetchVodChat(videoId, onProgress) {
 
     // Fetch integrity token once — refreshed automatically when expired
     const integrityToken = await _fetchIntegrityToken();
+    console.log('[VOD] integrity token:', integrityToken ? integrityToken.slice(0,40)+'…' : 'null');
 
     const messages = [];
     let cursor = null;
@@ -181,7 +182,10 @@ async function _fetchVodChat(videoId, onProgress) {
         const json = await res.json();
         const data = Array.isArray(json) ? json[0] : json;
         const comments = data?.data?.video?.comments;
-        if (!comments) throw new Error('No comment data returned');
+        if (!comments) {
+            console.error('[VOD] full response:', JSON.stringify(json));
+            throw new Error('No comment data returned');
+        }
 
         for (const edge of comments.edges || []) {
             const n    = edge.node;
