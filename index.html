@@ -84,7 +84,7 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             Generate
         </button>
-        <button class="tab-btn locked" id="tab-btn-vod" onclick="switchTab('vod')">
+        <button class="tab-btn" id="tab-btn-vod" onclick="switchTab('vod')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
             VOD Export
         </button>
@@ -650,10 +650,11 @@
                 DaVinci Resolve, Premiere, or Final Cut — no chroma key needed.<br><br>
                 Requires Chrome 94+ or any Chromium-based browser.
             </p>
-            <div class="text-override-row">
-                <span class="option-label">VOD URL / ID</span>
-                <input type="text" id="vod-url" placeholder="https://www.twitch.tv/videos/123456789" style="flex:1;min-width:0;">
-                <button id="vod-fetch-btn" class="btn-generate" style="margin-left:8px;padding:6px 14px;" onclick="vodFetch()">Fetch</button>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                <input type="text" id="vod-url" placeholder="https://www.twitch.tv/videos/123456789 or just the video ID"
+                    style="flex:1;min-width:0;padding:8px 10px;font-size:13px;background:#18181b;border:1px solid #2f2f35;border-radius:4px;color:#efeff1;outline:none;"
+                    onfocus="this.style.borderColor='#9146FF'" onblur="this.style.borderColor='#2f2f35'">
+                <button id="vod-fetch-btn" class="btn-generate" style="padding:7px 16px;white-space:nowrap;" onclick="vodFetch()">Fetch</button>
             </div>
             <div id="vod-status" style="font-size:12px;margin-top:8px;min-height:18px;color:rgba(255,255,255,0.55);"></div>
         </div>
