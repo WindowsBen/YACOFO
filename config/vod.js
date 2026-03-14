@@ -84,21 +84,17 @@ async function _fetchVodInfo(videoId) {
     const res = await fetch(_VOD_GQL_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Client-Id': _VOD_GQL_CLIENT },
-        body: JSON.stringify([{
-            operationName: 'VideoMetadata',
-            variables: { channelLogin: '', videoID: videoId },
-            extensions: {
-                persistedQuery: {
-                    version: 1,
-                    sha256Hash: '45111672eea2e507f8ba1feda3d5f3d9d7bdbc1a4a8f8f8b7cd38f80a26d98c9',
-                },
-            },
-        }]),
+        body: JSON.stringify({ query: `{
+            video(id: "${videoId}") {
+                title lengthSeconds
+                owner { displayName }
+                createdAt
+            }
+        }` }),
     });
     if (!res.ok) throw new Error(`GQL ${res.status}`);
     const json = await res.json();
-    const data = Array.isArray(json) ? json[0] : json;
-    return data?.data?.video || null;
+    return json.data?.video || null;
 }
 
 async function _fetchVodChat(videoId, onProgress) {
