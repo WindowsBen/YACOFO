@@ -98,12 +98,17 @@ async function _fetchVodInfo(videoId) {
 }
 
 async function _fetchVodChat(videoId, onProgress) {
+    // The cursor-based pagination endpoint requires either an integrity token
+    // or a valid OAuth token to pass Twitch's integrity check.
+    // We use the user's token from localStorage — it's already present if
+    // they logged in through YACOFO's normal auth flow.
+    const token = localStorage.getItem('twitch_access_token') || '';
+
     const messages = [];
     let cursor = null;
     let isFirstRequest = true;
 
     while (true) {
-        // First request uses contentOffsetSeconds: 0, subsequent ones use cursor
         const variables = isFirstRequest
             ? { videoID: videoId, contentOffsetSeconds: 0 }
             : { videoID: videoId, cursor };
@@ -119,22 +124,19 @@ async function _fetchVodChat(videoId, onProgress) {
             },
         }]);
 
-        const res = await fetch(_VOD_GQL_URL, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Client-Id': _VOD_GQL_CLIENT },
-            body,
-        });
+        const headers = {
+            'Content-Type': 'application/json',
+            'Client-Id':    _VOD_GQL_CLIENT,
+        };
+        if (token) headers['Authorization'] = `OAuth ${token}`;
+
+        const res = await fetch(_VOD_GQL_URL, { method: 'POST', headers, body });
         if (!res.ok) throw new Error(`GQL ${res.status}`);
 
         const json = await res.json();
-        console.log('[VOD] GQL response:', JSON.stringify(json).slice(0, 500));
-        // GQL batch responses come back as an array
         const data = Array.isArray(json) ? json[0] : json;
         const comments = data?.data?.video?.comments;
-        if (!comments) {
-            console.error('[VOD] Full response:', JSON.stringify(json));
-            throw new Error('No comment data returned');
-        }
+        if (!comments) throw new Error('No comment data returned');
 
         for (const edge of comments.edges || []) {
             const n    = edge.node;

@@ -1,6 +1,7 @@
 // ─── config/ui.js ─────────────────────────────────────────────────────────────
 
-const TABS = ['general', 'events', 'polls', 'predictions', 'hypetrain', 'appearance', 'generate', 'vod'];
+const TABS        = ['general', 'events', 'polls', 'predictions', 'hypetrain', 'appearance', 'generate', 'vod'];
+const LOCKED_TABS = ['general', 'events', 'polls', 'predictions', 'hypetrain', 'appearance', 'generate', 'vod'];
 
 function switchTab(id) {
     TABS.forEach(t => {
@@ -12,7 +13,7 @@ function switchTab(id) {
 }
 
 function unlockTabs() {
-    TABS.forEach(t => {
+    LOCKED_TABS.forEach(t => {
         document.getElementById(`tab-btn-${t}`).classList.remove('locked');
         document.getElementById(`tab-${t}`).classList.remove('tab-locked');
     });
@@ -20,7 +21,7 @@ function unlockTabs() {
 }
 
 function lockTabs() {
-    TABS.forEach(t => {
+    LOCKED_TABS.forEach(t => {
         document.getElementById(`tab-btn-${t}`).classList.add('locked');
         document.getElementById(`tab-btn-${t}`).classList.remove('active');
         document.getElementById(`tab-${t}`).classList.add('tab-locked');
