@@ -127,10 +127,14 @@ async function _fetchVodChat(videoId, onProgress) {
         if (!res.ok) throw new Error(`GQL ${res.status}`);
 
         const json = await res.json();
+        console.log('[VOD] GQL response:', JSON.stringify(json).slice(0, 500));
         // GQL batch responses come back as an array
         const data = Array.isArray(json) ? json[0] : json;
         const comments = data?.data?.video?.comments;
-        if (!comments) throw new Error('No comment data returned');
+        if (!comments) {
+            console.error('[VOD] Full response:', JSON.stringify(json));
+            throw new Error('No comment data returned');
+        }
 
         for (const edge of comments.edges || []) {
             const n    = edge.node;
