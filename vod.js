@@ -22,6 +22,26 @@ function _vodEscape(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── Mediabunny lazy loader ────────────────────────────────────────────────────
+// Only loaded when the user actually clicks Export, so a missing file never
+// prevents vodFetch or any other function from being defined.
+let _mediabunnyLoading = null;
+function _loadMediabunny() {
+    if (typeof Mediabunny !== 'undefined') return Promise.resolve();
+    if (_mediabunnyLoading) return _mediabunnyLoading;
+    _mediabunnyLoading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'mediabunny.cjs';
+        s.onload  = resolve;
+        s.onerror = () => reject(new Error(
+            'Could not load mediabunny.cjs — download it from ' +
+            'https://github.com/Vanilagy/mediabunny/releases and add it to your repo root.'
+        ));
+        document.head.appendChild(s);
+    });
+    return _mediabunnyLoading;
+}
+
 let _vodMsgs      = [];
 let _vodDuration  = 0;
 let _vodTitle     = '';
@@ -351,9 +371,6 @@ async function vodExport() {
     if (!_vodMsgs.length) {
         _vodStatus('No messages loaded \u2014 fetch a VOD first.', true); return;
     }
-    if (typeof Mediabunny === 'undefined') {
-        _vodStatus('Mediabunny failed to load. Check your internet connection and reload.', true); return;
-    }
 
     _vodExporting = true;
     const btn = _vodEl('vod-export-btn');
@@ -374,7 +391,10 @@ async function vodExport() {
     const { Output, WebMOutputFormat, BufferTarget, StreamTarget, CanvasSource } = Mediabunny;
 
     try {
-        _vodProgress(1, 'Preloading badge images\u2026');
+        _vodProgress(1, 'Loading Mediabunny\u2026');
+        await _loadMediabunny();
+
+        _vodProgress(2, 'Preloading badge images\u2026');
         await _preloadVodBadges();
 
         // Prefer streaming to disk so memory stays flat on long VODs.
