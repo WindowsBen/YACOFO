@@ -245,7 +245,7 @@ async function _pvFetchThirdPartyBadges() {
 
     // Fallback: if still empty, use a long-standing stable badge ID
     if (!_pvBadgeUrl.seventv) {
-        _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/01GAF8RWW8000E8VNG1S1RMTBA/4x.webp';
+        _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/6102002eaad3a00f8b146f16/4x.webp';
     }
 
     renderChatPreview();
@@ -317,12 +317,43 @@ function _msgChat(name, color, text, badgeHtml = '') {
     return `<div style="${_msgWrap()}">${_nameSpan(name, color, badgeHtml)}${_msgText(text)}</div>`;
 }
 
+// ── Fire and Ice paint ────────────────────────────────────────────────────────
+// Hardcoded gradient from the 7TV "Fire and Ice" paint, applied to PurpleFox
+// in the /me preview row. Inline CSS works here since we're in a real browser
+// (not OBS, which drops -webkit-background-clip from inline styles).
+const _PV_PAINT_GRADIENT = 'linear-gradient(291deg, rgb(29,26,255) 19%, rgb(46,231,255) 39%, rgb(255,255,255) 46%, rgb(255,0,0) 53%, rgb(255,123,0) 89%)';
+
+function _pvPaintStyle() {
+    return `background-image:${_PV_PAINT_GRADIENT};`
+         + `-webkit-background-clip:text;background-clip:text;`
+         + `-webkit-text-fill-color:transparent;color:transparent;`
+         + `display:inline-block;`;
+}
+
 function _msgMe() {
-    const style = _pv('meStyle', 'colored');
-    const color = '#E91E8C';
-    const ts = style === 'colored' ? `color:${color};${_shadow()}` :
-               style === 'italic'  ? `font-style:italic;color:${_tc()};${_shadow()}` : `color:${_tc()};${_shadow()}`;
-    return `<div style="${_msgWrap()}">${_nameSpan('PurpleFox', color)}<span style="${ts}"> * dances in the chat</span></div>`;
+    const style    = _pv('meStyle', 'colored');
+    const usePaint = _on('show7TVPaints');
+    const fallback = '#E91E8C';
+
+    // Name — paint when enabled, plain pink otherwise
+    const nameStyle = usePaint
+        ? `${_pvPaintStyle()}font-weight:700;font-size:${_pnum('nameFontSize',15)}px;${_pfont()}`
+        : `color:${fallback};font-weight:700;font-size:${_pnum('nameFontSize',15)}px;${_shadow()}${_pfont()}`;
+    const nameHtml = `<span style="${nameStyle}">PurpleFox</span>`;
+
+    // Message text — paint only when colored style AND paint enabled
+    let msgStyle;
+    if (style === 'colored') {
+        msgStyle = usePaint
+            ? `${_pvPaintStyle()}${_shadow()}`
+            : `color:${fallback};${_shadow()}`;
+    } else if (style === 'italic') {
+        msgStyle = `font-style:italic;color:${_tc()};${_shadow()}`;
+    } else {
+        msgStyle = `color:${_tc()};${_shadow()}`;
+    }
+
+    return `<div style="${_msgWrap()}">${nameHtml}<span style="${msgStyle}"> * dances in the chat</span></div>`;
 }
 
 function _msgHighlight() {
