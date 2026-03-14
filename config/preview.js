@@ -123,21 +123,130 @@ function _ensureAnimCSS() {
     document.head.appendChild(s);
 }
 
-// ── Badge helpers ─────────────────────────────────────────────────────────────
-// Three toggles:
-//   disableAllBadges  → hide everything
-//   roleOnlyBadges    → show only broadcaster / moderator / vip
-//   (neither)         → show all
-const _BADGE_SVG = {
-    broadcaster: `<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;"><rect width="18" height="18" rx="2" fill="#E91916"/><text x="9" y="13" text-anchor="middle" font-size="9" fill="white" font-family="sans-serif">📡</text></svg>`,
-    moderator:   `<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;"><rect width="18" height="18" rx="2" fill="#00AD03"/><path d="M9 3L14 6L14 10C14 13 9 15.5 9 15.5C9 15.5 4 13 4 10L4 6Z" fill="white"/></svg>`,
-    vip:         `<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;"><rect width="18" height="18" rx="2" fill="#E005B9"/><text x="9" y="13" text-anchor="middle" font-size="7" font-weight="900" fill="white" font-family="sans-serif">VIP</text></svg>`,
-    subscriber:  `<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;"><rect width="18" height="18" rx="2" fill="#6441A4"/><path d="M9 4L10.5 7.5L14 8L11.5 10.5L12.2 14L9 12.2L5.8 14L6.5 10.5L4 8L7.5 7.5Z" fill="white"/></svg>`,
-    bits:        `<svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;"><rect width="18" height="18" rx="2" fill="#9146FF"/><polygon points="9,3 13,8 11,8 13,15 5,8 8,8 6,3" fill="white"/></svg>`,
-};
-const _ROLE_BADGES = new Set(['broadcaster', 'moderator', 'vip']);
+// ── Preview badge system ───────────────────────────────────────────────────────
+// Fetches real badge images from Twitch, FFZ, Chatterino and 7TV so the preview
+// shows exactly what viewers will see. All fetches are cached for the session.
+// Re-fetches channel badges when the channel input changes.
 
-// Pass badge keys in display order; returns the HTML string to prepend to username
+const _PV_CLIENT_ID = 'ti9ahr6lkym6anpij3d4f2cyjhij18';
+
+// category → CDN URL of a representative badge image
+const _pvBadgeUrl = {
+    broadcaster: '',
+    moderator:   '',
+    vip:         '',
+    subscriber:  '',
+    bits:        '',   // custom category representative
+    ffz:         '',
+    chatterino:  '',
+    seventv:     '',
+};
+
+let _pvBadgesLoaded    = false;
+let _pvChannelLoaded   = ''; // which channel we fetched channel badges for
+let _pvThirdPartyLoaded = false;
+
+function _pvBadgeImg(url, title) {
+    if (!url) return '';
+    return `<img src="${url}" width="18" height="18" alt="${title}" title="${title}"
+        style="vertical-align:middle;margin-right:2px;border-radius:2px;flex-shrink:0;height:0.8em;width:0.8em;object-fit:contain;">`;
+}
+
+async function _pvFetchTwitchBadges() {
+    const token = localStorage.getItem('twitch_access_token');
+    if (!token) return;
+    const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': _PV_CLIENT_ID };
+
+    try {
+        // Global badges — gives us moderator, vip, bits tiers etc.
+        const res = await fetch('https://api.twitch.tv/helix/chat/badges/global', { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const set of data.data || []) {
+            const url = set.versions?.[0]?.image_url_4x;
+            if (!url) continue;
+            if (set.set_id === 'moderator')  _pvBadgeUrl.moderator  = url;
+            if (set.set_id === 'vip')        _pvBadgeUrl.vip        = url;
+            if (set.set_id === 'bits')       _pvBadgeUrl.bits       = url;
+        }
+    } catch(e) { console.warn('[Preview] Global badge fetch failed', e); }
+}
+
+async function _pvFetchChannelBadges(channelName) {
+    if (!channelName || channelName === _pvChannelLoaded) return;
+    const token = localStorage.getItem('twitch_access_token');
+    if (!token) return;
+    const headers = { 'Authorization': `Bearer ${token}`, 'Client-Id': _PV_CLIENT_ID };
+
+    try {
+        // Resolve channel name → user ID
+        const userRes = await fetch(
+            `https://api.twitch.tv/helix/users?login=${encodeURIComponent(channelName)}`, { headers });
+        if (!userRes.ok) return;
+        const userData = await userRes.json();
+        const userId = userData.data?.[0]?.id;
+        if (!userId) return;
+
+        // Channel badges — gives us broadcaster + custom subscriber/bits tiers
+        const badgeRes = await fetch(
+            `https://api.twitch.tv/helix/chat/badges?broadcaster_id=${userId}`, { headers });
+        if (!badgeRes.ok) return;
+        const badgeData = await badgeRes.json();
+        for (const set of badgeData.data || []) {
+            const url = set.versions?.[0]?.image_url_4x;
+            if (!url) continue;
+            if (set.set_id === 'broadcaster') _pvBadgeUrl.broadcaster = url;
+            if (set.set_id === 'subscriber')  _pvBadgeUrl.subscriber  = url;
+        }
+        _pvChannelLoaded = channelName;
+        renderChatPreview();
+    } catch(e) { console.warn('[Preview] Channel badge fetch failed', e); }
+}
+
+async function _pvFetchThirdPartyBadges() {
+    if (_pvThirdPartyLoaded) return;
+    _pvThirdPartyLoaded = true; // set early to prevent duplicate fetches
+
+    // FFZ — pick the first badge from the global list
+    try {
+        const res = await fetch('https://api.frankerfacez.com/v1/badges/ids');
+        if (res.ok) {
+            const data = await res.json();
+            const first = Object.values(data.badges || {})[0];
+            if (first?.urls?.['4'] || first?.urls?.['2'] || first?.urls?.['1']) {
+                _pvBadgeUrl.ffz = first.urls['4'] || first.urls['2'] || first.urls['1'];
+            }
+        }
+    } catch(e) {}
+
+    // Chatterino — pick the first badge
+    try {
+        const res = await fetch('https://api.chatterino.com/badges');
+        if (res.ok) {
+            const data = await res.json();
+            const first = data.badges?.[0];
+            if (first?.image1x) _pvBadgeUrl.chatterino = first.image1x;
+        }
+    } catch(e) {}
+
+    // 7TV — use a known stable badge ID (7TV staff badge)
+    _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/62ef56a6ab83c7d9f79a1f8c/4x.webp';
+
+    renderChatPreview();
+}
+
+async function _pvInitBadges() {
+    if (!_pvBadgesLoaded) {
+        _pvBadgesLoaded = true;
+        await _pvFetchTwitchBadges();
+        renderChatPreview();
+    }
+    const channel = document.getElementById('channel')?.value?.trim();
+    _pvFetchChannelBadges(channel);
+    _pvFetchThirdPartyBadges();
+}
+
+// Returns badge img HTML for a named role, gated on its toggle
 function _badges(...roles) {
     const toggleMap = {
         broadcaster: 'showBadgeBroadcaster',
@@ -145,12 +254,16 @@ function _badges(...roles) {
         vip:         'showBadgeVIP',
         subscriber:  'showBadgeSubscriber',
         bits:        'showBadgeCustom',
+        ffz:         'showBadgeFFZ',
+        chatterino:  'showBadgeChatterino',
+        seventv:     'showBadge7TV',
     };
     return roles
         .filter(r => _on(toggleMap[r] ?? 'showBadgeCustom'))
-        .map(r => _BADGE_SVG[r] || '')
+        .map(r => _pvBadgeImg(_pvBadgeUrl[r], r))
         .join('');
 }
+
 
 function _shadow() {
     const sc = _prgba('shadowColor','shadowOpacity','#00000000');
@@ -430,7 +543,8 @@ function renderChatPreview() {
         const parts = [
             _on('showHypeTrain')     && _widgetHypeTrain(),
             _msgChat('StreamerDude', '#9146FF', 'Hey chat, welcome to the stream! 👋', _badges('broadcaster')),
-            _msgChat('CoolViewer99', '#FF6B6B', "Let's go! PogChamp",                  _badges('subscriber')),
+            _msgChat('CoolViewer99', '#FF6B6B', "Let's go! PogChamp",                  _badges('subscriber', 'bits')),
+            _msgChat('ThirdPartyFan','#43B581', 'poggers in chat',                     _badges('ffz', 'chatterino', 'seventv')),
             _on('showReplies')       && _msgReply(),
             _pv('meStyle','colored') !== 'none' && _msgMe(),
             _on('showAnnouncements') && _msgAnnouncement(),
@@ -464,6 +578,14 @@ function renderChatPreview() {
 document.addEventListener('DOMContentLoaded', () => {
     _loadPreviewFont();
     document.getElementById('fontUrl')?.addEventListener('change', _loadPreviewFont);
+
+    // Fetch real badge images — runs once on load then re-checks on channel change
+    _pvInitBadges();
+    document.getElementById('channel')?.addEventListener('change', () => {
+        _pvChannelLoaded = ''; // force re-fetch for new channel
+        _pvInitBadges();
+    });
+
     renderChatPreview();
     document.addEventListener('input',  renderChatPreview);
     document.addEventListener('change', renderChatPreview);
