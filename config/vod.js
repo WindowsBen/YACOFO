@@ -128,7 +128,7 @@ async function _fetchVodChat(videoId, onProgress) {
             'Content-Type': 'application/json',
             'Client-Id':    _VOD_GQL_CLIENT,
         };
-        if (token) headers['Authorization'] = `OAuth ${token}`;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const res = await fetch(_VOD_GQL_URL, { method: 'POST', headers, body });
         if (!res.ok) throw new Error(`GQL ${res.status}`);
