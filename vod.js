@@ -16,6 +16,12 @@ const _VOD_GQL_URL    = 'https://gql.twitch.tv/gql';
 const _VOD_FPS        = 30;
 const _VOD_BITRATE    = 500_000;
 
+// escapeHTML is defined in src/utils.js which is only loaded by overlay.html.
+// Redeclare it here for the config page context.
+function _vodEscape(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 let _vodMsgs      = [];
 let _vodDuration  = 0;
 let _vodTitle     = '';
@@ -152,8 +158,8 @@ async function vodFetch() {
 
         const date = info.createdAt ? new Date(info.createdAt).toLocaleDateString() : '';
         _vodEl('vod-info-text').innerHTML =
-            `<strong>${escapeHTML(_vodTitle)}</strong><br>` +
-            `Channel: ${escapeHTML(info.owner?.displayName || '')}` +
+            `<strong>${_vodEscape(_vodTitle)}</strong><br>` +
+            `Channel: ${_vodEscape(info.owner?.displayName || '')}` +
             (date ? `&nbsp;&middot;&nbsp;${date}` : '') +
             `<br>Duration: ${_vodFmtDur(_vodDuration)}`;
         _vodEl('vod-info-section').style.display = 'block';
