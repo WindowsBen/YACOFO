@@ -125,43 +125,72 @@ async function _fetchVodInfo(videoId) {
 }
 
 async function _fetchVodChat(videoId, onProgress) {
-    // Uses the Twitch v5 rechat API — deprecated but still functional and
-    // doesn't require integrity tokens unlike the GQL cursor endpoint.
+    // GQL offset-based pagination — each request uses contentOffsetSeconds
+    // rather than a cursor, which avoids Twitch's integrity check that blocks
+    // cursor-based requests from browser origins.
+    // We advance the offset to (lastMessageOffset + 1) after each page.
     const token = localStorage.getItem('twitch_access_token') || '';
-    const headers = { 'Client-Id': _VOD_GQL_CLIENT };
+    const headers = { 'Content-Type': 'application/json', 'Client-Id': _VOD_GQL_CLIENT };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
+    const QUERY = [{
+        operationName: 'VideoCommentsByOffsetOrCursor',
+        extensions: {
+            persistedQuery: {
+                version: 1,
+                sha256Hash: 'b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa76adf6a',
+            },
+        },
+    }];
+
     const messages = [];
-    let cursor = null;
+    const seen     = new Set(); // deduplicate by comment ID across overlapping pages
+    let offsetSeconds = 0;
 
     while (true) {
-        const url = cursor
-            ? `https://api.twitch.tv/v5/videos/${videoId}/comments?cursor=${encodeURIComponent(cursor)}`
-            : `https://api.twitch.tv/v5/videos/${videoId}/comments?content_offset_seconds=0`;
+        const body = JSON.stringify(QUERY.map(q => ({
+            ...q,
+            variables: { videoID: videoId, contentOffsetSeconds: offsetSeconds },
+        })));
 
-        const res = await fetch(url, { headers });
-        if (!res.ok) throw new Error(`v5 API ${res.status}`);
-        const data = await res.json();
+        const res = await fetch(_VOD_GQL_URL, { method: 'POST', headers, body });
+        if (!res.ok) throw new Error(`GQL ${res.status}`);
+        const json = await res.json();
+        const data = Array.isArray(json) ? json[0] : json;
+        const edges = data?.data?.video?.comments?.edges;
+        if (!edges || edges.length === 0) break;
 
-        for (const c of data.comments || []) {
-            const frags = c.message?.fragments || [];
-            const text  = frags.map(f => f.text).join('');
+        let lastOffset = offsetSeconds;
+        let newOnThisPage = 0;
+
+        for (const edge of edges) {
+            const n    = edge.node;
+            const id   = n.id;
+            if (seen.has(id)) continue;
+            seen.add(id);
+
+            const text = (n.message?.fragments || []).map(f => f.text).join('');
             if (!text.trim()) continue;
 
-            const badges = (c.message?.user_badges || []).map(b => ({ setID: b._id }));
-
+            lastOffset = n.contentOffsetSeconds;
+            newOnThisPage++;
             messages.push({
-                offset:   c.content_offset_seconds,
-                username: c.commenter?.display_name || c.commenter?.name || 'unknown',
-                color:    c.message?.user_color || '#9146FF',
-                badges,
+                offset:   n.contentOffsetSeconds,
+                username: n.commenter?.displayName || n.commenter?.login || 'unknown',
+                color:    n.message?.userColor || '#9146FF',
+                badges:   n.message?.userBadges || [],
                 text,
             });
         }
 
         onProgress(messages.length);
-        if (!data._next) break;
-        cursor = data._next;
+
+        // If no new messages this page or we've passed the VOD end, we're done
+        if (newOnThisPage === 0) break;
+
+        // Advance to 1 second after the last message to get the next batch
+        // (offset requests return comments at-or-after the given second)
+        offsetSeconds = lastOffset + 1;
         await new Promise(r => setTimeout(r, 60));
     }
 
