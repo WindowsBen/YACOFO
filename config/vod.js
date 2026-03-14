@@ -433,11 +433,11 @@ async function vodExport() {
     const totalFrames   = Math.ceil(_vodDuration * _VOD_FPS);
     const frameDuration = 1 / _VOD_FPS;
 
-    const { Output, WebMOutputFormat, BufferTarget, StreamTarget, CanvasSource } = Mediabunny;
-
     try {
         _vodProgress(1, 'Loading Mediabunny\u2026');
         await _loadMediabunny();
+
+        const { Output, WebMOutputFormat, BufferTarget, StreamTarget, CanvasSource } = Mediabunny;
 
         _vodProgress(2, 'Preloading badge images\u2026');
         await _preloadVodBadges();
