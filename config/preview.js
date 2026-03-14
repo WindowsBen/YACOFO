@@ -598,7 +598,7 @@ function renderChatPreview() {
             _on('showHypeTrain')     && _widgetHypeTrain(),
             _msgChat('StreamerDude', '#9146FF', 'Hey chat, welcome to the stream! 👋', _badges('broadcaster')),
             _msgChat('CoolViewer99', '#FF6B6B', "Let's go! PogChamp",                  _badges('subscriber', 'bits')),
-            _msgChat('ThirdPartyFan','#43B581', 'poggers in chat',                     _badges('ffz', 'chatterino', 'seventv')),
+            _msgChat('ThirdPartyFan','#43B581', 'poggers in chat',                     _badges('vip', 'ffz', 'chatterino', 'seventv')),
             _on('showReplies')       && _msgReply(),
             _pv('meStyle','colored') !== 'none' && _msgMe(),
             _on('showAnnouncements') && _msgAnnouncement(),
