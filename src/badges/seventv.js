@@ -128,7 +128,7 @@ async function handle7TVUserUpdate(sevenTVUserId, body) {
 // Entry point called by renderer.js after a message is added to the DOM.
 // Tags the element with the user's Twitch ID so handle7TVUserUpdate can find it.
 async function apply7TVCosmetics(twitchUserId, messageElement) {
-    if (CONFIG.disableAllBadges || !CONFIG.showExternalCosmetics) return;
+    if (!CONFIG.showBadge7TV && !CONFIG.show7TVPaints) return;
 
     const cosmetics = await fetch7TVUserCosmetics(twitchUserId);
     if (!cosmetics) return;
@@ -161,7 +161,7 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
     });
 
     // Inject the new badge into the .badges span
-    if (cosmetics.badgeUrl) {
+    if (cosmetics.badgeUrl && CONFIG.showBadge7TV) {
         const badgesSpan = messageElement.querySelector('.badges');
         if (badgesSpan) {
             const img     = document.createElement('img');
@@ -176,7 +176,7 @@ function reapply7TVCosmetics(messageElement, cosmetics) {
     }
 
     // Apply paint to the username span, and also to message-text for /me colored actions
-    if (cosmetics.paint && usernameSpan) {
+    if (cosmetics.paint && usernameSpan && CONFIG.show7TVPaints) {
         applyPaint(usernameSpan, cosmetics.paint);
         if (messageElement.dataset.meColored) {
             const msgText = messageElement.querySelector('.message-text');

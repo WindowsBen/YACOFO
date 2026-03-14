@@ -97,46 +97,45 @@ function _sourceBadgeHtml(roomId) {
          + ` width="18" height="18">`;
 }
 
+// Badge category sets — maps each Twitch badge set_id to its config toggle
+const _BROADCASTER_BADGES = new Set(['broadcaster']);
+const _MODERATOR_BADGES   = new Set(['moderator', 'lead_moderator', 'staff', 'admin', 'global_mod']);
+const _VIP_BADGES         = new Set(['vip']);
+const _SUBSCRIBER_BADGES  = new Set(['subscriber']);
+// Everything else (bits, sub-gifter, hype-train, predictions, etc.) → showBadgeCustom
+
+function _isBadgeAllowed(setName) {
+    if (_BROADCASTER_BADGES.has(setName)) return CONFIG.showBadgeBroadcaster;
+    if (_MODERATOR_BADGES.has(setName))   return CONFIG.showBadgeModerator;
+    if (_VIP_BADGES.has(setName))         return CONFIG.showBadgeVIP;
+    if (_SUBSCRIBER_BADGES.has(setName))  return CONFIG.showBadgeSubscriber;
+    return CONFIG.showBadgeCustom;
+}
+
 function renderBadges(tags) {
     let html = '';
-
-    // Kill switch — return nothing if all badges are disabled
-    if (CONFIG.disableAllBadges) return html;
 
     // ── Shared chat source badge ───────────────────────────────────────────────
     const sourceRoomId = tags['source-room-id'];
     const isGuestMsg   = sourceRoomId && String(sourceRoomId) !== _hostRoomId;
 
     if (isGuestMsg) {
-        // Stamp time so the timeout checker knows shared chat is still alive
         _lastGuestMessageTime = Date.now();
-
-        // First guest message seen — mark shared chat as active and pre-fetch
-        // the host channel's avatar so it's ready for future host messages.
         if (!_sharedChatActive) {
             _sharedChatActive = true;
             if (_hostRoomId) _fetchSourceAvatar(_hostRoomId);
         }
-        // Fetch this guest channel's avatar if not already cached
-        if (!(sourceRoomId in _sourceAvatarCache)) {
-            _fetchSourceAvatar(sourceRoomId);
-        }
+        if (!(sourceRoomId in _sourceAvatarCache)) _fetchSourceAvatar(sourceRoomId);
         html += _sourceBadgeHtml(sourceRoomId);
-
     } else if (_sharedChatActive && _hostRoomId) {
-        // Host channel message while shared chat is active — show host avatar.
-        // Fetch is already in flight or done from the block above.
-        if (!(_hostRoomId in _sourceAvatarCache)) {
-            _fetchSourceAvatar(_hostRoomId);
-        }
+        if (!(_hostRoomId in _sourceAvatarCache)) _fetchSourceAvatar(_hostRoomId);
         html += _sourceBadgeHtml(_hostRoomId);
     }
 
-    // Twitch badges — tags.badges is pre-parsed by tmi.js: { broadcaster: '1', subscriber: '6', ... }
+    // ── Twitch native badges ───────────────────────────────────────────────────
     if (tags.badges) {
         for (const [setName, version] of Object.entries(tags.badges)) {
-            // Skip non-role badges when roleOnlyBadges is active
-            if (CONFIG.roleOnlyBadges && !ROLE_BADGES.has(setName)) continue;
+            if (!_isBadgeAllowed(setName)) continue;
             const url = badgeMap[`${setName}/${version}`];
             if (url) {
                 html += `<img class="chat-badge" src="${url}" alt="${escapeHTML(setName)}" title="${escapeHTML(setName)}" width="18" height="18">`;
@@ -144,22 +143,22 @@ function renderBadges(tags) {
         }
     }
 
-    // FFZ and Chatterino badges — shown unless external cosmetics are disabled.
-    // These are keyed by Twitch user ID, not login name.
-    if (CONFIG.showExternalCosmetics && tags.username) {
-        const key = tags['user-id'] ? String(tags['user-id']) : null;
-
-        const ffzBadges = key ? ffzUserBadges[key] : null;
+    // ── FFZ badges ────────────────────────────────────────────────────────────
+    if (CONFIG.showBadgeFFZ && tags['user-id']) {
+        const ffzBadges = ffzUserBadges[String(tags['user-id'])];
         if (ffzBadges) {
             for (const badge of ffzBadges) {
-                html += `<img class="chat-badge ffz-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}" width="18" height="18">`;
+                html += `<img class="chat-badge ffz-badge" src="${escapeHTML(badge.url)}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}" width="18" height="18">`;
             }
         }
+    }
 
-        const chatterinoBadges = tags['user-id'] ? chatterinoUserBadges[String(tags['user-id'])] : null;
+    // ── Chatterino badges ─────────────────────────────────────────────────────
+    if (CONFIG.showBadgeChatterino && tags['user-id']) {
+        const chatterinoBadges = chatterinoUserBadges[String(tags['user-id'])];
         if (chatterinoBadges) {
             for (const badge of chatterinoBadges) {
-                html += `<img class="chat-badge chatterino-badge" src="${badge.url}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}" width="18" height="18">`;
+                html += `<img class="chat-badge chatterino-badge" src="${escapeHTML(badge.url)}" alt="${escapeHTML(badge.title)}" title="${escapeHTML(badge.title)}" width="18" height="18">`;
             }
         }
     }

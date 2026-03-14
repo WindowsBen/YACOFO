@@ -24,9 +24,12 @@ function generateLink() {
     const base  = window.location.href.replace('index.html', '');
 
     // When all badges are disabled we only need the one flag — skip the other badge params
-    const badgeParams = ch('disableAllBadges')
-        ? '&disableAllBadges=1'
-        : `&roleOnlyBadges=${ch('roleOnlyBadges') ? '1':'0'}&showExternalCosmetics=${ch('showExternalCosmetics') ? '1':'0'}`;
+    const badgeParams = [
+        'showBadgeBroadcaster', 'showBadgeModerator', 'showBadgeVIP',
+        'showBadgeSubscriber',  'showBadgeCustom',
+        'showBadgeFFZ',         'showBadgeChatterino', 'showBadge7TV',
+        'show7TVPaints',
+    ].map(id => `${id}=${ch(id) ? '1' : '0'}`).join('&');
 
     const showResubs     = ch('showResubs');
     const showGifts      = ch('showGifts');
@@ -117,7 +120,7 @@ function generateLink() {
 
     const fontParams = fontUrl ? `fontUrl=${encodeURIComponent(fontUrl)}` : '';
 
-    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&nameFontSize=${v('nameFontSize')}px&messageFontSize=${v('messageFontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}&slideDistance=${slideDistance}&slideDuration=${slideDuration}&messageLifetime=${messageLifetime}&fadeDuration=${fadeDuration}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}${!ch('showAnnouncements') ? '&showAnnouncements=0' : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}${badgeParams}&token=${encodeURIComponent(token)}`;
+    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&nameFontSize=${v('nameFontSize')}px&messageFontSize=${v('messageFontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}&slideDistance=${slideDistance}&slideDuration=${slideDuration}&messageLifetime=${messageLifetime}&fadeDuration=${fadeDuration}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}${!ch('showAnnouncements') ? '&showAnnouncements=0' : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}&${badgeParams}&token=${encodeURIComponent(token)}`;
 
     document.getElementById('resultLink').textContent = url;
 
@@ -223,9 +226,15 @@ const CONFIG_FIELDS = [
     { id: 'htBar',                  type: 'text' }, { id: 'htBarOpacity',     type: 'text' },
     { id: 'hypeTrainLingerMs',      type: 'text' },
     // Badges & Cosmetics
-    { id: 'disableAllBadges',     type: 'check' },
-    { id: 'roleOnlyBadges',       type: 'check' },
-    { id: 'showExternalCosmetics',type: 'check' },
+    { id: 'showBadgeBroadcaster', type: 'check' },
+    { id: 'showBadgeModerator',   type: 'check' },
+    { id: 'showBadgeVIP',         type: 'check' },
+    { id: 'showBadgeSubscriber',  type: 'check' },
+    { id: 'showBadgeCustom',      type: 'check' },
+    { id: 'showBadgeFFZ',         type: 'check' },
+    { id: 'showBadgeChatterino',  type: 'check' },
+    { id: 'showBadge7TV',         type: 'check' },
+    { id: 'show7TVPaints',        type: 'check' },
     { id: 'toastEmotes',          type: 'check' },
 ];
 

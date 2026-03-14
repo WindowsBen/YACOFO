@@ -36,20 +36,6 @@ function toggleEventOptions(checkboxId, optionsId) {
     document.getElementById(optionsId).classList.toggle('visible', checked);
 }
 
-function onDisableAllBadgesChange() {
-    const disabled = document.getElementById('disableAllBadges').checked;
-    ['roleOnlyBadges', 'showExternalCosmetics'].forEach(id => {
-        const wrapper = document.getElementById(id).closest('.checkbox-wrapper');
-        if (disabled) {
-            document.getElementById(id).checked = false;
-            wrapper.style.opacity       = '0.35';
-            wrapper.style.pointerEvents = 'none';
-        } else {
-            wrapper.style.opacity       = '';
-            wrapper.style.pointerEvents = '';
-        }
-    });
-}
 
 // Wire up opacity slider labels — called by auth.js after DOM is ready
 function initSliders() {

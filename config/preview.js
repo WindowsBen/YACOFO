@@ -139,10 +139,15 @@ const _ROLE_BADGES = new Set(['broadcaster', 'moderator', 'vip']);
 
 // Pass badge keys in display order; returns the HTML string to prepend to username
 function _badges(...roles) {
-    if (_on('disableAllBadges')) return '';
-    const roleOnly = _on('roleOnlyBadges');
+    const toggleMap = {
+        broadcaster: 'showBadgeBroadcaster',
+        moderator:   'showBadgeModerator',
+        vip:         'showBadgeVIP',
+        subscriber:  'showBadgeSubscriber',
+        bits:        'showBadgeCustom',
+    };
     return roles
-        .filter(r => !roleOnly || _ROLE_BADGES.has(r))
+        .filter(r => _on(toggleMap[r] ?? 'showBadgeCustom'))
         .map(r => _BADGE_SVG[r] || '')
         .join('');
 }

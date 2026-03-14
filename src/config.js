@@ -74,10 +74,16 @@ const CONFIG = {
     // Custom font — CSS URL; font-family name is extracted from the stylesheet at load time
     fontUrl: params.get('fontUrl') || '',
 
-    // Badge display options
-    disableAllBadges:      params.get('disableAllBadges')      === '1',
-    roleOnlyBadges:        params.get('roleOnlyBadges')        === '1',
-    showExternalCosmetics: params.get('showExternalCosmetics') !== '0', // default on
+    // Badge display — each category independently toggled, all default on
+    showBadgeBroadcaster: params.get('showBadgeBroadcaster') !== '0',
+    showBadgeModerator:   params.get('showBadgeModerator')   !== '0',
+    showBadgeVIP:         params.get('showBadgeVIP')         !== '0',
+    showBadgeSubscriber:  params.get('showBadgeSubscriber')  !== '0',
+    showBadgeCustom:      params.get('showBadgeCustom')      !== '0', // bits, sub-gifter, hype-train, etc.
+    showBadgeChatterino:  params.get('showBadgeChatterino')  !== '0',
+    showBadgeFFZ:         params.get('showBadgeFFZ')         !== '0',
+    showBadge7TV:         params.get('showBadge7TV')         !== '0',
+    show7TVPaints:        params.get('show7TVPaints')        !== '0',
 
     // Twitch API credentials — token comes from URL or localStorage (set by configurator)
     clientId: 'ti9ahr6lkym6anpij3d4f2cyjhij18',
@@ -151,7 +157,3 @@ const cssVars = {
 for (const [key, val] of Object.entries(cssVars)) {
     document.documentElement.style.setProperty(key, val);
 }
-
-// Role badges are always shown regardless of the roleOnlyBadges setting —
-// they identify channel staff and can't be hidden selectively.
-const ROLE_BADGES = new Set(['broadcaster', 'moderator', 'vip', 'staff', 'admin', 'global_mod', 'lead_moderator']);

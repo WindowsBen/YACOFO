@@ -569,14 +569,24 @@
     <div class="tab-panel" id="tab-appearance">
 
         <div class="tab-section">
-            <div class="tab-section-title">Badges</div>
-            <label class="checkbox-wrapper"><input type="checkbox" id="disableAllBadges" onchange="onDisableAllBadgesChange()"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Disable ALL badges</span></label>
-            <label class="checkbox-wrapper"><input type="checkbox" id="roleOnlyBadges"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Role badges only (Broadcaster, Mod, VIP)</span></label>
+            <div class="tab-section-title">Twitch Badges</div>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeBroadcaster" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Broadcaster</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeModerator" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Moderator / Lead Moderator</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeVIP" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">VIP</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeSubscriber" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Subscriber</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeCustom" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Custom (Bits, Sub Gifter, Hype Train, etc.)</span></label>
         </div>
 
         <div class="tab-section">
-            <div class="tab-section-title">Third-Party Cosmetics</div>
-            <label class="checkbox-wrapper"><input type="checkbox" id="showExternalCosmetics" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show 7TV / FFZ / Chatterino badges &amp; paints</span></label>
+            <div class="tab-section-title">Third-Party Badges</div>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeFFZ" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">FrankerFaceZ</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadgeChatterino" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Chatterino</span></label>
+            <label class="checkbox-wrapper"><input type="checkbox" id="showBadge7TV" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">7TV Badges</span></label>
+        </div>
+
+        <div class="tab-section">
+            <div class="tab-section-title">7TV Cosmetics</div>
+            <label class="checkbox-wrapper"><input type="checkbox" id="show7TVPaints" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Username Paints</span></label>
         </div>
 
         <div class="tab-section">
