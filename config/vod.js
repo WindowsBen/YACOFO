@@ -80,22 +80,6 @@ function _extractVodId(input) {
 }
 
 
-// ── Integrity token ───────────────────────────────────────────────────────────
-// Twitch requires an integrity token for cursor-based VOD comment pagination.
-// Fetched once per session from their integrity endpoint.
-let _vodIntegrityToken  = null;
-let _vodIntegrityExpiry = 0;
-let _vodDeviceId        = null;
-
-function _getDeviceId() {
-    if (_vodDeviceId) return _vodDeviceId;
-    // Generate a stable random device ID for this session
-    const arr = new Uint8Array(16);
-    crypto.getRandomValues(arr);
-    _vodDeviceId = Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
-    return _vodDeviceId;
-}
-
 async function _fetchIntegrityToken() {
     if (_vodIntegrityToken && Date.now() < _vodIntegrityExpiry) return _vodIntegrityToken;
 
@@ -141,69 +125,43 @@ async function _fetchVodInfo(videoId) {
 }
 
 async function _fetchVodChat(videoId, onProgress) {
-    const token    = localStorage.getItem('twitch_access_token') || '';
-    const deviceId = _getDeviceId();
-
-    // Fetch integrity token once — refreshed automatically when expired
-    const integrityToken = await _fetchIntegrityToken();
-    console.log('[VOD] integrity token:', integrityToken ? integrityToken.slice(0,40)+'…' : 'null');
+    // Uses the Twitch v5 rechat API — deprecated but still functional and
+    // doesn't require integrity tokens unlike the GQL cursor endpoint.
+    const token = localStorage.getItem('twitch_access_token') || '';
+    const headers = { 'Client-Id': _VOD_GQL_CLIENT };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const messages = [];
     let cursor = null;
-    let isFirstRequest = true;
 
     while (true) {
-        const variables = isFirstRequest
-            ? { videoID: videoId, contentOffsetSeconds: 0 }
-            : { videoID: videoId, cursor };
+        const url = cursor
+            ? `https://api.twitch.tv/v5/videos/${videoId}/comments?cursor=${encodeURIComponent(cursor)}`
+            : `https://api.twitch.tv/v5/videos/${videoId}/comments?content_offset_seconds=0`;
 
-        const body = JSON.stringify([{
-            operationName: 'VideoCommentsByOffsetOrCursor',
-            variables,
-            extensions: {
-                persistedQuery: {
-                    version: 1,
-                    sha256Hash: 'b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa76adf6a',
-                },
-            },
-        }]);
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error(`v5 API ${res.status}`);
+        const data = await res.json();
 
-        const headers = {
-            'Content-Type': 'application/json',
-            'Client-Id':    _VOD_GQL_CLIENT,
-            'X-Device-ID':  deviceId,
-        };
-        if (token)          headers['Authorization']     = `Bearer ${token}`;
-        if (integrityToken) headers['Client-Integrity']  = integrityToken;
-
-        const res = await fetch(_VOD_GQL_URL, { method: 'POST', headers, body });
-        if (!res.ok) throw new Error(`GQL ${res.status}`);
-
-        const json = await res.json();
-        const data = Array.isArray(json) ? json[0] : json;
-        const comments = data?.data?.video?.comments;
-        if (!comments) {
-            console.error('[VOD] full response:', JSON.stringify(json));
-            throw new Error('No comment data returned');
-        }
-
-        for (const edge of comments.edges || []) {
-            const n    = edge.node;
-            const text = (n.message?.fragments || []).map(f => f.text).join('');
+        for (const c of data.comments || []) {
+            const frags = c.message?.fragments || [];
+            const text  = frags.map(f => f.text).join('');
             if (!text.trim()) continue;
+
+            const badges = (c.message?.user_badges || []).map(b => ({ setID: b._id }));
+
             messages.push({
-                offset:   n.contentOffsetSeconds,
-                username: n.commenter?.displayName || n.commenter?.login || 'unknown',
-                color:    n.message?.userColor || '#9146FF',
-                badges:   n.message?.userBadges || [],
+                offset:   c.content_offset_seconds,
+                username: c.commenter?.display_name || c.commenter?.name || 'unknown',
+                color:    c.message?.user_color || '#9146FF',
+                badges,
                 text,
             });
-            cursor = edge.cursor;
         }
 
-        isFirstRequest = false;
         onProgress(messages.length);
-        if (!comments.pageInfo?.hasNextPage) break;
+        if (!data._next) break;
+        cursor = data._next;
         await new Promise(r => setTimeout(r, 60));
     }
 
