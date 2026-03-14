@@ -60,11 +60,12 @@ code and assets.
 
 ---
 
-## webm-muxer
+## Mediabunny
 
-- **Source:** https://github.com/Vanilagy/webm-muxer
-- **Licence:** [MIT License](https://github.com/Vanilagy/webm-muxer/blob/main/LICENSE)
-- **Used as:** Browser-side WebM muxer for the VOD chat export feature. Loaded from the jsDelivr CDN at runtime.
+- **Source:** https://github.com/Vanilagy/mediabunny
+- **Licence:** [Mozilla Public License 2.0](https://github.com/Vanilagy/mediabunny/blob/main/LICENSE)
+- **Used as:** Browser-side media toolkit for the VOD chat export feature. Handles WebM muxing and VP9 encoding with alpha transparency support. Loaded from the jsDelivr CDN at runtime.
+- **Note:** MPL-2.0 is a weak copyleft licence. YACOFO uses Mediabunny as an unmodified library and does not redistribute or modify its source code, so no copyleft obligations apply.
 
 ---
 
