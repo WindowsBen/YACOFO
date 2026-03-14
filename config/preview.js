@@ -245,7 +245,7 @@ async function _pvFetchThirdPartyBadges() {
 
     // Fallback: if still empty, use a long-standing stable badge ID
     if (!_pvBadgeUrl.seventv) {
-        _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/6102002eaad3a00f8b146f16/4x.webp';
+        _pvBadgeUrl.seventv = 'https://cdn.7tv.app/badge/01GAF8RWW8000E8VNG1S1RMTBA/4x.webp';
     }
 
     renderChatPreview();
