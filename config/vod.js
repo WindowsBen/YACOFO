@@ -781,22 +781,35 @@ function _renderFrame(ctx, timestamp, canvasW, canvasH, cfg) {
 
 // ── Config reader ─────────────────────────────────────────────────────────────
 function _vodCfg() {
-    const pv = (id, fb) => { const el = document.getElementById(id); return el ? (el.value || fb) : fb; };
-    const pn = (id, fb) => { const v = parseInt(pv(id, '')); return isNaN(v) ? fb : v; };
-    const po = (id, fb) => { const el = document.getElementById(id); return el ? parseInt(el.value ?? fb) : fb; };
-    const lifetime = pn('messageLifetime', 0);
+    const pv  = (id, fb) => { const el = document.getElementById(id); return el ? (el.value || fb) : fb; };
+    const pn  = (id, fb) => { const v = parseInt(pv(id, '')); return isNaN(v) ? fb : v; };
+    const pf  = (id, fb) => { const v = parseFloat(pv(id, '')); return isNaN(v) ? fb : v; };
+    // po reads range/number inputs — uses el.value directly to handle 0 correctly
+    const po  = (id, fb) => { const el = document.getElementById(id); if (!el) return fb; const v = parseInt(el.value); return isNaN(v) ? fb : v; };
+
+    const lifetime = pn('messageLifetime', 0); // 0 = messages stay forever
+
+    // Shadow — read colour and opacity; opacity defaults to 100 matching the UI default
     const shHex = (pv('shadowColor', '#000000') || '#000000').replace('#', '');
-    const shA   = po('shadowOpacity', 0) / 100;
+    const shA   = po('shadowOpacity', 100) / 100;
     const shadowColor = shA > 0
         ? `rgba(${parseInt(shHex.slice(0,2)||'00',16)},${parseInt(shHex.slice(2,4)||'00',16)},${parseInt(shHex.slice(4,6)||'00',16)},${shA})`
         : null;
+
+    // When lifetime is 0 (never expire), use the full VOD duration so every
+    // message stays visible from when it was sent to the end of the video.
+    const lifetimeSec = lifetime > 0 ? lifetime / 1000 : _vodDuration || 99999;
+
+    // Fade only applies when messages actually expire
+    const fadeSec = lifetimeSec < 99999 ? pn('fadeDuration', 1000) / 1000 : 0;
+
     return {
-        nameFontSize:    pn('nameFontSize',    15),
-        messageFontSize: pn('messageFontSize', 15),
-        lineHeight:      parseFloat(pv('lineHeight', '')) || 1.4,
+        nameFontSize:    pn('nameFontSize',    16),
+        messageFontSize: pn('messageFontSize', 16),
+        lineHeight:      pf('lineHeight',       1.4),
         messageGap:      pn('messageGap',       8),
-        lifetimeSec:     lifetime > 0 ? lifetime / 1000 : 30,
-        fadeSec:         pn('fadeDuration', 1000) / 1000,
+        lifetimeSec,
+        fadeSec,
         fontFamily:      (typeof _previewFontFamily !== 'undefined' && _previewFontFamily)
                             ? `'${_previewFontFamily}', sans-serif` : 'sans-serif',
         shadowColor,
