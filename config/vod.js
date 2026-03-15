@@ -185,6 +185,7 @@ async function _fetchVodChat(videoId, onProgress) {
             messages.push({
                 id:        n.id,
                 offset:    n.contentOffsetSeconds,
+                userId:    n.commenter?.id || '',
                 username:  n.commenter?.displayName || n.commenter?.login || 'unknown',
                 color:     n.message?.userColor || '#9146FF',
                 badges:    n.message?.userBadges || [],
@@ -258,10 +259,17 @@ async function vodFetch() {
 
 // ── Badge preloading ──────────────────────────────────────────────────────────
 // ── Asset loading helpers ────────────────────────────────────────────────────
-// Load an image via fetch+blob so it's always canvas-safe.
-// crossOrigin='anonymous' on <img> only works if the server sends CORS headers.
-// fetch() will silently fail for non-CORS CDNs (BTTV, FFZ) — those emotes/badges
-// won't appear in exports, but they also won't taint the canvas or spam errors.
+// Animated emote container — hidden div in the DOM so imgs play their animation
+let _animContainer = null;
+function _getAnimContainer() {
+    if (_animContainer) return _animContainer;
+    _animContainer = document.createElement('div');
+    _animContainer.style.cssText = 'position:fixed;opacity:0;pointer-events:none;top:-9999px;left:-9999px;';
+    document.body.appendChild(_animContainer);
+    return _animContainer;
+}
+
+// Load a static image via fetch+blob (canvas-safe, no CORS taint).
 async function _loadImg(url) {
     if (!url) return null;
     try {
@@ -276,7 +284,31 @@ async function _loadImg(url) {
             img.src = objectUrl;
         });
     } catch {
-        return null; // CORS blocked or network error — skip silently
+        return null;
+    }
+}
+
+// Load an animated emote as a live <img> element in the DOM.
+// drawImage on a live <img> captures the current animation frame.
+// Uses a blob URL so the canvas isn't tainted.
+async function _loadAnimatedImg(url) {
+    if (!url) return null;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        return await new Promise(resolve => {
+            const img = new Image();
+            img.onload  = () => {
+                _getAnimContainer().appendChild(img); // keep in DOM for animation
+                resolve(img);
+            };
+            img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(null); };
+            img.src = objectUrl;
+        });
+    } catch {
+        return null;
     }
 }
 
@@ -330,7 +362,7 @@ async function _preloadVodEmotes() {
             if (frag.emote?.emoteID) ids.add(frag.emote.emoteID);
 
     await Promise.all([...ids].map(async id => {
-        const img = await _loadImg(
+        const img = await _loadAnimatedImg(
             `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0`);
         if (img) _vodEmoteMap[id] = img;
     }));
@@ -389,8 +421,8 @@ async function _preloadThirdPartyEmotes() {
 
     // Pre-load all images in parallel, replacing URL strings with HTMLImageElement
     await Promise.all(Object.entries(_vodThirdEmoteMap).map(async ([code, url]) => {
-        if (typeof url !== 'string') return; // already loaded
-        const img = await _loadImg(url);
+        if (typeof url !== 'string') return;
+        const img = await _loadAnimatedImg(url);
         if (img) _vodThirdEmoteMap[code] = img;
         else delete _vodThirdEmoteMap[code];
     }));
@@ -414,7 +446,7 @@ async function _preload7TVUserCosmetics() {
                 const res = await fetch(`https://7tv.io/v3/users/twitch/${uid}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                const style = data.style || {};
+                const style = data?.user?.style || {};  // API returns { user: { style: ... } }
                 const cosmetics = { paint: null, badgeUrl: null, badgeImg: null };
 
                 if (style.badge_id) {
@@ -827,6 +859,8 @@ async function vodExport() {
     } finally {
         _vodExporting = false;
         btn.disabled  = false;
+        // Remove animated emote elements from DOM
+        if (_animContainer) { _animContainer.remove(); _animContainer = null; }
     }
 }
 
