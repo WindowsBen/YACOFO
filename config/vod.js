@@ -767,6 +767,11 @@ async function vodExport() {
         await _preloadVodBadges();
         await _preloadVodEmotes();
         await _preloadThirdPartyEmotes();
+        await _preload7TVUserCosmetics();
+        console.log('[VOD] Twitch badges:', Object.keys(_vodBadgeMap).length);
+        console.log('[VOD] Twitch emotes:', Object.keys(_vodEmoteMap).length);
+        console.log('[VOD] 3rd-party emotes:', Object.keys(_vodThirdEmoteMap).length, Object.keys(_vodThirdEmoteMap).slice(0,5));
+        console.log('[VOD] 7TV user cosmetics:', Object.keys(_vodUserCosmetics).length);
 
         // Prefer streaming to disk so memory stays flat on long VODs.
         // Falls back to in-memory buffer when File System Access API is unavailable.
