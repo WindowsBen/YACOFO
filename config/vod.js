@@ -42,14 +42,19 @@ function _loadMediabunny() {
     return _mediabunnyLoading;
 }
 
-let _vodMsgs      = [];
-let _vodDuration  = 0;
-let _vodTitle     = '';
-let _vodId        = '';
-let _vodExporting = false;
+let _vodMsgs          = [];
+let _vodDuration      = 0;
+let _vodTitle         = '';
+let _vodId            = '';
+let _vodExporting     = false;
+let _vodBroadcasterId = null;
 
-const _vodBadgeImgs   = {};
+const _vodBadgeMap     = {};  // "setID/version" -> HTMLImageElement
+const _vodEmoteMap     = {};  // emoteID -> HTMLImageElement
 const _vodMeasureCache = {};
+
+let _vodEntryDisp  = 0;       // smooth scroll: accumulated entry displacement in px
+let _vodPrevMsgIds = new Set(); // IDs visible in previous frame
 
 function _vodEl(id) { return document.getElementById(id); }
 
@@ -113,8 +118,9 @@ async function _fetchVodInfo(videoId) {
         headers: { 'Content-Type': 'application/json', 'Client-Id': _VOD_GQL_CLIENT },
         body: JSON.stringify({ query: `{
             video(id: "${videoId}") {
-                title lengthSeconds
+                title lengthSeconds createdAt
                 owner { displayName }
+                creator { id }
                 createdAt
             }
         }` }),
@@ -217,9 +223,10 @@ async function vodFetch() {
         const info = await _fetchVodInfo(vodId);
         if (!info) { _vodStatus('VOD not found or is private.', true); return; }
 
-        _vodId       = vodId;
-        _vodTitle    = info.title || 'Untitled';
-        _vodDuration = info.lengthSeconds || 0;
+        _vodId            = vodId;
+        _vodTitle         = info.title || 'Untitled';
+        _vodDuration      = info.lengthSeconds || 0;
+        _vodBroadcasterId = info.creator?.id || null;
 
         const date = info.createdAt ? new Date(info.createdAt).toLocaleDateString() : '';
         _vodEl('vod-info-text').innerHTML =
