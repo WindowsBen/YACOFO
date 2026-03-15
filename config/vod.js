@@ -407,7 +407,7 @@ async function _preloadThirdPartyEmotes() {
         if (img) _vodThirdEmoteMap[code] = img;
         else delete _vodThirdEmoteMap[code];
     }));
-
+}
 
 // ── 7TV per-user cosmetics ────────────────────────────────────────────────────
 // Maps Twitch login (lowercase) → { paint, badgeUrl }
@@ -498,7 +498,6 @@ function _paintToFillStyle(ctx, paint, x, y, w) {
         default:
             return stops[0]?.color || null;
     }
-}
 }
 
 function _badgeImgForSet(setID, version) {
