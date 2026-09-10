@@ -32,6 +32,8 @@ const SETTING_TIPS = {
     showAnnouncements: { desc: 'Show /announce messages posted by mods or the broadcaster.' },
     showReplies:       { desc: 'Show the quoted parent message above reply messages.' },
     showGifs:          { desc: 'Show messages containing Twitch\'s sub-only chat GIFs (Tier 2/3 perk). When off, those messages are hidden entirely rather than showing the placeholder text.' },
+    gifMaxHeight:      { desc: 'Maximum height a chat GIF can display at, in pixels. It\'s scaled down to fit if larger; its width follows automatically to keep it from looking stretched.' },
+    gifPosition:       { desc: 'Where the GIF appears relative to the username — on its own line below it, or inline right after it on the same line.' },
     toastEmotes:       { desc: 'Displays a notification when a 7TV emote is added to or removed from the current set.' },
     meStyle:           { desc: 'How /me action messages are styled — colored (uses name color), italic, or plain.' },
     disableAllBadges:      { desc: 'Hide every badge — Twitch, 7TV, FFZ, and Chatterino.' },

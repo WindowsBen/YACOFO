@@ -42,6 +42,8 @@ const CONFIG = {
 
     showReplies:       params.get('showReplies') !== '0', // default on
     showGifs:          params.get('showGifs') !== '0',    // default on — Twitch sub-only chat GIFs (T2/T3)
+    gifMaxHeight:      params.get('gifMaxHeight') || '160', // px — max display height for chat GIFs
+    gifPosition:       params.get('gifPosition')  || 'below', // 'below' | 'inline'
     meStyle:           params.get('meStyle') || 'colored', // 'colored' | 'italic' | 'none'
     showAnnouncements: params.get('showAnnouncements') !== '0', // default on
 
@@ -101,6 +103,7 @@ const CONFIG = {
 if (CONFIG.nameFontSize)    document.documentElement.style.setProperty('--name-font-size',    CONFIG.nameFontSize);
 if (CONFIG.messageFontSize) document.documentElement.style.setProperty('--message-font-size', CONFIG.messageFontSize);
 if (CONFIG.shadowColor) document.documentElement.style.setProperty('--chat-shadow-color',   hex8ToCss(CONFIG.shadowColor, '#000000FF'));
+document.documentElement.style.setProperty('--chat-gif-max-height', `${parseFloat(CONFIG.gifMaxHeight) || 160}px`);
 {
     // Shadow size (length) + angle (0°=up, clockwise — same convention as the
     // configurator's direction dial). A single offset copy of the text would

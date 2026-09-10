@@ -165,6 +165,13 @@
             <label class="checkbox-wrapper"><input type="checkbox" id="showAnnouncements" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show /announce messages</span></label>
             <label class="checkbox-wrapper"><input type="checkbox" id="showReplies" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show reply context above messages</span></label>
             <label class="checkbox-wrapper"><input type="checkbox" id="showGifs" checked><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label">Show sub-only chat GIFs (T2/T3 perk)</span></label>
+            <span class="field-label">GIF max size (px)</span>
+            <input type="number" id="gifMaxHeight" placeholder="Default: 160" min="20" max="600" style="width:120px;">
+            <span class="field-label">GIF position</span>
+            <select id="gifPosition">
+                <option value="below" selected>Below the name</option>
+                <option value="inline">Next to the name</option>
+            </select>
             <span class="field-label">/me messages</span>
             <select id="meStyle">
                 <option value="colored" selected>Colored (user's name color)</option>
@@ -649,7 +656,7 @@
                     Import Config
                 </button>
             </div>
-            <span class="hint">Import accepts either a config string, or the overlay link itself.</span>
+            <span class="hint">Import accepts either a config string, or the overlay link itself (from "Generate Link") — handy if you lost the config string but still have the link.</span>
             <div class="output-label" id="exportLabel" style="display:none;">Config String</div>
             <div class="output-box" id="exportBox" style="display:none;"></div>
             <button class="btn btn-copy" id="copyExportBtn" onclick="copyExport()" style="display:none;">

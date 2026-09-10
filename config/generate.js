@@ -120,7 +120,7 @@ function generateLink() {
 
     const fontParams = fontUrl ? `fontUrl=${encodeURIComponent(fontUrl)}` : '';
 
-    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&nameFontSize=${v('nameFontSize')}px&messageFontSize=${v('messageFontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}&shadowSize=${v('shadowSize')}&shadowAngle=${v('shadowAngle')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}&slideDistance=${slideDistance}&slideDuration=${slideDuration}&messageLifetime=${messageLifetime}&fadeDuration=${fadeDuration}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${!ch('showGifs') ? '&showGifs=0' : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}${!ch('showAnnouncements') ? '&showAnnouncements=0' : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}&${badgeParams}&token=${encodeURIComponent(token)}`;
+    const url = `${base}overlay.html#channel=${encodeURIComponent(channel)}&nameFontSize=${v('nameFontSize')}px&messageFontSize=${v('messageFontSize')}px&shadow=${c8('shadowColor','shadowOpacity')}&shadowSize=${v('shadowSize')}&shadowAngle=${v('shadowAngle')}${fontParams ? '&'+fontParams : ''}${messageGap ? '&messageGap='+messageGap : ''}${lineHeight ? '&lineHeight='+lineHeight : ''}&slideDistance=${slideDistance}&slideDuration=${slideDuration}&messageLifetime=${messageLifetime}&fadeDuration=${fadeDuration}${excludedUsers ? '&exclude='+encodeURIComponent(excludedUsers) : ''}${excludedPrefixes ? '&excludePrefix='+encodeURIComponent(excludedPrefixes) : ''}${!ch('showReplies') ? '&showReplies=0' : ''}${!ch('showGifs') ? '&showGifs=0' : ''}${v('gifMaxHeight') && v('gifMaxHeight') !== '160' ? '&gifMaxHeight='+v('gifMaxHeight') : ''}${v('gifPosition') !== 'below' ? '&gifPosition='+v('gifPosition') : ''}${v('meStyle') !== 'colored' ? '&meStyle='+v('meStyle') : ''}${!ch('showAnnouncements') ? '&showAnnouncements=0' : ''}&toastEmotes=${ch('toastEmotes') ? '1':'0'}&${eventParams}&${badgeParams}&token=${encodeURIComponent(token)}`;
 
     document.getElementById('resultLink').textContent = url;
 
@@ -176,6 +176,8 @@ const CONFIG_FIELDS = [
     { id: 'excludedPrefixes', type: 'text'  },
     { id: 'showReplies',        type: 'check' },
     { id: 'showGifs',           type: 'check' },
+    { id: 'gifMaxHeight',       type: 'text' },
+    { id: 'gifPosition',        type: 'text' },
     { id: 'meStyle',            type: 'text'  },
     { id: 'showAnnouncements',  type: 'check' },
     { id: 'fontUrl',       type: 'text' },
@@ -307,6 +309,7 @@ const URL_TEXT_FIELDS = [
     'resubLabel', 'giftLabel', 'bitsLabel', 'redeemLabel', 'streakLabel',
     'raidIncomingLabel', 'raidOutgoingLabel',
     'pollLingerMs', 'predictionLingerMs', 'hypeTrainLingerMs',
+    'gifMaxHeight', 'gifPosition',
 ];
 
 // Parses a full overlay URL (or just its #hash) and restores every setting

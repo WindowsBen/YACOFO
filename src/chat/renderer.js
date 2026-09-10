@@ -16,7 +16,7 @@ function displayMessage(tags, message, isAction = false, renderedMessageHTML = n
     // isn't meant to be read on its own.
     const gif = parseGifTag(tags.gifs);
     if (gif && !CONFIG.showGifs) return;
-    const gifHTML = gif ? `<img class="chat-gif" src="${escapeHTML(gif.url)}" alt="GIF" loading="lazy">` : null;
+    const gifHTML = gif ? `<img class="chat-gif ${CONFIG.gifPosition === 'inline' ? 'gif-inline' : 'gif-below'}" src="${escapeHTML(gif.url)}" alt="GIF" loading="lazy">` : null;
 
     const chatContainer  = document.getElementById('chat-container'); // always present
     const messageElement = document.createElement('div');
