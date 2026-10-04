@@ -20,6 +20,11 @@ const badgeMap = {};
 // roomId → { url, login } once fetched, null while fetch is in flight
 const _sourceAvatarCache = {};
 
+// Set of guest room IDs seen so far this shared-chat session. Needed
+// separately from _sourceAvatarCache (which also includes the host room) so
+// cleanup knows exactly which rooms' emotes to remove when shared chat ends.
+const _activeGuestRoomIds = new Set();
+
 // True once the first guest-channel message is seen this session
 let _sharedChatActive = false;
 
@@ -41,8 +46,10 @@ function _endSharedChat() {
     if (!_sharedChatActive) return;
     _sharedChatActive = false;
     _lastGuestMessageTime = 0;
+    _activeGuestRoomIds.clear();
     console.log('[SharedChat] Session ended — removing source badges');
     document.querySelectorAll('.source-channel-badge').forEach(el => el.remove());
+    cleanupGuestChannelEmotes();
 }
 
 // Periodic check: if shared chat has been active but no guest message has
@@ -126,6 +133,10 @@ function renderBadges(tags) {
             if (_hostRoomId) _fetchSourceAvatar(_hostRoomId);
         }
         if (!(sourceRoomId in _sourceAvatarCache)) _fetchSourceAvatar(sourceRoomId);
+        if (!_activeGuestRoomIds.has(String(sourceRoomId))) {
+            _activeGuestRoomIds.add(String(sourceRoomId));
+            fetchGuestChannelEmotes(String(sourceRoomId));
+        }
         html += _sourceBadgeHtml(sourceRoomId);
     } else if (_sharedChatActive && _hostRoomId) {
         if (!(_hostRoomId in _sourceAvatarCache)) _fetchSourceAvatar(_hostRoomId);
