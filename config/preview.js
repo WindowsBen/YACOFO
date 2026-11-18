@@ -317,10 +317,11 @@ function _shadow() {
 
 // ── Shared message styles ─────────────────────────────────────────────────────
 function _msgWrap(extra = '') {
-    const gap = _pnum('messageGap', 8);
-    const lh  = parseFloat(_pv('lineHeight', '')) || 1.4;
-    const fs  = _pnum('messageFontSize', 15);
-    return `font-size:${fs}px;line-height:${lh};margin-bottom:${gap}px;word-break:break-word;${_pfont()}${extra}`;
+    const gap   = _pnum('messageGap', 8);
+    const lh    = parseFloat(_pv('lineHeight', '')) || 1.4;
+    const fs    = _pnum('messageFontSize', 15);
+    const align = _pv('textAlign', 'left');
+    return `font-size:${fs}px;line-height:${lh};margin-bottom:${gap}px;word-break:break-word;text-align:${align};${_pfont()}${extra}`;
 }
 
 function _nameSpan(name, color, badgeHtml = '') {
@@ -395,9 +396,17 @@ function _msgReply() {
 }
 
 function _msgEvent(icon, name, detail, aId, aOId, bId, bOId, extra='') {
-    const accent = _prgba(aId, aOId, '#9146FF');
-    const bg     = _prgba(bId, bOId, '#1a0a2e');
-    return `<div style="${_msgWrap(`border-left:3px solid ${accent};background:${bg};border-radius:4px;padding:6px 8px;display:flex;align-items:flex-start;gap:7px;`)}">
+    const accent    = _prgba(aId, aOId, '#9146FF');
+    const bg        = _prgba(bId, bOId, '#1a0a2e');
+    const textAlign = _pv('textAlign', 'left');
+    const isRight   = textAlign === 'right';
+    const isCenter  = textAlign === 'center';
+    const flexDir   = isRight ? 'row-reverse' : 'row';
+    const justify   = isCenter ? 'justify-content:center;' : '';
+    const border    = isRight
+        ? `border-right:3px solid ${accent};`
+        : `border-left:3px solid ${accent};`;
+    return `<div style="${_msgWrap(`${border}background:${bg};border-radius:4px;padding:6px 8px;display:flex;flex-direction:${flexDir};align-items:flex-start;gap:7px;${justify}`)}">
         <span style="color:${accent};flex-shrink:0;font-size:16px;margin-top:1px;">${icon}</span>
         <span>
             <span style="color:${accent};font-weight:700;">${name}</span>

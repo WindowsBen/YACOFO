@@ -90,6 +90,8 @@ const CONFIG = {
     showBadge7TV:         params.get('showBadge7TV')         !== '0',
     show7TVPaints:        params.get('show7TVPaints')        !== '0',
 
+    textAlign: params.get('textAlign') || 'left', // 'left' | 'center' | 'right'
+
     // Twitch API credentials.
     // The overlay URL (pasted into OBS) carries the token in the URL hash so the
     // browser source is self-contained — OBS's CEF browser has isolated localStorage
@@ -132,6 +134,7 @@ document.documentElement.style.setProperty('--chat-gif-max-height', `${parseFloa
     }
     document.documentElement.style.setProperty('--chat-shadow-layers', layers);
 }
+if (CONFIG.textAlign !== 'left') document.documentElement.style.setProperty('--chat-text-align', CONFIG.textAlign);
 if (CONFIG.messageGap)    document.documentElement.style.setProperty('--message-gap',         CONFIG.messageGap + 'px');
 if (CONFIG.lineHeight)    document.documentElement.style.setProperty('--message-line-height', CONFIG.lineHeight);
 if (CONFIG.slideDistance) document.documentElement.style.setProperty('--slide-distance',      CONFIG.slideDistance + 'px');

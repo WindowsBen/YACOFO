@@ -5,6 +5,7 @@
     --chat-shadow-color: #000000;
     --chat-shadow-layers: 0.71px 0.71px 1px #000000FF, 1.41px 1.41px 1px #000000FF;
     --chat-gif-max-height: 160px;
+    --chat-text-align: left;
 }
 
 body {
@@ -31,6 +32,7 @@ body {
     word-wrap: break-word;
     line-height: var(--message-line-height, 1.8);
     font-size: var(--message-font-size);
+    text-align: var(--chat-text-align);
 }
 
 .chat-message .badges {
@@ -173,10 +175,23 @@ body {
     gap: 8px;
 }
 
+/* Right-align: reverse icon/body order and move the accent border to the right */
+.event-message.align-right {
+    flex-direction: row-reverse;
+    border-left: none;
+    border-right: 3px solid #888;
+}
+
+/* Center-align: center the icon+body block */
+.event-message.align-center {
+    justify-content: center;
+}
+
 .sub-message {
     background: var(--resub-bg);
     border-left-color: var(--resub-accent);
 }
+.sub-message.align-right   { border-right-color: var(--resub-accent); }
 .sub-message .event-icon   { color: var(--resub-accent); }
 .sub-message .event-label  { color: var(--resub-accent); filter: brightness(1.4); }
 
@@ -184,6 +199,7 @@ body {
     background: var(--gift-bg);
     border-left-color: var(--gift-accent);
 }
+.gift-message.align-right  { border-right-color: var(--gift-accent); }
 .gift-message .event-icon  { color: var(--gift-accent); }
 .gift-message .event-label { color: var(--gift-accent); filter: brightness(1.4); }
 
@@ -201,7 +217,7 @@ body {
     background: var(--redeem-bg);
     border-left-color: var(--redeem-accent);
 }
-
+.redemption-message.align-right       { border-right-color: var(--redeem-accent); }
 .redemption-icon                      { color: var(--redeem-accent); }
 .redemption-message .event-label      { color: var(--redeem-accent); filter: brightness(1.4); }
 
@@ -255,7 +271,7 @@ body {
     background: var(--streak-bg);
     border-left-color: var(--streak-accent);
 }
-
+.streak-message.align-right  { border-right-color: var(--streak-accent); }
 .streak-message .event-icon  { color: var(--streak-accent); }
 .streak-message .event-label { color: var(--streak-accent); filter: brightness(1.4); }
 
@@ -263,6 +279,7 @@ body {
     background: var(--bits-bg);
     border-left-color: var(--bits-accent);
 }
+.bits-message.align-right  { border-right-color: var(--bits-accent); }
 .bits-message .event-icon  { color: var(--bits-accent); }
 .bits-message .event-label { color: var(--bits-accent); filter: brightness(1.4); }
 
@@ -366,6 +383,7 @@ body {
     background: var(--raid-incoming-bg);
     border-left-color: var(--raid-incoming-accent);
 }
+.raid-incoming-message.align-right  { border-right-color: var(--raid-incoming-accent); }
 .raid-incoming-message .event-icon  { color: var(--raid-incoming-accent); }
 .raid-incoming-message .event-label { color: var(--raid-incoming-accent); filter: brightness(1.4); }
 
@@ -373,6 +391,7 @@ body {
     background: var(--raid-outgoing-bg);
     border-left-color: var(--raid-outgoing-accent);
 }
+.raid-outgoing-message.align-right  { border-right-color: var(--raid-outgoing-accent); }
 .raid-outgoing-message .event-icon  { color: var(--raid-outgoing-accent); }
 .raid-outgoing-message .event-label { color: var(--raid-outgoing-accent); filter: brightness(1.4); }
 

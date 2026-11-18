@@ -25,7 +25,8 @@ function subPlanLabel(plan) {
 function displayEventMessage(iconSvg, label, detail, extraMessage = '', messageIsHTML = false, typeClass = '') {
     const container = document.getElementById('chat-container');
     const el = document.createElement('div');
-    el.className = `chat-message event-message${typeClass ? ' ' + typeClass : ''}`;
+    const alignClass = CONFIG.textAlign === 'right' ? ' align-right' : CONFIG.textAlign === 'center' ? ' align-center' : '';
+    el.className = `chat-message event-message${typeClass ? ' ' + typeClass : ''}${alignClass}`;
 
     let messageHTML = '';
     if (extraMessage) {
