@@ -148,9 +148,9 @@ async function _esSubscribeAll(sessionId, channelId) {
         _esSubscribe(sessionId, 'channel.prediction.progress','1', bc),
         _esSubscribe(sessionId, 'channel.prediction.lock',    '1', bc),
         _esSubscribe(sessionId, 'channel.prediction.end',     '1', bc),
-        _esSubscribe(sessionId, 'channel.hype_train.begin',   '1', bc),
-        _esSubscribe(sessionId, 'channel.hype_train.progress','1', bc),
-        _esSubscribe(sessionId, 'channel.hype_train.end',     '1', bc),
+        _esSubscribe(sessionId, 'channel.hype_train.begin',   '2', bc),
+        _esSubscribe(sessionId, 'channel.hype_train.progress','2', bc),
+        _esSubscribe(sessionId, 'channel.hype_train.end',     '2', bc),
     ]);
 }
 
