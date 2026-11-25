@@ -197,6 +197,27 @@ function hideUsernameChangeNotice() {
     document.getElementById('username-change-notice')?.remove();
 }
 
+// Shown once to users who have an existing token but haven't re-authenticated
+// since YACOFO switched from PubSub (now shut down) to EventSub.
+// Dismissed permanently on next login (the yacofo_eventsub_v1 flag is set then).
+function showEventSubMigrationBanner() {
+    if (document.getElementById('eventsub-migration-banner')) return;
+    const banner = document.createElement('div');
+    banner.id        = 'eventsub-migration-banner';
+    banner.className = 'token-expired-banner';
+    banner.innerHTML = `
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        <div>
+            <strong>Major update — please re-authenticate.</strong><br>
+            YACOFO has switched from Twitch PubSub (now shut down) to EventSub.
+            Channel points, raids, polls, predictions, and hype trains require
+            a fresh token to subscribe to the new API.
+            <br><button class="btn-reauth" onclick="loginWithTwitch()">Re-authenticate</button>
+        </div>`;
+    const loginCard = document.querySelector('.login-card');
+    if (loginCard) loginCard.after(banner);
+}
+
 function handleOAuthRedirect() {
     const hash   = window.location.hash;
     const search = window.location.search;
@@ -253,8 +274,11 @@ function handleOAuthRedirect() {
     console.log('[Auth] Token received and stored.');
     localStorage.setItem('twitch_access_token', token);
     localStorage.removeItem('twitch_username');
+    // Mark this user as having completed the EventSub migration re-auth
+    localStorage.setItem('yacofo_eventsub_v1', '1');
     // Clear any leftover expired banner from a previous, now-superseded session
     document.getElementById('token-expired-banner')?.remove();
+    document.getElementById('eventsub-migration-banner')?.remove();
     return true;
 }
 
@@ -277,6 +301,11 @@ window.addEventListener('load', async () => {
                 await fetchAndStoreUsername(token);
                 showNewUrlPanel(token);
             } else {
+                // Show migration banner for users who haven't re-authenticated since
+                // the PubSub → EventSub switch. The flag is set on every fresh login.
+                if (!localStorage.getItem('yacofo_eventsub_v1')) {
+                    showEventSubMigrationBanner();
+                }
                 const username = localStorage.getItem('twitch_username');
                 if (username) {
                     document.getElementById('channel').value           = username;

@@ -1,13 +1,12 @@
 // ─── ui/prediction.js ─────────────────────────────────────────────────────────
 // Renders a persistent prediction widget in the center of the overlay.
-// Subscribes to predictions-channel-v1.<channelId> via PubSub.
+// Subscribes to channel.prediction.* via EventSub.
 //
 // States handled:
-//   event-created  — widget appears with title and two outcomes
-//   event-updated  — live point totals and odds bars animate
-//   event-locked   — betting closes, countdown replaced with "Locked"
-//   event-resolved — winning outcome highlighted, gains shown, animation plays
-//   event-canceled — widget dismissed quietly
+//   begin     — widget appears with title and outcomes
+//   progress  — live point totals and odds bars animate
+//   lock      — betting closes, countdown replaced with "Locked"
+//   end       — winning outcome highlighted, gains shown, animation plays
 
 let _predEl          = null;  // current widget DOM element
 let _predFadeId      = null;  // setTimeout for post-resolution dismiss
@@ -30,22 +29,18 @@ const PRED_COLORS = [
 ];
 
 // ── Entry point ───────────────────────────────────────────────────────────────
-function handlePubSubPrediction(data) {
+// Called from eventsub.js for channel.prediction.* notifications.
+// subscriptionType — the full EventSub subscription type string
+// event            — the EventSub event payload (the prediction object directly)
+function handleEventSubPrediction(subscriptionType, event) {
     if (!CONFIG.showPredictions) return;
 
-    let inner;
-    try { inner = JSON.parse(data.message); } catch { return; }
+    const prediction = event;
 
-    const type       = inner.type;
-    const prediction = inner.data?.event;
-    if (!prediction) return;
+    if (subscriptionType === 'channel.prediction.begin') {
+        _showPrediction(prediction, 'open');
 
-    // Twitch sends everything as event-updated with a status field.
-    // Separate event-locked / event-canceled types don't fire in practice.
-    const status = prediction.status ?? '';
-
-    if (type === 'event-created' || (type === 'event-updated' && status === 'ACTIVE')) {
-        // Prediction open — create or update live bars
+    } else if (subscriptionType === 'channel.prediction.progress') {
         if (_predEl) {
             _updatePredictionBars(prediction, 'open');
             if (!_predCountdownId) _startPredictionCountdown(prediction);
@@ -53,8 +48,7 @@ function handlePubSubPrediction(data) {
             _showPrediction(prediction, 'open');
         }
 
-    } else if (status === 'LOCKED' || type === 'event-locked') {
-        // Betting closed — stop countdown, show lock badge, then dismiss after linger
+    } else if (subscriptionType === 'channel.prediction.lock') {
         if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
         if (_predEl) {
             _updatePredictionBars(prediction, 'locked');
@@ -63,20 +57,18 @@ function handlePubSubPrediction(data) {
         }
         _schedulePredictionDismiss();
 
-    } else if (status === 'RESOLVED' || type === 'event-resolved') {
+    } else if (subscriptionType === 'channel.prediction.end') {
         if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
-        if (_predEl) {
-            _resolvePrediction(prediction);
+        const status = prediction.status ?? '';
+        if (status === 'canceled') {
+            _schedulePredictionDismiss();
         } else {
-            _showPrediction(prediction, 'resolved');
-            setTimeout(() => _resolvePrediction(prediction), 100);
-        }
-        _schedulePredictionDismiss();
-
-    } else if (status === 'CANCELED' || status === 'CANCEL_PENDING' || type === 'event-canceled') {
-        if (_predCountdownId) { clearInterval(_predCountdownId); _predCountdownId = null; }
-        // CANCEL_PENDING lingers until CANCELED confirms, then dismiss after linger time
-        if (status === 'CANCELED') {
+            if (_predEl) {
+                _resolvePrediction(prediction);
+            } else {
+                _showPrediction(prediction, 'resolved');
+                setTimeout(() => _resolvePrediction(prediction), 100);
+            }
             _schedulePredictionDismiss();
         }
     }
@@ -97,19 +89,24 @@ function _showPrediction(prediction, status) {
     if (status === 'open') _startPredictionCountdown(prediction);
 }
 
+// EventSub uses channel_points/users; keep total_points/total_users as fallbacks
+// in case a cached payload from before the migration is replayed.
+function _outcomePoints(outcome) { return outcome.total_points ?? outcome.channel_points ?? 0; }
+function _outcomeUsers(outcome)  { return outcome.total_users  ?? outcome.users           ?? 0; }
+
 // ── Bar / odds update ─────────────────────────────────────────────────────────
 function _updatePredictionBars(prediction, status) {
     if (!_predEl) return;
 
     const outcomes   = prediction.outcomes || [];
-    const totalPts   = outcomes.reduce((s, o) => s + (o.total_points || 0), 0);
+    const totalPts   = outcomes.reduce((s, o) => s + _outcomePoints(o), 0);
 
     outcomes.forEach((outcome, i) => {
         const row = _predEl.querySelector(`[data-outcome-index="${i}"]`);
         if (!row) return;
 
-        const pts    = outcome.total_points || 0;
-        const users  = outcome.total_users  || 0;
+        const pts    = _outcomePoints(outcome);
+        const users  = _outcomeUsers(outcome);
         const pct    = totalPts > 0 ? Math.round((pts / totalPts) * 100) : 50;
         // Multiplier: if you bet on this side and win, you get (totalPts / pts) per point
         const mult   = pts > 0 ? (totalPts / pts).toFixed(1) : '–';
@@ -142,9 +139,9 @@ function _resolvePrediction(prediction) {
 
     const outcomes   = prediction.outcomes || [];
     const winnerId   = prediction.winning_outcome_id;
-    const totalPts   = outcomes.reduce((s, o) => s + (o.total_points || 0), 0);
+    const totalPts   = outcomes.reduce((s, o) => s + _outcomePoints(o), 0);
     const winOutcome = outcomes.find(o => o.id === winnerId);
-    const winPts     = winOutcome?.total_points || 0;
+    const winPts     = _outcomePoints(winOutcome ?? {});
     const multiplier = winPts > 0 ? (totalPts / winPts).toFixed(2) : '1.00';
 
     outcomes.forEach((outcome, i) => {
@@ -176,10 +173,11 @@ function _resolvePrediction(prediction) {
 function _startPredictionCountdown(prediction) {
     if (_predCountdownId) clearInterval(_predCountdownId);
 
-    // predictions_window_seconds from creation time
+    // EventSub uses locks_at (ISO string); prediction_window_seconds as fallback
     const window    = prediction.prediction_window_seconds ?? prediction.prediction_window ?? 0;
     const createdAt = prediction.created_at ? new Date(prediction.created_at).getTime() : Date.now();
-    const endTime   = prediction.locked_at  ? new Date(prediction.locked_at).getTime()
+    const endTime   = prediction.locks_at  ? new Date(prediction.locks_at).getTime()
+                    : prediction.locked_at ? new Date(prediction.locked_at).getTime()
                     : createdAt + (window * 1000);
 
     function tick() {
@@ -214,11 +212,11 @@ function _clearPrediction() {
 // ── HTML builder ──────────────────────────────────────────────────────────────
 function _buildPredictionHTML(prediction, status) {
     const outcomes = prediction.outcomes || [];
-    const totalPts = outcomes.reduce((s, o) => s + (o.total_points || 0), 0);
+    const totalPts = outcomes.reduce((s, o) => s + _outcomePoints(o), 0);
 
     const outcomesHTML = outcomes.map((outcome, i) => {
-        const pts   = outcome.total_points || 0;
-        const users = outcome.total_users  || 0;
+        const pts   = _outcomePoints(outcome);
+        const users = _outcomeUsers(outcome);
         const pct   = totalPts > 0 ? Math.round((pts / totalPts) * 100) : 50;
         const mult  = pts > 0 ? (totalPts / pts).toFixed(1) : '–';
         const colorClass = `outcome-color-${i % PRED_COLORS.length}`;

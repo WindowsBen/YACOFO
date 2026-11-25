@@ -1,12 +1,11 @@
 // ─── ui/hype-train.js ─────────────────────────────────────────────────────────
 // Renders a persistent hype train widget at the top of the overlay.
-// Subscribes to hype-train-events-v1.<channelId> via PubSub.
+// Subscribes to channel.hype_train.* via EventSub.
 //
 // Events handled:
-//   hype-train-start       — widget slides in, progress bar begins filling
-//   hype-train-progression — progress bar updates live
-//   hype-train-level-up    — level badge increments, bar resets, flash animation
-//   hype-train-end         — final level shown, widget lingers then slides out
+//   begin       — widget slides in, progress bar begins filling
+//   progress    — progress bar updates live; triggers level-up animation on lvl change
+//   end         — final level shown, widget lingers then slides out
 //
 // Layout (horizontal bar across top):
 //   [ 🚂 HYPE TRAIN ] [ Level N ] [====progress bar====] [ Xpts / Ypts ] [ 99s ]
@@ -14,36 +13,36 @@
 let _htEl          = null;   // widget DOM element
 let _htFadeId      = null;   // setTimeout for post-end dismiss
 let _htCountdownId = null;   // setInterval for expiry countdown
+let _htLevel       = 1;      // tracks current level to detect level-ups in progress events
 
 // ── Entry point ───────────────────────────────────────────────────────────────
-function handlePubSubHypeTrain(data) {
+// Called from eventsub.js for channel.hype_train.* notifications.
+// subscriptionType — the full EventSub subscription type string
+// event            — the EventSub event payload (the hype train object directly)
+function handleEventSubHypeTrain(subscriptionType, event) {
     if (!CONFIG.showHypeTrain) return;
 
-    let inner;
-    try { inner = JSON.parse(data.message); } catch { return; }
+    const train = event;
 
-    const type  = inner.type;
-    const train = inner.data;
-    if (!train) return;
-
-    if (type === 'hype-train-start') {
+    if (subscriptionType === 'channel.hype_train.begin') {
+        _htLevel = train.level ?? 1;
         _showHypeTrain(train);
 
-    } else if (type === 'hype-train-progression') {
+    } else if (subscriptionType === 'channel.hype_train.progress') {
+        const newLevel = train.level ?? 1;
         if (_htEl) {
-            _updateHypeTrain(train);
+            if (newLevel > _htLevel) {
+                _htLevel = newLevel;
+                _levelUpHypeTrain(train);
+            } else {
+                _updateHypeTrain(train);
+            }
         } else {
+            _htLevel = newLevel;
             _showHypeTrain(train);
         }
 
-    } else if (type === 'hype-train-level-up') {
-        if (_htEl) {
-            _levelUpHypeTrain(train);
-        } else {
-            _showHypeTrain(train);
-        }
-
-    } else if (type === 'hype-train-end') {
+    } else if (subscriptionType === 'channel.hype_train.end') {
         if (_htCountdownId) { clearInterval(_htCountdownId); _htCountdownId = null; }
         if (_htEl) {
             _endHypeTrain(train);
@@ -56,31 +55,18 @@ function handlePubSubHypeTrain(data) {
 }
 
 // ── Data extraction helpers ──────────────────────────────────────────────────
-// Normalises the inconsistent PubSub payload across event types into a single
-// consistent shape: { level, value, goal, expiresAt }
+// Normalises the EventSub payload into { level, value, goal, expiresAt }.
 //
-// hype-train-start:      data.progress.{level,value,goal}  data.expires_at (ms)
-// hype-train-progression:data.progress.{level,value,goal}  data.expires_at (ms)
-// hype-train-level-up:   data.progress.{level,value,goal}  data.time_to_expire (ms)
-// hype-train-end:        same as level-up or progression
+// EventSub begin/progress: level (number), progress (number), goal (number),
+//                           expires_at (ISO string)
+// EventSub end:            level (number), total (number) — no progress/goal
 function _htExtract(train) {
-    const progress = train.progress ?? train;
-
-    // level: object {value,goal,...} on level-up, plain number on start/progression
-    const levelRaw = progress.level ?? train.level ?? 1;
-    const level    = typeof levelRaw === 'object' ? (levelRaw?.value ?? 1) : levelRaw;
-
-    const value = progress.value ?? 0;
-    // goal: may be a top-level field, or nested inside the level object
-    const goal  = progress.goal ?? (typeof levelRaw === 'object' ? levelRaw.goal : null) ?? 1;
-
-    // expiresAt: ms timestamp, field name varies by event type
-    const rawExpiry = train.time_to_expire   // level-up
-                   ?? progress.expires_at    // start/progression nested
-                   ?? train.expires_at       // start/progression top-level
-                   ?? null;
-    const expiresAt = rawExpiry ? Number(rawExpiry) : Date.now() + 300_000;
-
+    const level     = train.level ?? 1;
+    const value     = train.progress ?? train.total ?? 0;
+    // For end events (no goal), use total so the bar shows 100%
+    const goal      = train.goal ?? train.total ?? 1;
+    const expiresAt = train.expires_at ? new Date(train.expires_at).getTime()
+                    : Date.now() + 300_000;
     return { level, value, goal, expiresAt };
 }
 

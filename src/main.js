@@ -66,9 +66,9 @@ client.on('roomstate', (channel, state) => {
         console.log(`[Init] Ready. Emotes: ${Object.keys(emoteMap).length}, Badges: ${Object.keys(badgeMap).length}`);
     });
 
-    // Connect to PubSub for channel point redemptions (catches no-input redeems
-    // which never arrive over IRC)
-    connectPubSub(twitchUserId);
+    // Connect to EventSub for channel point redemptions, raids, polls,
+    // predictions, and hype trains (catches no-input redeems which never arrive via IRC)
+    connectEventSub(twitchUserId);
 });
 
 // Regular chat messages and channel point redemptions (which also arrive as PRIVMSG)
@@ -93,7 +93,7 @@ client.on('action', (channel, tags, message, self) => {
 
 // Note: channel point redeems WITHOUT text input do not arrive over IRC at all.
 // Twitch only sends a PRIVMSG for redeems that have a text input field.
-// Non-text redeems are EventSub/PubSub-only and cannot be caught here.
+// Non-text redeems are EventSub-only and cannot be caught here.
 
 client.on('raw_message', (messageCloned, message) => {
     if (message.command !== 'USERNOTICE') return;

@@ -231,12 +231,8 @@ function handleRaidIncoming(channel, username, viewers, tags) {
 }
 
 // Outgoing raid — we are raiding someone else.
-// Fired via PubSub raid.<channelId> topic.
-// IRC never fires for outgoing raids so PubSub is the only way to catch this.
-//
-// The notification is shown immediately on the first raid_update_v2 (start of
-// the 10-second countdown) and the viewer count is updated in-place as more
-// viewers join. updateRaidOutgoing() handles subsequent count changes.
+// Fired via EventSub channel.raid (from_broadcaster_user_id condition).
+// IRC never fires for outgoing raids so EventSub is the only way to catch this.
 const ICON_RAID_OUT = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2l8 5v2h-2v9h-4v-5H8v5H4V9H2V7l8-5zm4 13v-7.764l-4-2.5-4 2.5V15h2v-5h4v5h2z"/></svg>`;
 
 function handleRaidOutgoing(targetName, viewers) {
@@ -269,7 +265,6 @@ function handleRaidOutgoing(targetName, viewers) {
 }
 
 // Updates the viewer count on an already-rendered outgoing raid notification.
-// Called by handlePubSubRaid on every raid_update_v2/raid_go_v2 after the first.
 function updateRaidOutgoing(viewers) {
     const el = document.getElementById('raid-outgoing-live');
     if (!el) return;

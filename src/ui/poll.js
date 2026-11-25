@@ -1,11 +1,11 @@
 // ─── ui/poll.js ───────────────────────────────────────────────────────────────
 // Renders a persistent poll widget in the center of the overlay.
-// Subscribes to polls.<channelId> via PubSub.
+// Subscribes to channel.poll.* via EventSub.
 //
 // States handled:
-//   poll-created   — widget appears with title and choices, no votes yet
-//   poll-updated   — live vote counts and progress bars animate in
-//   poll-completed — winning choice highlighted, widget lingers then fades out
+//   begin     — widget appears with title and choices, no votes yet
+//   progress  — live vote counts and progress bars animate in
+//   end       — winning choice highlighted, widget lingers then fades out
 //
 // Only one poll can be active at a time. If a new one arrives while one is
 // visible the old widget is replaced immediately.
@@ -14,29 +14,26 @@ let _pollEl     = null;  // current widget DOM element, or null
 let _pollFadeId      = null;  // setTimeout ID for the post-completion fade
 let _pollCountdownId = null;  // setInterval ID for the live countdown
 
-// Entry point called from pubsub.js when a polls.<channelId> message arrives
-function handlePubSubPoll(data) {
+// Entry point called from eventsub.js for channel.poll.* notifications.
+// subscriptionType — the full EventSub subscription type string
+// event            — the EventSub event payload (the poll object directly)
+function handleEventSubPoll(subscriptionType, event) {
     if (!CONFIG.showPolls) return;
 
-    let inner;
-    try { inner = JSON.parse(data.message); } catch (e) { console.error('[Poll] parse error', e); return; }
+    const poll = event;
 
-    const type = inner.type;
-    const poll = inner.data?.poll;
-    if (!poll) return;
-
-    if (type === 'POLL_CREATE') {
+    if (subscriptionType === 'channel.poll.begin') {
         _showPoll(poll, false);
-    } else if (type === 'POLL_UPDATE') {
-        // If a widget already exists update it in place, otherwise create it
+
+    } else if (subscriptionType === 'channel.poll.progress') {
         if (_pollEl) {
             _updatePollBars(poll, false);
-            // Restart countdown in case ended_at was just provided in this update
             if (!_pollCountdownId) _startCountdown(poll);
         } else {
             _showPoll(poll, false);
         }
-    } else if (type === 'POLL_COMPLETE' || type === 'POLL_TERMINATE') {
+
+    } else if (subscriptionType === 'channel.poll.end') {
         if (_pollCountdownId) { clearInterval(_pollCountdownId); _pollCountdownId = null; }
         if (_pollEl) {
             _updatePollBars(poll, true);
@@ -144,10 +141,12 @@ function _clearPoll() {
     if (_pollEl)          { _pollEl.remove(); _pollEl = null; }
 }
 
-// Returns total votes for a choice (bits + channel points combined)
+// Returns total votes for a choice.
+// EventSub: choice.votes is a plain number.
+// PubSub (legacy): choice.votes was an object with a .total field.
 function _choiceVotes(choice) {
-    return (choice.votes?.total ?? 0)
-        || (choice.total_votes ?? 0);
+    if (typeof choice.votes === 'number') return choice.votes;
+    return choice.votes?.total ?? choice.total_votes ?? 0;
 }
 
 // Builds the full inner HTML for a poll widget
