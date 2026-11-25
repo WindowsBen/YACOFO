@@ -140,6 +140,7 @@ async function _esSubscribeAll(sessionId, channelId) {
     const bc = { broadcaster_user_id: channelId };
     await Promise.allSettled([
         _esSubscribe(sessionId, 'channel.channel_points_custom_reward_redemption.add', '1', bc),
+        _esSubscribe(sessionId, 'channel.follow',             '2', { broadcaster_user_id: channelId, moderator_user_id: channelId }),
         _esSubscribe(sessionId, 'channel.raid',               '1', { from_broadcaster_user_id: channelId }),
         _esSubscribe(sessionId, 'channel.poll.begin',         '1', bc),
         _esSubscribe(sessionId, 'channel.poll.progress',      '1', bc),
@@ -160,6 +161,9 @@ function _esDispatch(subscriptionType, event) {
     switch (subscriptionType) {
         case 'channel.channel_points_custom_reward_redemption.add':
             _esHandleRedemption(event);
+            break;
+        case 'channel.follow':
+            handleFollowEvent(event.user_name || event.user_login || '');
             break;
         case 'channel.raid':
             _esHandleRaid(event);

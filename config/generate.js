@@ -93,6 +93,11 @@ function generateLink() {
         showStreaks && `streakBg=${c8('streakBg','streakBgOpacity')}`,
         showStreaks && streakLabel && `streakLabel=${encodeURIComponent(streakLabel)}`,
 
+        `showFollows=${ch('showFollows') ? '1':'0'}`,
+        ch('showFollows') && `followAccent=${c8('followAccent','followAccentOpacity')}`,
+        ch('showFollows') && `followBg=${c8('followBg','followBgOpacity')}`,
+        ch('showFollows') && v('followLabel').trim() && `followLabel=${encodeURIComponent(v('followLabel').trim())}`,
+
         `showRaidIncoming=${ch('showRaidIncoming') ? '1':'0'}`,
         ch('showRaidIncoming') && `raidIncomingAccent=${c8('raidIncomingAccent','raidIncomingAccentOpacity')}`,
         ch('showRaidIncoming') && `raidIncomingBg=${c8('raidIncomingBg','raidIncomingBgOpacity')}`,
@@ -213,6 +218,10 @@ const CONFIG_FIELDS = [
     { id: 'streakAccent',       type: 'text' }, { id: 'streakAccentOpacity',   type: 'text' },
     { id: 'streakBg',           type: 'text' }, { id: 'streakBgOpacity',       type: 'text' },
     { id: 'streakLabel',        type: 'text' },
+    { id: 'showFollows',        type: 'check' },
+    { id: 'followAccent',       type: 'text' }, { id: 'followAccentOpacity',   type: 'text' },
+    { id: 'followBg',           type: 'text' }, { id: 'followBgOpacity',       type: 'text' },
+    { id: 'followLabel',        type: 'text' },
     // Raids
     { id: 'showRaidIncoming',       type: 'check' },
     { id: 'raidIncomingAccent',     type: 'text' }, { id: 'raidIncomingAccentOpacity', type: 'text' },
@@ -296,7 +305,7 @@ const URL_COLOR_PAIRS = {
 // Checkboxes encoded as '1'/'0' in the URL, same id in both places
 const URL_CHECKBOX_FIELDS = [
     'showResubs', 'showGifts', 'showBits', 'showRedeems', 'showBans', 'showTimeouts',
-    'showHighlights', 'showStreaks', 'showRaidIncoming', 'showRaidOutgoing',
+    'showHighlights', 'showStreaks', 'showFollows', 'showRaidIncoming', 'showRaidOutgoing',
     'showPolls', 'showPredictions', 'showHypeTrain',
     'showBadgeBroadcaster', 'showBadgeModerator', 'showBadgeVIP', 'showBadgeSubscriber',
     'showBadgeCustom', 'showBadgeFFZ', 'showBadgeChatterino', 'showBadge7TV',

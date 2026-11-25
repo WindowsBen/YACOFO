@@ -262,6 +262,31 @@
                     </div>
                 </div>
             </div>
+            <div class="event-type-block">
+                <label class="checkbox-wrapper"><input type="checkbox" id="showFollows" onchange="toggleEventOptions('showFollows','opts-follows')"><div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17L4 12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><span class="cb-label"><strong>Follows</strong></span></label>
+                <div class="event-options" id="opts-follows">
+                    <div class="event-options-inner">
+                        <div class="event-option-row">
+                            <span class="option-label">Accent</span>
+                            <input type="color" id="followAccent" value="#00C853">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" id="followAccentOpacity" min="0" max="100" value="100" class="opacity-slider">
+                            <span class="opacity-label" id="followAccentOpacityLabel">100%</span>
+                        </div>
+                        <div class="event-option-row">
+                            <span class="option-label">Background</span>
+                            <input type="color" id="followBg" value="#001a0e">
+                            <span class="opacity-tag">Opacity</span>
+                            <input type="range" id="followBgOpacity" min="0" max="100" value="80" class="opacity-slider">
+                            <span class="opacity-label" id="followBgOpacityLabel">80%</span>
+                        </div>
+                        <div class="text-override-row">
+                            <span class="option-label">Label</span>
+                            <input type="text" id="followLabel" placeholder="e.g. just followed!">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="tab-section">

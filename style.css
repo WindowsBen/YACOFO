@@ -379,6 +379,14 @@ body {
 
 
 /* ─── Raid messages ─────────────────────────────────────────────────────────── */
+.follow-message {
+    background: var(--follow-bg);
+    border-left-color: var(--follow-accent);
+}
+.follow-message.align-right  { border-right-color: var(--follow-accent); }
+.follow-message .event-icon  { color: var(--follow-accent); }
+.follow-message .event-label { color: var(--follow-accent); filter: brightness(1.4); }
+
 .raid-incoming-message {
     background: var(--raid-incoming-bg);
     border-left-color: var(--raid-incoming-accent);

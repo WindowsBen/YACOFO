@@ -68,6 +68,7 @@ const CONFIG = {
     showRedeems:    params.get('showRedeems')    === '1',
     showHighlights: params.get('showHighlights') === '1',
     showStreaks:    params.get('showStreaks')     === '1',
+    showFollows:   params.get('showFollows')    === '1',
 
     // Per-event label overrides — empty string means use the built-in default
     resubLabel:   params.get('resubLabel')   || '',
@@ -75,6 +76,7 @@ const CONFIG = {
     bitsLabel:    params.get('bitsLabel')    || '',
     redeemLabel:  params.get('redeemLabel')  || '',
     streakLabel:  params.get('streakLabel')  || '',
+    followLabel:  params.get('followLabel')  || '',
 
     // Custom font — CSS URL; font-family name is extracted from the stylesheet at load time
     fontUrl: params.get('fontUrl') || '',
@@ -194,6 +196,8 @@ const cssVars = {
     '--poll-winner-color':    hex8ToCss(params.get('pollWinner'), '#FFD700FF'),
     '--raid-outgoing-accent': hex8ToCss(params.get('raidOutgoingAccent'), '#FF8C00FF'),
     '--raid-outgoing-bg':     hex8ToCss(params.get('raidOutgoingBg'),     '#2a1800CC'),
+    '--follow-accent':        hex8ToCss(params.get('followAccent'),        '#00C853FF'),
+    '--follow-bg':            hex8ToCss(params.get('followBg'),            '#001a0eCC'),
 };
 for (const [key, val] of Object.entries(cssVars)) {
     document.documentElement.style.setProperty(key, val);

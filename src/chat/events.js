@@ -215,6 +215,16 @@ function handleWatchStreak(tags, message) {
     displayEventMessage(ICON_STREAK, name, detail, parsedMsg, true, 'streak-message');
 }
 
+// ── Follows ───────────────────────────────────────────────────────────────────
+
+const ICON_FOLLOW = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM3 15a5 5 0 0110 0H3zm13-6a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V9z"/></svg>`;
+
+function handleFollowEvent(username) {
+    if (!CONFIG.showFollows) return;
+    const detail = CONFIG.followLabel || 'just followed!';
+    displayEventMessage(ICON_FOLLOW, username, detail, '', false, 'follow-message');
+}
+
 // ── Raids ──────────────────────────────────────────────────────────────────────
 
 const ICON_RAID_IN = `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L2 7v2h2v9h4v-5h4v5h4V9h2V7L10 2z"/></svg>`;
